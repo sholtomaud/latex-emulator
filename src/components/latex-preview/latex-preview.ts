@@ -38,8 +38,14 @@ export class LatexPreviewComponent extends BaseComponent {
     this.setUpFrameDocument();
     this.render(documentStore.getState().source);
 
-    new ResizeObserver(() => this.fitToPane()).observe(this.frame);
-    new ResizeObserver(() => this.trackPageHeight()).observe(this.page!);
+    // Layout changes are deferred a frame so observers never re-trigger
+    // themselves within one frame ("ResizeObserver loop" errors).
+    new ResizeObserver(() =>
+      requestAnimationFrame(() => this.fitToPane())
+    ).observe(this.frame);
+    new ResizeObserver(() =>
+      requestAnimationFrame(() => this.trackPageHeight())
+    ).observe(this.page!);
 
     const renderLater = debounce(
       (source: string) => this.render(source),

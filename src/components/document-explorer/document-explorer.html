@@ -1,0 +1,49 @@
+<nav class="explorer" aria-label="Documents">
+  <div class="explorer-header">
+    <h2 class="explorer-title">Documents</h2>
+    <div class="explorer-actions">
+      <button
+        type="button"
+        class="icon-button new-doc"
+        aria-label="New document"
+        title="New document"
+      >
+        <span aria-hidden="true">+</span>
+      </button>
+      <button
+        type="button"
+        class="icon-button import-doc"
+        aria-label="Import .tex file"
+        title="Import a .tex file"
+      >
+        <span aria-hidden="true">⇪</span>
+      </button>
+      <input
+        class="import-input"
+        type="file"
+        accept=".tex,text/x-tex,application/x-tex,text/plain"
+        hidden
+      />
+    </div>
+  </div>
+  <ul class="doc-list"></ul>
+  <template class="doc-item-template">
+    <li class="doc-item">
+      <button type="button" class="doc-open"></button>
+      <span class="doc-actions">
+        <button type="button" class="icon-button doc-rename">
+          <span aria-hidden="true">✎</span>
+        </button>
+        <button type="button" class="icon-button doc-download">
+          <span aria-hidden="true">⤓</span>
+        </button>
+        <button type="button" class="icon-button doc-delete">
+          <span aria-hidden="true">✕</span>
+        </button>
+      </span>
+    </li>
+  </template>
+  <template class="doc-rename-template">
+    <input class="doc-name-input" type="text" aria-label="Document name" />
+  </template>
+</nav>

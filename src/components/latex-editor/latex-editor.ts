@@ -34,6 +34,13 @@ export class LatexEditorComponent extends BaseComponent {
     );
     host.removeAttribute('data-loading');
 
+    // Another document was opened: show its text.
+    documentStore.addEventListener('change', ((e: CustomEvent) => {
+      const { source } = e.detail as { source: string };
+      if (this.editor && this.editor.getValue() !== source)
+        this.editor.setValue(source);
+    }) as EventListener);
+
     const show = ({ source, diagnostics }: DiagnosticsState) =>
       this.editor?.setDiagnostics(source, diagnostics);
     show(diagnosticsStore.getState());
