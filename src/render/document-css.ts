@@ -1,5 +1,6 @@
 import type { ArticleGeometry, SizeName } from '../latex/classes/article.ts';
 import { toBp } from '../latex/classes/article.ts';
+import { formatToday } from './typeset-text.ts';
 
 /**
  * Latin Modern's typographic ascent/descent (OS/2 sTypo, 806/194 per 1000).
@@ -190,6 +191,50 @@ export function geometryCss(g: ArticleGeometry): string {
     font-family: var(--rm-family), serif;
     font-size: ${pt(g.fontSize)};
     line-height: ${pt(g.baselineskip)};
+  }
+}`;
+}
+
+/** Stamp printed on preprints (see Workspace.preprintOf). */
+export interface PreprintStampInput {
+  version: string;
+  /** ms since the epoch */
+  date: number;
+  sha256: string;
+}
+
+/** A CSS string literal; quotes, backslashes and newlines escaped. */
+const cssString = (s: string) =>
+  `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\A ')}"`;
+
+/**
+ * Footer stamp for preprints: version and date bottom-left, short SHA-256
+ * bottom-right, on the page number's baseline in \footnotesize. App-level
+ * only; the document's LaTeX is not changed (AGENTS.md §14 rule).
+ */
+export function preprintCss(
+  stamp: PreprintStampInput,
+  g: ArticleGeometry
+): string {
+  const { fontSize, baselineskip } = g.sizes.footnotesize;
+  // Same baseline as the page number: \footskip below the text block.
+  const baselineInLine = (baselineskip - fontSize) / 2 + FONT_ASCENT * fontSize;
+  const box = (content: string, family: string) => `
+    content: ${cssString(content)};
+    vertical-align: top;
+    padding-top: ${pt(g.footskip - baselineInLine)};
+    font-family: ${family};
+    font-size: ${pt(fontSize)};
+    line-height: ${pt(baselineskip)};
+    white-space: nowrap;`;
+  const left = `Preprint · v${stamp.version} · ${formatToday(new Date(stamp.date))}`;
+  const right = `SHA-256 ${stamp.sha256.slice(0, 16)}`;
+  return `@page {
+  @bottom-left {${box(left, 'var(--rm-family), serif')}
+    text-align: left;
+  }
+  @bottom-right {${box(right, "'LM Mono 10', monospace")}
+    text-align: right;
   }
 }`;
 }

@@ -6,6 +6,7 @@ import {
   FONT_FACES,
   fontFaceCss,
   geometryCss,
+  preprintCss,
 } from './document-css.ts';
 
 const g11 = articleGeometry({ size: 11, paper: 'a4paper' });
@@ -84,5 +85,46 @@ describe('fontFaceCss', () => {
 
   test('a missing URL omits that face rather than emitting a broken rule', () => {
     assert.strictEqual(fontFaceCss({}), '');
+  });
+});
+
+describe('preprintCss', () => {
+  const stamp = {
+    version: '0.1.1',
+    date: new Date(2026, 9, 31).getTime(),
+    sha256: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+  };
+
+  test('puts version, date and short hash in the footer margin boxes', () => {
+    const css = preprintCss(stamp, g11);
+    assert.match(
+      css,
+      /@bottom-left \{[^}]*content: "Preprint · v0\.1\.1 · October 31, 2026"/
+    );
+    assert.match(
+      css,
+      /@bottom-right \{[^}]*content: "SHA-256 ba7816bf8f01cfea"/
+    );
+  });
+
+  test('sits on the same baseline as the page number', () => {
+    const page = geometryCss(g11).match(
+      /@bottom-center \{[^}]*padding-top: ([\d.]+)pt/
+    )![1];
+    const css = preprintCss(stamp, g11);
+    for (const box of ['bottom-left', 'bottom-right']) {
+      const m = css.match(
+        new RegExp(`@${box} \\{[^}]*padding-top: ([\\d.]+)pt`)
+      );
+      assert.ok(m, box);
+      // Footnotesize text, same baseline: padding differs only by the smaller ascent.
+      assert.ok(Number(m[1]) > Number(page));
+    }
+  });
+
+  test('escapes anything that could break out of a CSS string', () => {
+    const css = preprintCss({ ...stamp, version: '1"} body{x' }, g11);
+    assert.ok(!css.includes('1"}'));
+    assert.match(css, /v1\\"\} body\{x/);
   });
 });

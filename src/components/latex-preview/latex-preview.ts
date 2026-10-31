@@ -2,10 +2,16 @@ import { BaseComponent } from '../../core/base-component.ts';
 import { documentStore } from '../../store/document-store.ts';
 import type { DocumentState } from '../../store/document-store.ts';
 import { printRequests } from '../../store/print-requests.ts';
+import type { PrintJob } from '../../store/print-requests.ts';
 import { diagnosticsStore } from '../../store/diagnostics-store.ts';
 import { renderDocument } from '../../render/render-document.ts';
 import { toDom } from '../../render/to-dom.ts';
-import { fontFaceCss, geometryCss } from '../../render/document-css.ts';
+import {
+  fontFaceCss,
+  geometryCss,
+  preprintCss,
+} from '../../render/document-css.ts';
+import type { ArticleGeometry } from '../../latex/classes/article.ts';
 import { FONT_URLS } from '../../render/fonts.ts';
 import { fitScale } from '../../render/fit-scale.ts';
 import { debounce } from '../../util/debounce.ts';
@@ -27,6 +33,8 @@ export class LatexPreviewComponent extends BaseComponent {
   frame!: HTMLIFrameElement;
   page: HTMLElement | null = null;
   geometryStyle: HTMLStyleElement | null = null;
+  preprintStyle: HTMLStyleElement | null = null;
+  geometry: ArticleGeometry | null = null;
   title = 'document';
 
   constructor() {
@@ -53,7 +61,10 @@ export class LatexPreviewComponent extends BaseComponent {
     );
     documentStore.addEventListener('change', ((e: CustomEvent<DocumentState>) =>
       renderLater(e.detail.source)) as EventListener);
-    printRequests.addEventListener('print', () => void this.print());
+    printRequests.addEventListener(
+      'print',
+      (e) => void this.print((e as CustomEvent<PrintJob>).detail)
+    );
   }
 
   /** Build the iframe's document skeleton with DOM APIs (never innerHTML). */
@@ -69,7 +80,16 @@ export class LatexPreviewComponent extends BaseComponent {
     this.geometryStyle = doc.createElement('style');
     const base = doc.createElement('style');
     base.textContent = documentCss;
-    doc.head.replaceChildren(charset, fonts, this.geometryStyle, base);
+    // Filled only while printing a preprint.
+    this.preprintStyle = doc.createElement('style');
+    this.preprintStyle.dataset.preprint = '';
+    doc.head.replaceChildren(
+      charset,
+      fonts,
+      this.geometryStyle,
+      base,
+      this.preprintStyle
+    );
 
     this.page = doc.createElement('div');
     this.page.className = 'latex-page';
@@ -113,6 +133,7 @@ export class LatexPreviewComponent extends BaseComponent {
   render(source: string) {
     if (!this.page) return;
     const result = renderDocument(source);
+    this.geometry = result.geometry;
     const css = geometryCss(result.geometry);
     if (this.geometryStyle && this.geometryStyle.textContent !== css) {
       this.geometryStyle.textContent = css;
@@ -123,15 +144,28 @@ export class LatexPreviewComponent extends BaseComponent {
     this.page.replaceChildren(toDom(result.tree, this.page.ownerDocument));
   }
 
-  /** Print only the document; Chromium names the PDF after the iframe's title. */
-  async print() {
+  /**
+   * Print only the document; Chromium names the PDF after the iframe's title.
+   * A job can print another source (a saved version) with a preprint stamp;
+   * the preview is restored afterwards.
+   */
+  async print(job: PrintJob = {}) {
     const win = this.frame.contentWindow;
     const doc = this.frame.contentDocument;
     if (!win || !doc) return;
-    doc.title = this.title;
+    const other = job.source !== undefined;
+    if (other) this.render(job.source!);
+    if (job.stamp && this.geometry && this.preprintStyle)
+      this.preprintStyle.textContent = preprintCss(job.stamp, this.geometry);
+    doc.title = job.title ?? this.title;
     await doc.fonts.ready;
     win.focus();
-    win.print();
+    try {
+      win.print(); // blocks until the print dialog closes
+    } finally {
+      if (this.preprintStyle) this.preprintStyle.textContent = '';
+      if (other) this.render(documentStore.getState().source);
+    }
   }
 }
 
