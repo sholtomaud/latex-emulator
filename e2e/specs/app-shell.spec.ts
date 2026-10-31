@@ -83,6 +83,20 @@ test.describe('app shell', () => {
     expect(pageRight).toBeLessThanOrEqual(frameWidth);
   });
 
+  test('every toolbar button fits on a phone screen', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const name of [
+      'Toggle documents',
+      'Download .tex',
+      'Download Preprint',
+      'Download PDF',
+    ]) {
+      const box = (await page.getByRole('button', { name }).boundingBox())!;
+      expect(box.x, name).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width, name).toBeLessThanOrEqual(390);
+    }
+  });
+
   test('stacks the panes on narrow screens', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
     const editorBox = await page.locator('latex-editor').boundingBox();

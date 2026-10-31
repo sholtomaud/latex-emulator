@@ -51,6 +51,9 @@ export class AppShellComponent extends BaseComponent {
     this.querySelector('.tex-button')!.addEventListener('click', () =>
       workspaceActions.download()
     );
+    this.querySelector('.preprint-button')!.addEventListener('click', () =>
+      workspaceActions.preprint()
+    );
     this.querySelector('.print-button')!.addEventListener('click', () =>
       requestPrint()
     );

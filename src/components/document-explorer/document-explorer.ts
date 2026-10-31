@@ -2,7 +2,9 @@ import { BaseComponent } from '../../core/base-component.ts';
 import { workspaceStore } from '../../store/workspace-store.ts';
 import type { WorkspaceStoreState } from '../../store/workspace-store.ts';
 import { workspaceActions } from '../../workspace/workspace-service.ts';
-import type { DocumentMeta } from '../../workspace/workspace.ts';
+import type { DocumentMeta, VersionMeta } from '../../workspace/workspace.ts';
+import type { Bump } from '../../workspace/versions.ts';
+import { shortHash } from '../../workspace/versions.ts';
 import template from './document-explorer.html?raw';
 import style from './document-explorer.css?raw';
 
@@ -12,6 +14,9 @@ export class DocumentExplorerComponent extends BaseComponent {
   list!: HTMLUListElement;
   itemTemplate!: HTMLTemplateElement;
   renameTemplate!: HTMLTemplateElement;
+  versionList!: HTMLUListElement;
+  versionTemplate!: HTMLTemplateElement;
+  versionsEmpty!: HTMLElement;
   /** Document being renamed; re-renders leave its input alone. */
   renaming: string | null = null;
 
@@ -24,6 +29,13 @@ export class DocumentExplorerComponent extends BaseComponent {
     this.itemTemplate = this.querySelector('.doc-item-template')!;
     this.renameTemplate = this.querySelector('.doc-rename-template')!;
     const input = this.querySelector<HTMLInputElement>('.import-input')!;
+    this.versionList = this.querySelector('.version-list')!;
+    this.versionTemplate = this.querySelector('.version-item-template')!;
+    this.versionsEmpty = this.querySelector('.versions-empty')!;
+    const bump = this.querySelector<HTMLSelectElement>('.version-bump')!;
+    this.querySelector('.save-version')!.addEventListener('click', () =>
+      workspaceActions.saveVersion(bump.value as Bump)
+    );
 
     this.querySelector('.new-doc')!.addEventListener('click', () =>
       workspaceActions.create()
@@ -43,11 +55,41 @@ export class DocumentExplorerComponent extends BaseComponent {
     ) => this.render(e.detail)) as EventListener);
   }
 
-  render({ documents, activeId }: WorkspaceStoreState) {
+  render({ documents, activeId, versions }: WorkspaceStoreState) {
     const items = documents.map((doc) =>
       this.renderItem(doc, doc.id === activeId)
     );
     this.list.replaceChildren(...items);
+    this.versionList.replaceChildren(
+      ...versions.map((v) => this.renderVersion(v))
+    );
+    this.versionsEmpty.hidden = versions.length > 0;
+  }
+
+  renderVersion(v: VersionMeta): HTMLLIElement {
+    const li = (
+      this.versionTemplate.content.cloneNode(true) as DocumentFragment
+    ).firstElementChild as HTMLLIElement;
+    li.title = `v${v.version} — SHA-256 ${v.sha256}`;
+    li.querySelector('.version-label')!.textContent = `v${v.version}`;
+    const time = li.querySelector('time')!;
+    time.dateTime = new Date(v.createdAt).toISOString();
+    time.textContent = new Date(v.createdAt).toLocaleString(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+    li.querySelector('.version-hash')!.textContent = shortHash(v.sha256);
+    const download = li.querySelector<HTMLButtonElement>('.version-download')!;
+    download.setAttribute('aria-label', `Download v${v.version} .tex`);
+    download.title = 'Download this version as .tex';
+    download.addEventListener('click', () =>
+      workspaceActions.downloadVersion(v.id)
+    );
+    const preprint = li.querySelector<HTMLButtonElement>('.version-preprint')!;
+    preprint.setAttribute('aria-label', `Preprint v${v.version}`);
+    preprint.title = 'Download this version as a preprint PDF';
+    preprint.addEventListener('click', () => workspaceActions.preprint(v.id));
+    return li;
   }
 
   renderItem(doc: DocumentMeta, active: boolean): HTMLLIElement {
