@@ -42,5 +42,8 @@
     "compression": "^1.8.2"
   },
   "description": "A LaTeX editing PWA built on Boba: Monaco editor, live diagnostics, and print-CSS PDF output.",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "monaco-editor": "0.57.0"
+  }
 }

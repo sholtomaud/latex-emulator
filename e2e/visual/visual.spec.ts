@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { editorReady } from '../support/editor.ts';
 
 /**
  * Visual regression snapshots. Baselines live in e2e/visual/__screenshots__/
@@ -12,6 +13,13 @@ async function openApp(page: Page, width = 1280, height = 800) {
   await page.goto('/');
   await expect(
     page.frameLocator('latex-preview iframe').locator('.latex-page p').first()
+  ).toBeVisible();
+  await editorReady(page);
+  // Monaco tokenizes after first paint; wait for highlighted tokens.
+  await expect(
+    page
+      .locator('latex-editor .view-lines span', { hasText: /^\\section$/ })
+      .first()
   ).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
 }

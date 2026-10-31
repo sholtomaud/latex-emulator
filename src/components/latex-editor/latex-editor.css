@@ -1,19 +1,13 @@
 :host {
   display: flex;
+  min-height: 0;
 }
 
-:host .source {
+:host .host {
   flex: 1;
-  width: 100%;
-  margin: 0;
-  padding: 1rem;
-  border: none;
-  resize: none;
-  outline: none;
-  background: var(--boba-bg);
-  color: var(--boba-text);
-  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  tab-size: 2;
+  min-width: 0;
+  min-height: 0;
+  /* Monaco measures its container; keep it a real box. */
+  position: relative;
+  overflow: hidden;
 }

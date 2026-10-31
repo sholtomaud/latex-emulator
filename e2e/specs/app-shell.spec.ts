@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setSource } from '../support/editor.ts';
 
 test.describe('app shell', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,7 +8,7 @@ test.describe('app shell', () => {
 
   test('shows the editor and preview side by side', async ({ page }) => {
     await expect(page).toHaveTitle('LaTeX Emulator');
-    const editor = page.getByRole('textbox', { name: 'LaTeX source' });
+    const editor = page.locator('latex-editor');
     const preview = page.locator('latex-preview iframe');
     await expect(editor).toBeVisible();
     await expect(preview).toBeVisible();
@@ -29,8 +30,8 @@ test.describe('app shell', () => {
   });
 
   test('updates the preview as the user types', async ({ page }) => {
-    const editor = page.getByRole('textbox', { name: 'LaTeX source' });
-    await editor.fill(
+    await setSource(
+      page,
       '\\begin{document}\nFirst paragraph.\n\nSecond <b>paragraph</b>.\n\\end{document}'
     );
 
@@ -60,9 +61,7 @@ test.describe('app shell', () => {
 
   test('stacks the panes on narrow screens', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
-    const editorBox = await page
-      .getByRole('textbox', { name: 'LaTeX source' })
-      .boundingBox();
+    const editorBox = await page.locator('latex-editor').boundingBox();
     const previewBox = await page.locator('latex-preview iframe').boundingBox();
     expect(previewBox!.y).toBeGreaterThan(editorBox!.y);
   });
