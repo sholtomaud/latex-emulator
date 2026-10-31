@@ -19,6 +19,30 @@ test.describe('app shell', () => {
     expect(previewBox!.x).toBeGreaterThan(editorBox!.x);
   });
 
+  test('editor and preview share the width, with or without the explorer', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const width = async (selector: string) =>
+      (await page.locator(selector).boundingBox())!.width;
+    await expect(page.locator('latex-editor .monaco-editor')).toBeVisible();
+    // Explorer closed: two equal halves.
+    expect(
+      Math.abs((await width('latex-editor')) - (await width('latex-preview')))
+    ).toBeLessThan(4);
+    expect(await width('latex-editor')).toBeGreaterThan(600);
+    // Explorer open: it takes a sidebar; the halves stay equal and usable.
+    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await expect(
+      page.getByRole('navigation', { name: 'Documents' })
+    ).toBeVisible();
+    expect(await width('document-explorer')).toBeGreaterThan(200);
+    expect(
+      Math.abs((await width('latex-editor')) - (await width('latex-preview')))
+    ).toBeLessThan(4);
+    expect(await width('latex-editor')).toBeGreaterThan(450);
+  });
+
   test('renders the sample document body, not the preamble', async ({
     page,
   }) => {

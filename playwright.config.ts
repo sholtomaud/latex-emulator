@@ -67,7 +67,9 @@ export default defineConfig({
     toHaveScreenshot: {
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.002,
+      // Runs in the pinned image are deterministic; keep this tight so small
+      // UI changes (a new toolbar button) fail instead of passing silently.
+      maxDiffPixelRatio: 0.0002,
     },
   },
   snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',

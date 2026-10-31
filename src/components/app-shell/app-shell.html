@@ -1,11 +1,36 @@
 <div class="shell">
   <header class="toolbar">
-    <h1 class="brand">LaTeX Emulator</h1>
-    <button type="button" class="print-button" title="Download PDF (Ctrl/⌘ P)">
-      Download PDF
+    <button
+      type="button"
+      class="toolbar-icon explorer-toggle"
+      aria-label="Toggle documents"
+      aria-controls="explorer"
+      aria-expanded="false"
+      title="Documents (Ctrl/⌘ B)"
+    >
+      <span aria-hidden="true">☰</span>
     </button>
+    <h1 class="brand">LaTeX Emulator</h1>
+    <span class="doc-name" aria-live="polite"></span>
+    <div class="toolbar-actions">
+      <button
+        type="button"
+        class="toolbar-button tex-button"
+        title="Download the LaTeX source"
+      >
+        Download .tex
+      </button>
+      <button
+        type="button"
+        class="toolbar-button primary print-button"
+        title="Download PDF (Ctrl/⌘ P)"
+      >
+        Download PDF
+      </button>
+    </div>
   </header>
   <main class="panes">
+    <document-explorer id="explorer" hidden></document-explorer>
     <section class="pane" aria-label="LaTeX source">
       <latex-editor></latex-editor>
     </section>

@@ -30,6 +30,16 @@ test.describe('visual', () => {
     await expect(page).toHaveScreenshot('app-shell-desktop.png');
   });
 
+  test('app shell with the document explorer open', async ({ page }) => {
+    await openApp(page);
+    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await expect(
+      page.getByRole('navigation', { name: 'Documents' })
+    ).toBeVisible();
+    await page.mouse.move(0, 0); // no hover state
+    await expect(page).toHaveScreenshot('app-shell-explorer.png');
+  });
+
   test('app shell, mobile', async ({ page }) => {
     await openApp(page, 390, 844);
     await expect(page).toHaveScreenshot('app-shell-mobile.png');
