@@ -1,0 +1,44 @@
+{
+  "name": "latex-emulator",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/main.ts",
+  "engines": {
+    "node": ">=25.0.0"
+  },
+  "scripts": {
+    "start": "vite --host",
+    "dev": "vite --host",
+    "build": "vite build --base ./",
+    "preview": "vite preview",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "typecheck": "tsc -p .",
+    "lint": "oxlint && prettier --check \"src/**/*.{ts,js,css}\" \"e2e/**/*.ts\" playwright.config.ts",
+    "format": "prettier --write \"src/**/*.{ts,js,css}\" \"e2e/**/*.ts\" playwright.config.ts",
+    "e2e": "playwright test --project=functional-dev --project=functional-prod",
+    "check": "npm run typecheck && npm run lint && npm run test:coverage && npm run build",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-exclude=\"src/**/*.test.ts\" --test-coverage-exclude=\"src/components/**\" --test-coverage-exclude=\"src/core/router/router.ts\" --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90 \"src/**/*.test.ts\"",
+    "e2e:smoke": "playwright test --project=smoke",
+    "e2e:visual": "scripts/playwright-docker.sh test --project=visual",
+    "e2e:visual:update": "scripts/playwright-docker.sh test --project=visual --update-snapshots"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.0",
+    "@tailwindcss/postcss": "^4.3.2",
+    "@types/node": "^26.1.1",
+    "autoprefixer": "^10.5.2",
+    "oxlint": "^1.89.0",
+    "playwright": "1.62.0",
+    "postcss": "^8.5.16",
+    "prettier": "^3.9.10",
+    "serve": "^14.2.6",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4"
+  },
+  "overrides": {
+    "compression": "^1.8.2"
+  },
+  "description": "A LaTeX editing PWA built on Boba: Monaco editor, live diagnostics, and print-CSS PDF output.",
+  "private": true
+}

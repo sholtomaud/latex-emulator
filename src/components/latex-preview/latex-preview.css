@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+}
+
+:host .frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #e5e7eb;
+}
