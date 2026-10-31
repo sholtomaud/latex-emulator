@@ -33,4 +33,26 @@ describe('MemoryRepository', () => {
     (await repo.get('a'))!.source = 'changed too';
     assert.strictEqual((await repo.get('a'))!.source, 'src a');
   });
+
+  test('versions are stored per document, newest first, and deleted together', async () => {
+    const repo = new MemoryRepository();
+    const v = (id: string, documentId: string, createdAt: number) => ({
+      id,
+      documentId,
+      version: '0.1.0',
+      createdAt,
+      sha256: 'x',
+      source: 's',
+    });
+    await repo.addVersion(v('1', 'a', 1));
+    await repo.addVersion(v('2', 'a', 5));
+    await repo.addVersion(v('3', 'b', 3));
+    assert.deepStrictEqual(
+      (await repo.listVersions('a')).map((x) => x.id),
+      ['2', '1']
+    );
+    await repo.deleteVersions('a');
+    assert.deepStrictEqual(await repo.listVersions('a'), []);
+    assert.strictEqual((await repo.listVersions('b')).length, 1);
+  });
 });

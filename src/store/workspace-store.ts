@@ -11,5 +11,6 @@ export const workspaceStore = new Store<WorkspaceStoreState>({
   documents: [],
   activeId: null,
   activeSource: '',
+  versions: [],
   ready: false,
 });
