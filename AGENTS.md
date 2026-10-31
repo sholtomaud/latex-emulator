@@ -162,11 +162,15 @@ were removed. Grow toward:
 src/
 ├── main.ts                       # routes, boot, SW registration
 ├── core/                         # Boba core (base-component, router, store)
-├── store/                        # app stores: document, diagnostics, print requests
+├── store/                        # app stores: document, diagnostics, workspace, ui, print
+├── storage/                      # DocumentRepository: IndexedDB + in-memory
+├── workspace/                    # documents: pure Workspace logic, names, and the
+│                                 #   browser wiring (autosave, import/export)
 ├── components/
 │   ├── app-shell/                # layout: editor | preview split, toolbar
 │   ├── latex-editor/             # Monaco host element
 │   ├── latex-preview/            # iframe preview + print trigger
+│   ├── document-explorer/        # left-hand document list (Ctrl/⌘+B)
 │   ├── diagnostics-panel/        # problems list
 │   └── outline-panel/            # section tree
 ├── latex/                        # PURE TS — no DOM access, runs in Node tests
@@ -495,9 +499,11 @@ chosen branch.
   Vite plugin may emit the precache list of hashed assets at build time.
 - The app must be fully functional offline after first load, including
   diagnostics, spelling, preview and PDF.
-- Persist documents in OPFS (fall back to IndexedDB). Open and save `.tex`
-  files with the File System Access API where available, falling back to
-  `<input type=file>` and a download link.
+- Persist documents in IndexedDB (`src/storage/`, ADR 0005), falling back to
+  memory when IndexedDB is unavailable. `localStorage` holds only small
+  preferences (open document, explorer state). Open and save `.tex` files
+  with `<input type=file>` and a download link; the File System Access API is
+  a later progressive enhancement.
 
 ---
 
@@ -544,9 +550,35 @@ chosen branch.
 3. ✅ Monaco integration: curated core editor and editor worker, loaded
    lazily; Monarch LaTeX grammar; parser diagnostics shown as markers with
    hover messages (ADR 0004).
-4. **Next:** Language worker: move parsing and diagnostics off the main thread.
-5. TeX math → MathML; equation numbering; `\label`/`\ref` two-pass.
-6. Lint rules; completion and hover from the command registry; quick-fixes.
-7. Spell checking (TS first; Rust/WASM crate if it misses the budget).
-8. PWA: manifest, service worker, OPFS storage, file open/save.
-9. Tier 2 features; pagination-accurate preview; print-fidelity CI gate.
+4. ✅ Documents: VS Code-style explorer (Ctrl/⌘+B), new/open/rename/delete,
+   autosave to IndexedDB, `.tex` import and download (ADR 0005).
+5. **Next:** Versions and preprints. Saved snapshots with semantic versions
+   (patch by default, minor/major on request), a version history, and a
+   Download Preprint that stamps the footer with version, date and the
+   SHA-256 of the exact `.tex` source. The `.tex` download for a version
+   carries the same hash, so every PDF can be matched to its source.
+6. Citations and bibliography: natbib (`\cite`, `\citep`, `\citet`,
+   `\citeauthor`, `\citeyear`, `[pre][post]` notes), a `.bib` library in
+   IndexedDB, `\bibliography` + `\bibliographystyle` (plainnat/author–year)
+   checked against real pdflatex + BibTeX, DOI/URL lookup, reference
+   cleaning. Keys follow Better BibTeX's `author_topic_year`.
+7. Zotero: web API (user ID + API key) and the local Zotero 7 API on
+   localhost:23119 (verify Chrome's private-network rules first).
+8. Math: TeX → MathML (`align`, `equation`, fractions, matrices);
+   `\label`/`\ref`/`\eqref`; `\tableofcontents`.
+9. Figures and tables: `figure`, `\includegraphics` (upload, URL, Zotero;
+   stored in IndexedDB), `\caption`, `table`, `tabular`, `booktabs`.
+10. Code: `listings` (`lstlisting`, `\lstinline`) and `algorithm` +
+    `algpseudocode` for pseudocode. No invented `\code` command.
+11. `elsarticle` class (Elsevier), checked against pdflatex.
+12. The starter document becomes a tour of every supported feature (updated
+    alongside each step above).
+13. Language worker (parsing and diagnostics off the main thread), lint rules,
+    completion/hover, spell checking, PWA offline install, pagination-accurate
+    preview, project zip export with a CI check that the sample compiles in
+    real pdflatex.
+
+**Rule for every feature above:** the document stays standard LaTeX that
+compiles with pdflatex and the named CTAN packages. Browser conveniences
+(storage, Zotero, image import, preprint stamping) live in the app, never as
+new LaTeX syntax.
