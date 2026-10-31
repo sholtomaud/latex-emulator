@@ -8,6 +8,8 @@ import { chromium, defineConfig, devices } from '@playwright/test';
  *   functional-prod  e2e/specs   against the production build
  *   smoke            e2e/smoke   fast "is the build alive?" checks (prod build)
  *   visual           e2e/visual  toHaveScreenshot snapshots (prod build)
+ *   pages            e2e/pages   GitHub Pages build served under /latex-emulator/;
+ *                                with PAGES_URL set, runs against the live site
  *
  * Visual baselines are only valid when generated inside the pinned Playwright
  * container (fonts and Chromium build must match CI). Use
@@ -45,6 +47,12 @@ const chrome = {
 
 const DEV_URL = 'http://localhost:5173';
 const PROD_URL = 'http://localhost:3000';
+const PAGES_PORT = 3001;
+// Set PAGES_URL (e.g. https://sholtomaud.github.io/latex-emulator/) to run the
+// pages suite against a live deployment instead of a local Pages build.
+const LIVE_PAGES_URL = process.env.PAGES_URL;
+const PAGES_URL =
+  LIVE_PAGES_URL ?? `http://localhost:${PAGES_PORT}/latex-emulator/`;
 
 export default defineConfig({
   fullyParallel: true,
@@ -80,21 +88,34 @@ export default defineConfig({
       use: { ...chrome, baseURL: PROD_URL },
     },
     {
+      name: 'pages',
+      testDir: './e2e/pages',
+      use: { ...chrome, baseURL: PAGES_URL },
+    },
+    {
       name: 'visual',
       testDir: './e2e/visual',
       use: { ...chrome, baseURL: PROD_URL },
     },
   ],
-  webServer: [
-    {
-      command: 'npx vite --port 5173 --strictPort',
-      url: DEV_URL,
-      reuseExistingServer: !process.env.CI,
-    },
-    {
-      command: 'npm run build && npx serve -p 3000 -s dist',
-      url: PROD_URL,
-      reuseExistingServer: !process.env.CI,
-    },
-  ],
+  webServer: LIVE_PAGES_URL
+    ? undefined
+    : [
+        {
+          command: 'npx vite --port 5173 --strictPort',
+          url: DEV_URL,
+          reuseExistingServer: !process.env.CI,
+        },
+        {
+          command: 'npm run build && npx serve -p 3000 -s dist',
+          url: PROD_URL,
+          reuseExistingServer: !process.env.CI,
+        },
+        {
+          // No -s: like GitHub Pages, unknown paths get the root 404.html.
+          command: `npm run build:pages && npx serve -p ${PAGES_PORT} .pages`,
+          url: `http://localhost:${PAGES_PORT}/latex-emulator/`,
+          reuseExistingServer: !process.env.CI,
+        },
+      ],
 });

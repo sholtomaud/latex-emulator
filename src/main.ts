@@ -1,16 +1,15 @@
 import './styles/app.css';
 import { Router } from './core/router/router.ts';
+import { resolveBaseUrl } from './util/base-url.ts';
 
-// Setup BASE_URL for the router, unless the page hosting the app already
-// set one (e.g. a preview served from a sub-path).
+// Where the app is served from (e.g. /latex-emulator/ on GitHub Pages),
+// unless the hosting page already set it.
 if (!window.BOBA_BASE_URL) {
-  const isGitHubPages = window.location.hostname.endsWith('.github.io');
-  const pathSegments = window.location.pathname.split('/');
-  const repoName =
-    isGitHubPages && pathSegments.length > 1 && pathSegments[1]
-      ? pathSegments[1]
-      : null;
-  window.BOBA_BASE_URL = repoName ? `/${repoName}/` : '/';
+  window.BOBA_BASE_URL = resolveBaseUrl({
+    buildBase: import.meta.env.BASE_URL,
+    hostname: window.location.hostname,
+    pathname: window.location.pathname,
+  });
 }
 
 const router = Router.getInstance();

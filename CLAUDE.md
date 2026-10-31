@@ -44,6 +44,8 @@ npm run e2e:smoke            # smoke suite
 npm run e2e                  # functional e2e (dev + prod)
 npm run e2e:visual           # visual snapshots in the pinned Docker image
 npm run e2e:visual:update    # regenerate baselines (intended visual changes only)
+npm run e2e:pages            # GitHub Pages build under /latex-emulator/
+npm run build:pages          # build the Pages artifact into .pages/
 npm run build:wasm           # only when crates/ exists
 ```
 
