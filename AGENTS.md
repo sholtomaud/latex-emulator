@@ -155,8 +155,8 @@ Key design decisions:
 
 ## 5. Target repository layout
 
-The repo starts empty. Scaffold it with `npx github:sholtomaud/boba .` (or
-copy Boba's `template/`), delete the demo pages, and grow toward:
+The repo was scaffolded from Boba's `template/` (milestone 1); the demo pages
+were removed. Grow toward:
 
 ```
 src/
@@ -200,7 +200,12 @@ public/
 └── dict/                         # Hunspell .aff/.dic (licenses alongside)
 fixtures/                         # *.tex inputs + expected outputs (see §10)
 docs/decisions/                   # short ADRs: NNNN-title.md
-e2e/                              # Playwright specs
+e2e/
+├── specs/                        # functional e2e (dev + prod builds)
+├── smoke/                        # fast smoke checks (prod build)
+└── visual/                       # toHaveScreenshot specs + __screenshots__/ baselines
+scripts/playwright-docker.sh      # run Playwright in the pinned CI image
+playwright.config.ts              # projects: functional-dev/-prod, smoke, visual
 ```
 
 **Boundary rule:** `src/latex/**` must not reference `window`, `document`,
@@ -340,44 +345,94 @@ on-screen pages are needed, implement our own lightweight paginator in
 
 ---
 
-## 10. Testing
+## 10. Test-driven development and testing
 
-Run everything from the repo root. These must pass **before every push**:
+### TDD is mandatory
+
+Every change, whether a feature or a bug fix, follows **red → green → refactor**:
+
+1. **Red.** Write the test that describes the behaviour, run it, and *see it
+   fail for the right reason*. Pick the lowest layer that can express it:
+   a unit test for pure logic, a functional e2e spec for a user-visible
+   behaviour, a visual snapshot for appearance.
+2. **Green.** Write the minimum code that makes it pass.
+3. **Refactor.** Clean up with the suite green.
+
+Commit the test with (or before) the code that satisfies it. A PR that adds
+behaviour without a test that would have failed without it is incomplete.
+Never weaken, skip, `.only`, or delete a test to get CI green. Do not update a
+snapshot to "make it pass" unless the visual change is intended, and say so in
+the commit message.
+
+### Test suites
+
+| Suite | Location | Runner | Command | Runs against |
+|---|---|---|---|---|
+| **Unit** | `src/**/*.test.ts` (colocated) | `node --test` | `npm test` / `npm run test:coverage` | TS source directly, no browser |
+| **E2E (functional)** | `e2e/specs/` | Playwright | `npm run e2e` | Vite dev server **and** production build |
+| **Smoke** | `e2e/smoke/` | Playwright | `npm run e2e:smoke` | production build |
+| **Visual snapshots** | `e2e/visual/` | Playwright `toHaveScreenshot` | `npm run e2e:visual` | production build, in the pinned container |
+
+- **Unit.** Pure modules (`src/latex/**`, `src/render/` helpers, `src/util/`)
+  have **≥ 90 % line, branch and function coverage**, enforced by
+  `npm run test:coverage`. Components and the vendored Boba router are
+  excluded from the gate because they need a browser; e2e covers them.
+  Keep logic out of components so it can be unit-tested.
+- **E2E.** Real user flows: typing updates the preview, diagnostics appear as
+  Monaco markers, quick-fixes apply, the layout responds to width, and offline
+  reload works. Use role/label locators (`getByRole`, `getByLabel`) rather than
+  CSS where possible.
+- **Smoke.** A handful of fast checks (< 10 s total) proving a build is alive:
+  it boots with no console errors, page errors or failed requests, an edit
+  reaches the preview, and routing works. If a smoke test fails, nothing else matters.
+- **Visual snapshots.** These cover the app chrome at desktop and mobile
+  sizes, the preview page, and the preview page under
+  `page.emulateMedia({ media: 'print' })`. Baselines live in
+  `e2e/visual/__screenshots__/` and **must be generated in the pinned
+  Playwright container** (`mcr.microsoft.com/playwright:v<version>-noble`),
+  because fonts and the Chromium build change pixels. Generate them with
+  `npm run e2e:visual:update` (Docker) or the **"Update visual baselines"**
+  GitHub workflow. Never commit baselines generated on a host OS.
+- **Fixtures (from roadmap step 3).** `fixtures/<name>/` holds `input.tex`,
+  `ast.json`, `diagnostics.json`, and `reference.pdf` +
+  `reference-page-N.png` generated once by real `pdflatex`, with the
+  generating command recorded in `fixtures/README.md`. Print-fidelity visual
+  specs compare our rendering of each fixture with its `pdflatex` reference.
+  `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
+
+### Before every push
 
 ```bash
-npm install
+npm ci
 npm run typecheck            # tsc -p .
 npm run lint                 # oxlint + prettier --check
-npm test                     # node --test 'src/**/*.test.ts' (pure TS, no browser)
+npm run test:coverage        # unit tests + coverage gate
 npm run build                # vite build
-npx playwright test          # e2e + visual (dev and production builds)
+npm run e2e:smoke            # smoke
+npm run e2e                  # functional e2e, dev + prod
+npm run e2e:visual           # visual snapshots (Docker, pinned image)
 # when crates/ exists:
 cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
-npm run build:wasm           # wasm-pack/wasm-bindgen → src/wasm/ (also regenerates ts-rs bindings)
+npm run build:wasm           # wasm-bindgen → src/wasm/ (also regenerates ts-rs bindings)
 ```
 
-In environments where Chromium/Playwright browsers are already installed, do
-not reinstall them. Otherwise run `npx playwright install --with-deps chromium`.
+Where Chromium/Playwright browsers are preinstalled, do not reinstall them;
+`playwright.config.ts` falls back to the newest installed Chromium. Otherwise
+run `npx playwright install --with-deps chromium`.
 
-**Test layers:**
-1. **Unit (`node --test`, colocated `*.test.ts`)** for everything in `src/latex/`:
-   lexer, parser (including error recovery), macro expansion, lint rules,
-   math→MathML, prose extraction.
-2. **Fixtures (`fixtures/<name>/`)**: `input.tex`, `ast.json`,
-   `diagnostics.json`, and `reference.pdf` + `reference-page-N.png`
-   (generated once by real `pdflatex`, committed, with the generating command
-   recorded in `fixtures/README.md`). Snapshot updates must be deliberate:
-   the commit message says why the snapshot changed.
-3. **E2E (Playwright)**: typing in Monaco produces markers; quick-fixes apply;
-   the preview updates; offline reload works with the service worker.
-4. **Print fidelity (Playwright, Chromium)**: render each fixture, use
-   `page.emulateMedia({ media: 'print' })` and `page.pdf()` / page screenshots,
-   then compare against `reference-page-N.png` with a tolerance. A regression
-   in a passing fixture fails CI. (`page.pdf()` is a **test-only** tool; the
-   app itself uses `print()`.)
+### GitHub Actions (`.github/workflows/ci.yml`)
 
-Write the failing test first when fixing a bug. Never weaken, skip or delete a
-test to make CI green.
+On every PR and every push to `main`, these jobs run in parallel, and all must pass:
+
+- **Unit:** typecheck, lint, `test:coverage`, build (Node 25).
+- **Playwright (smoke)**, **Playwright (e2e)**, **Playwright (visual)**:
+  each runs in the pinned Playwright container and uploads its report and
+  diffs as an artifact.
+
+When Rust crates arrive, a **Rust** job (fmt, clippy, test, wasm build) joins
+them. `visual-baselines.yml` is a manual (`workflow_dispatch`) workflow that
+regenerates snapshot baselines in the pinned image and commits them to the
+chosen branch.
 
 ---
 
@@ -417,6 +472,8 @@ test to make CI green.
   `docs/decisions/NNNN-kebab-title.md`: Context, Decision, Consequences.
 - When you add a supported command, update the registry, add tests and a
   fixture snippet, and tick it off in §6 if it changes a tier's status.
+- Work test-first (§10). The PR description lists the tests added and which
+  suites they belong to.
 - Keep this file current. If a change makes any statement here false, update
   AGENTS.md in the same PR.
 
@@ -424,7 +481,9 @@ test to make CI green.
 
 ## 14. Build order (roadmap)
 
-1. Scaffold from Boba; strip demo pages; app shell with editor | preview split.
+1. ✅ Scaffold from Boba; strip demo pages; app shell with editor | preview
+   split (textarea placeholder editor, iframe preview, placeholder
+   plain-text renderer); unit/e2e/smoke/visual suites and CI.
 2. Monaco integration (core editor + worker only) with a Monarch LaTeX grammar.
 3. Lexer + error-tolerant parser + AST with ranges; syntax diagnostics → markers.
 4. Renderer for Tier-1 text constructs; iframe preview; `document/*.css`;

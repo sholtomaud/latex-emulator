@@ -8,6 +8,11 @@ with AGENTS.md, AGENTS.md wins; fix the conflict in the same change.
 
 ## How to work in this repo
 
+- **Test first, always (AGENTS.md §10).** Write the failing test, run it and
+  show it failing, then implement, then show it passing. Choose the lowest
+  layer that can express the behaviour: unit → functional e2e → visual snapshot.
+  Logic that lives in a component and can't be unit-tested is a smell; move it
+  to a pure module.
 - **Read before you build.** Before touching a subsystem, read its section in
   AGENTS.md (§4 architecture, §6 LaTeX subset, §7 PDF/CSS, §8 diagnostics).
   The boundary rules (`src/latex/**` has no DOM and no Monaco) are the most
@@ -33,8 +38,12 @@ with AGENTS.md, AGENTS.md wins; fix the conflict in the same change.
 
 ```bash
 npm run dev                  # Vite dev server
-npm run typecheck && npm run lint && npm test
-npm run build && npx playwright test
+npm test                     # unit (fast inner TDD loop)
+npm run check                # typecheck + lint + coverage gate + build
+npm run e2e:smoke            # smoke suite
+npm run e2e                  # functional e2e (dev + prod)
+npm run e2e:visual           # visual snapshots in the pinned Docker image
+npm run e2e:visual:update    # regenerate baselines (intended visual changes only)
 npm run build:wasm           # only when crates/ exists
 ```
 
@@ -45,6 +54,12 @@ honestly with the output; never skip, weaken or delete tests to get green.
 
 - In cloud sessions Chromium and Playwright are preinstalled. Do not run
   `npx playwright install`.
+- Visual baselines must come from the pinned Playwright image. In a cloud
+  session the Docker daemon may need starting first (`dockerd &`). If Docker
+  can't run, use the "Update visual baselines" GitHub workflow instead of
+  generating baselines on the host.
+- After any change under `src/components/`, `src/render/` or `src/styles/`,
+  open the Playwright screenshots or the snapshot diffs and actually look at them.
 - `src/wasm/` is generated output and is gitignored; regenerate it, don't edit it.
 - Fonts and dictionaries in `public/` carry their own licenses. Keep each
   license file next to the asset when adding or updating one.
