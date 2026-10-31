@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit (typecheck, lint, node --test + coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25.x
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test:coverage
+      - run: npm run build
+
+  playwright-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: get
+        run: |
+          VERSION=$(node -p "require('./package.json').devDependencies['@playwright/test'].replace(/[\^~]/g, '')")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  playwright:
+    name: Playwright (${{ matrix.suite }})
+    needs: playwright-version
+    runs-on: ubuntu-latest
+    # The pinned image gives every suite (and visual baselines) the same
+    # Chromium build and fonts as `npm run e2e:visual` locally.
+    container: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: smoke
+            projects: --project=smoke
+          - suite: e2e
+            projects: --project=functional-dev --project=functional-prod
+          - suite: visual
+            projects: --project=visual
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25.x
+          cache: npm
+      - run: npm ci
+      - run: npx playwright test ${{ matrix.projects }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-${{ matrix.suite }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

@@ -1,0 +1,70 @@
+/*
+ * Document stylesheet — loaded ONLY inside the preview iframe, never into the
+ * app chrome. Provisional values for milestone 1: the class-accurate geometry,
+ * Latin Modern fonts and @page rules arrive in roadmap step 4 (AGENTS.md §7),
+ * where each value will be verified against article.cls / size1x.clo.
+ */
+
+:root {
+  --latex-font-size: 11pt;
+  --latex-baselineskip: 13.6pt;
+  --latex-parindent: 17pt;
+  --latex-paper-width: 210mm;
+  --latex-paper-height: 297mm;
+}
+
+html {
+  background: #e5e7eb;
+}
+
+body {
+  margin: 0;
+  padding: 24px 0;
+  /* Set by <latex-preview> to fit the page to the pane (screen only). */
+  zoom: var(--preview-zoom, 1);
+}
+
+.latex-page {
+  box-sizing: border-box;
+  width: var(--latex-paper-width);
+  min-height: var(--latex-paper-height);
+  margin: 0 auto;
+  padding: 25mm 30mm;
+  background: #fff;
+  color: #000;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+  font-family:
+    'Latin Modern Roman', 'Computer Modern Serif', 'CMU Serif', serif;
+  font-size: var(--latex-font-size);
+  line-height: var(--latex-baselineskip);
+  text-align: justify;
+  hyphens: auto;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+}
+
+.latex-page p {
+  margin: 0;
+  text-indent: var(--latex-parindent);
+}
+
+.latex-page p:first-child {
+  text-indent: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: none;
+    padding: 0;
+    zoom: 1;
+  }
+
+  .latex-page {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+}
