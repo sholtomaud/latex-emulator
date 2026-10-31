@@ -203,9 +203,11 @@ docs/decisions/                   # short ADRs: NNNN-title.md
 e2e/
 ├── specs/                        # functional e2e (dev + prod builds)
 ├── smoke/                        # fast smoke checks (prod build)
-└── visual/                       # toHaveScreenshot specs + __screenshots__/ baselines
+├── visual/                       # toHaveScreenshot specs + __screenshots__/ baselines
+└── pages/                        # GitHub Pages build + live-site checks
 scripts/playwright-docker.sh      # run Playwright in the pinned CI image
-playwright.config.ts              # projects: functional-dev/-prod, smoke, visual
+scripts/build-pages.sh            # GitHub Pages build (.pages/<repo>/)
+playwright.config.ts              # projects: functional-dev/-prod, smoke, visual, pages
 ```
 
 **Boundary rule:** `src/latex/**` must not reference `window`, `document`,
@@ -372,6 +374,7 @@ the commit message.
 | **E2E (functional)** | `e2e/specs/` | Playwright | `npm run e2e` | Vite dev server **and** production build |
 | **Smoke** | `e2e/smoke/` | Playwright | `npm run e2e:smoke` | production build |
 | **Visual snapshots** | `e2e/visual/` | Playwright `toHaveScreenshot` | `npm run e2e:visual` | production build, in the pinned container |
+| **Pages** | `e2e/pages/` | Playwright | `npm run e2e:pages` | GitHub Pages build under `/latex-emulator/`; the live site after deploy |
 
 - **Unit.** Pure modules (`src/latex/**`, `src/render/` helpers, `src/util/`)
   have **≥ 90 % line, branch and function coverage**, enforced by
@@ -411,6 +414,7 @@ npm run build                # vite build
 npm run e2e:smoke            # smoke
 npm run e2e                  # functional e2e, dev + prod
 npm run e2e:visual           # visual snapshots (Docker, pinned image)
+npm run e2e:pages            # Pages build served under /latex-emulator/
 # when crates/ exists:
 cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 npm run build:wasm           # wasm-bindgen → src/wasm/ (also regenerates ts-rs bindings)
@@ -420,14 +424,20 @@ Where Chromium/Playwright browsers are preinstalled, do not reinstall them;
 `playwright.config.ts` falls back to the newest installed Chromium. Otherwise
 run `npx playwright install --with-deps chromium`.
 
-### GitHub Actions (`.github/workflows/ci.yml`)
+### GitHub Actions
 
-On every PR and every push to `main`, these jobs run in parallel, and all must pass:
+**`ci.yml`** runs on every PR, and is called by `deploy.yml` on every push to
+`main`. Its jobs run in parallel, and all must pass:
 
 - **Unit:** typecheck, lint, `test:coverage`, build (Node 25).
-- **Playwright (smoke)**, **Playwright (e2e)**, **Playwright (visual)**:
-  each runs in the pinned Playwright container and uploads its report and
-  diffs as an artifact.
+- **Playwright (smoke)**, **(e2e)**, **(visual)**, **(pages)**: each runs in the
+  pinned Playwright container and uploads its report and diffs as an artifact.
+
+**`deploy.yml`** (push to `main`, or manual) runs CI, then builds with
+`npm run build:pages` (absolute base `/<repo>/`, `404.html` SPA fallback),
+deploys to **GitHub Pages** with `actions/deploy-pages`, then runs the `pages`
+suite against the live URL (`PAGES_URL`). See ADR 0002. One-time setup: in the
+repo's Settings → Pages, set the source to **GitHub Actions**.
 
 When Rust crates arrive, a **Rust** job (fmt, clippy, test, wasm build) joins
 them. `visual-baselines.yml` is a manual (`workflow_dispatch`) workflow that
@@ -483,7 +493,8 @@ chosen branch.
 
 1. ✅ Scaffold from Boba; strip demo pages; app shell with editor | preview
    split (textarea placeholder editor, iframe preview, placeholder
-   plain-text renderer); unit/e2e/smoke/visual suites and CI.
+   plain-text renderer); unit/e2e/smoke/visual suites and CI; GitHub Pages
+   deployment with post-deploy smoke tests.
 2. Monaco integration (core editor + worker only) with a Monarch LaTeX grammar.
 3. Lexer + error-tolerant parser + AST with ranges; syntax diagnostics → markers.
 4. Renderer for Tier-1 text constructs; iframe preview; `document/*.css`;

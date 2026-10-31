@@ -1,5 +1,7 @@
 # LaTeX Emulator
 
+**Live:** https://sholtomaud.github.io/latex-emulator/ (deployed from `main` by GitHub Actions)
+
 A Progressive Web App for writing LaTeX in the browser, with live linting,
 spell checking, a LaTeX-faithful preview and a print-CSS PDF download. It is
 built on [Boba](https://github.com/sholtomaud/boba). It doesn't run TeX: it
@@ -27,6 +29,7 @@ npm run test:coverage    # unit tests + coverage gate
 npm run e2e:smoke        # smoke tests (production build)
 npm run e2e              # functional e2e (dev + production)
 npm run e2e:visual       # visual snapshots (needs Docker)
+npm run e2e:pages        # GitHub Pages build under /latex-emulator/
 ```
 
 ## Contributing

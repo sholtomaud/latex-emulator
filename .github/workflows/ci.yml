@@ -1,10 +1,10 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  # Pushes to main run this via deploy.yml, which gates the Pages deploy on it.
+  workflow_call:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -54,6 +54,8 @@ jobs:
             projects: --project=functional-dev --project=functional-prod
           - suite: visual
             projects: --project=visual
+          - suite: pages
+            projects: --project=pages
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
