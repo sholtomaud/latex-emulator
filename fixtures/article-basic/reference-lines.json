@@ -1,0 +1,865 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "A Short Example",
+          "xMin": 236.93,
+          "yMin": 169.54,
+          "xMax": 357.38,
+          "yMax": 184.85,
+          "words": [
+            {
+              "text": "A",
+              "xMin": 236.93,
+              "xMax": 248.87
+            },
+            {
+              "text": "Short",
+              "xMin": 254.07,
+              "xMax": 291.75
+            },
+            {
+              "text": "Example",
+              "xMin": 296.95,
+              "xMax": 357.38
+            }
+          ]
+        },
+        {
+          "text": "Ada Lovelace",
+          "xMin": 262.94,
+          "yMin": 203.5,
+          "xMax": 331.38,
+          "yMax": 214.12,
+          "words": [
+            {
+              "text": "Ada",
+              "xMin": 262.94,
+              "xMax": 284.07
+            },
+            {
+              "text": "Lovelace",
+              "xMin": 287.96,
+              "xMax": 331.38
+            }
+          ]
+        },
+        {
+          "text": "31 October 2026",
+          "xMin": 255.05,
+          "yMin": 227.96,
+          "xMax": 339.27,
+          "yMax": 238.58,
+          "words": [
+            {
+              "text": "31",
+              "xMin": 255.05,
+              "xMax": 266.75
+            },
+            {
+              "text": "October",
+              "xMin": 270.65,
+              "xMax": 311.95
+            },
+            {
+              "text": "2026",
+              "xMin": 315.86,
+              "xMax": 339.27
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 272.63,
+          "xMax": 125.9,
+          "yMax": 285.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Introduction",
+          "xMin": 142.04,
+          "yMin": 272.63,
+          "xMax": 230.85,
+          "yMax": 285.37,
+          "words": [
+            {
+              "text": "Introduction",
+              "xMin": 142.04,
+              "xMax": 230.85
+            }
+          ]
+        },
+        {
+          "text": "This document is written in the LaTeX Emulator. The editor is on the left",
+          "xMin": 117.83,
+          "yMin": 299.37,
+          "xMax": 476.49,
+          "yMax": 309.06,
+          "words": [
+            {
+              "text": "This",
+              "xMin": 117.83,
+              "xMax": 139.1
+            },
+            {
+              "text": "document",
+              "xMin": 142.73,
+              "xMax": 189.4
+            },
+            {
+              "text": "is",
+              "xMin": 193.02,
+              "xMax": 200.36
+            },
+            {
+              "text": "written",
+              "xMin": 203.99,
+              "xMax": 238.56
+            },
+            {
+              "text": "in",
+              "xMin": 242.19,
+              "xMax": 251.28
+            },
+            {
+              "text": "the",
+              "xMin": 254.91,
+              "xMax": 270.06
+            },
+            {
+              "text": "LaTeX",
+              "xMin": 273.68,
+              "xMax": 305.96
+            },
+            {
+              "text": "Emulator.",
+              "xMin": 309.59,
+              "xMax": 357.35
+            },
+            {
+              "text": "The",
+              "xMin": 362.19,
+              "xMax": 380.98
+            },
+            {
+              "text": "editor",
+              "xMin": 384.6,
+              "xMax": 412.51
+            },
+            {
+              "text": "is",
+              "xMin": 416.14,
+              "xMax": 423.48
+            },
+            {
+              "text": "on",
+              "xMin": 427.11,
+              "xMax": 438.63
+            },
+            {
+              "text": "the",
+              "xMin": 442.25,
+              "xMax": 457.4
+            },
+            {
+              "text": "left",
+              "xMin": 461.03,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "and the preview is on the right. Paragraphs are separated by a blank line,",
+          "xMin": 117.83,
+          "yMin": 312.92,
+          "xMax": 476.48,
+          "yMax": 322.6,
+          "words": [
+            {
+              "text": "and",
+              "xMin": 117.83,
+              "xMax": 135.4
+            },
+            {
+              "text": "the",
+              "xMin": 139.28,
+              "xMax": 154.43
+            },
+            {
+              "text": "preview",
+              "xMin": 158.31,
+              "xMax": 195
+            },
+            {
+              "text": "is",
+              "xMin": 198.88,
+              "xMax": 206.22
+            },
+            {
+              "text": "on",
+              "xMin": 210.09,
+              "xMax": 221.6
+            },
+            {
+              "text": "the",
+              "xMin": 225.48,
+              "xMax": 240.63
+            },
+            {
+              "text": "right.",
+              "xMin": 244.51,
+              "xMax": 270.3
+            },
+            {
+              "text": "Paragraphs",
+              "xMin": 275.86,
+              "xMax": 329.77
+            },
+            {
+              "text": "are",
+              "xMin": 333.64,
+              "xMax": 348.22
+            },
+            {
+              "text": "separated",
+              "xMin": 352.1,
+              "xMax": 397.65
+            },
+            {
+              "text": "by",
+              "xMin": 401.52,
+              "xMax": 413.03
+            },
+            {
+              "text": "a",
+              "xMin": 416.92,
+              "xMax": 422.37
+            },
+            {
+              "text": "blank",
+              "xMin": 426.25,
+              "xMax": 452.61
+            },
+            {
+              "text": "line,",
+              "xMin": 456.48,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "exactly as in L A TEX, and the first paragraph after a heading is not indented.",
+          "xMin": 117.83,
+          "yMin": 326.47,
+          "xMax": 476.49,
+          "yMax": 338.5,
+          "words": [
+            {
+              "text": "exactly",
+              "xMin": 117.83,
+              "xMax": 151.77
+            },
+            {
+              "text": "as",
+              "xMin": 155.08,
+              "xMax": 164.84
+            },
+            {
+              "text": "in",
+              "xMin": 168.16,
+              "xMax": 177.25
+            },
+            {
+              "text": "L",
+              "xMin": 180.57,
+              "xMax": 187.38
+            },
+            {
+              "text": "A",
+              "xMin": 183.46,
+              "xMax": 189.8
+            },
+            {
+              "text": "TEX,",
+              "xMin": 188.16,
+              "xMax": 211.5
+            },
+            {
+              "text": "and",
+              "xMin": 214.88,
+              "xMax": 232.45
+            },
+            {
+              "text": "the",
+              "xMin": 235.77,
+              "xMax": 250.92
+            },
+            {
+              "text": "first",
+              "xMin": 254.24,
+              "xMax": 273.12
+            },
+            {
+              "text": "paragraph",
+              "xMin": 276.43,
+              "xMax": 324.98
+            },
+            {
+              "text": "after",
+              "xMin": 328.3,
+              "xMax": 350.45
+            },
+            {
+              "text": "a",
+              "xMin": 353.77,
+              "xMax": 359.22
+            },
+            {
+              "text": "heading",
+              "xMin": 362.54,
+              "xMax": 399.5
+            },
+            {
+              "text": "is",
+              "xMin": 402.81,
+              "xMax": 410.15
+            },
+            {
+              "text": "not",
+              "xMin": 413.48,
+              "xMax": 429.22
+            },
+            {
+              "text": "indented.",
+              "xMin": 432.54,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "Later paragraphs are indented by \\parindent. Text can be emphasised,",
+          "xMin": 134.76,
+          "yMin": 340.02,
+          "xMax": 476.48,
+          "yMax": 350.01,
+          "words": [
+            {
+              "text": "Later",
+              "xMin": 134.76,
+              "xMax": 160.4
+            },
+            {
+              "text": "paragraphs",
+              "xMin": 163.63,
+              "xMax": 216.48
+            },
+            {
+              "text": "are",
+              "xMin": 219.71,
+              "xMax": 234.29
+            },
+            {
+              "text": "indented",
+              "xMin": 237.51,
+              "xMax": 278.42
+            },
+            {
+              "text": "by",
+              "xMin": 281.65,
+              "xMax": 293.17
+            },
+            {
+              "text": "\\parindent.",
+              "xMin": 296.39,
+              "xMax": 356.69
+            },
+            {
+              "text": "Text",
+              "xMin": 361.41,
+              "xMax": 383.23
+            },
+            {
+              "text": "can",
+              "xMin": 386.46,
+              "xMax": 402.82
+            },
+            {
+              "text": "be",
+              "xMin": 406.05,
+              "xMax": 417.25
+            },
+            {
+              "text": "emphasised,",
+              "xMin": 420.48,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "bold, italic, monospaced or small caps. Quotes use “double” and ‘single’",
+          "xMin": 117.83,
+          "yMin": 353.57,
+          "xMax": 476.49,
+          "yMax": 364.95,
+          "words": [
+            {
+              "text": "bold,",
+              "xMin": 117.83,
+              "xMax": 144.9
+            },
+            {
+              "text": "italic,",
+              "xMin": 148.55,
+              "xMax": 175.28
+            },
+            {
+              "text": "monospaced",
+              "xMin": 178.93,
+              "xMax": 236.2
+            },
+            {
+              "text": "or",
+              "xMin": 239.85,
+              "xMax": 249.57
+            },
+            {
+              "text": "small",
+              "xMin": 253.22,
+              "xMax": 284.25
+            },
+            {
+              "text": "caps.",
+              "xMin": 288.38,
+              "xMax": 315.63
+            },
+            {
+              "text": "Quotes",
+              "xMin": 320.5,
+              "xMax": 353.9
+            },
+            {
+              "text": "use",
+              "xMin": 357.54,
+              "xMax": 372.75
+            },
+            {
+              "text": "“double”",
+              "xMin": 376.41,
+              "xMax": 418.82
+            },
+            {
+              "text": "and",
+              "xMin": 422.48,
+              "xMax": 440.05
+            },
+            {
+              "text": "‘single’",
+              "xMin": 443.7,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "marks, ranges use an en-dash as in 1–10, and a pause uses an em-dash—like",
+          "xMin": 117.83,
+          "yMin": 367.11,
+          "xMax": 476.48,
+          "yMax": 376.8,
+          "words": [
+            {
+              "text": "marks,",
+              "xMin": 117.83,
+              "xMax": 149.74
+            },
+            {
+              "text": "ranges",
+              "xMin": 153.04,
+              "xMax": 183.44
+            },
+            {
+              "text": "use",
+              "xMin": 186.64,
+              "xMax": 201.86
+            },
+            {
+              "text": "an",
+              "xMin": 205.07,
+              "xMax": 216.59
+            },
+            {
+              "text": "en-dash",
+              "xMin": 219.81,
+              "xMax": 256.23
+            },
+            {
+              "text": "as",
+              "xMin": 259.45,
+              "xMax": 269.21
+            },
+            {
+              "text": "in",
+              "xMin": 272.43,
+              "xMax": 281.52
+            },
+            {
+              "text": "1–10,",
+              "xMin": 284.74,
+              "xMax": 309.58
+            },
+            {
+              "text": "and",
+              "xMin": 312.88,
+              "xMax": 330.46
+            },
+            {
+              "text": "a",
+              "xMin": 333.67,
+              "xMax": 339.13
+            },
+            {
+              "text": "pause",
+              "xMin": 342.35,
+              "xMax": 369.07
+            },
+            {
+              "text": "uses",
+              "xMin": 372.29,
+              "xMax": 391.81
+            },
+            {
+              "text": "an",
+              "xMin": 395.02,
+              "xMax": 406.54
+            },
+            {
+              "text": "em-dash—like",
+              "xMin": 409.76,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "this.",
+          "xMin": 117.83,
+          "yMin": 380.66,
+          "xMax": 138.5,
+          "yMax": 390.35,
+          "words": [
+            {
+              "text": "this.",
+              "xMin": 117.83,
+              "xMax": 138.5
+            }
+          ]
+        },
+        {
+          "text": "1.1",
+          "xMin": 117.83,
+          "yMin": 409.15,
+          "xMax": 135.01,
+          "yMax": 419.77,
+          "words": [
+            {
+              "text": "1.1",
+              "xMin": 117.83,
+              "xMax": 135.01
+            }
+          ]
+        },
+        {
+          "text": "Lists",
+          "xMin": 148.46,
+          "yMin": 409.15,
+          "xMax": 176.12,
+          "yMax": 419.77,
+          "words": [
+            {
+              "text": "Lists",
+              "xMin": 148.46,
+              "xMax": 176.12
+            }
+          ]
+        },
+        {
+          "text": "Lists come in three kinds:",
+          "xMin": 117.83,
+          "yMin": 430.47,
+          "xMax": 240.92,
+          "yMax": 440.16,
+          "words": [
+            {
+              "text": "Lists",
+              "xMin": 117.83,
+              "xMax": 140.52
+            },
+            {
+              "text": "come",
+              "xMin": 144.16,
+              "xMax": 168.4
+            },
+            {
+              "text": "in",
+              "xMin": 172.04,
+              "xMax": 181.13
+            },
+            {
+              "text": "three",
+              "xMin": 184.77,
+              "xMax": 209.04
+            },
+            {
+              "text": "kinds:",
+              "xMin": 212.67,
+              "xMax": 240.92
+            }
+          ]
+        },
+        {
+          "text": " an itemised list,",
+          "xMin": 134.22,
+          "yMin": 450.25,
+          "xMax": 220.98,
+          "yMax": 464.35,
+          "words": [
+            {
+              "text": "",
+              "xMin": 134.22,
+              "xMax": 139.65
+            },
+            {
+              "text": "an",
+              "xMin": 145.1,
+              "xMax": 156.62
+            },
+            {
+              "text": "itemised",
+              "xMin": 160.25,
+              "xMax": 199.7
+            },
+            {
+              "text": "list,",
+              "xMin": 203.35,
+              "xMax": 220.98
+            }
+          ]
+        },
+        {
+          "text": " an enumerated list, and",
+          "xMin": 134.22,
+          "yMin": 472.77,
+          "xMax": 258.22,
+          "yMax": 486.87,
+          "words": [
+            {
+              "text": "",
+              "xMin": 134.22,
+              "xMax": 139.65
+            },
+            {
+              "text": "an",
+              "xMin": 145.1,
+              "xMax": 156.62
+            },
+            {
+              "text": "enumerated",
+              "xMin": 160.25,
+              "xMax": 215.74
+            },
+            {
+              "text": "list,",
+              "xMin": 219.38,
+              "xMax": 237.01
+            },
+            {
+              "text": "and",
+              "xMin": 240.65,
+              "xMax": 258.22
+            }
+          ]
+        },
+        {
+          "text": " a description list.",
+          "xMin": 134.22,
+          "yMin": 495.28,
+          "xMax": 227.68,
+          "yMax": 509.38,
+          "words": [
+            {
+              "text": "",
+              "xMin": 134.22,
+              "xMax": 139.65
+            },
+            {
+              "text": "a",
+              "xMin": 145.1,
+              "xMax": 150.56
+            },
+            {
+              "text": "description",
+              "xMin": 154.19,
+              "xMax": 206.4
+            },
+            {
+              "text": "list.",
+              "xMin": 210.05,
+              "xMax": 227.68
+            }
+          ]
+        },
+        {
+          "text": "Enumerated lists are numbered:",
+          "xMin": 117.83,
+          "yMin": 520.53,
+          "xMax": 270.31,
+          "yMax": 530.22,
+          "words": [
+            {
+              "text": "Enumerated",
+              "xMin": 117.83,
+              "xMax": 175.89
+            },
+            {
+              "text": "lists",
+              "xMin": 179.52,
+              "xMax": 198.43
+            },
+            {
+              "text": "are",
+              "xMin": 202.07,
+              "xMax": 216.65
+            },
+            {
+              "text": "numbered:",
+              "xMin": 220.28,
+              "xMax": 270.31
+            }
+          ]
+        },
+        {
+          "text": "1. First.",
+          "xMin": 131.16,
+          "yMin": 543.05,
+          "xMax": 171.1,
+          "yMax": 552.74,
+          "words": [
+            {
+              "text": "1.",
+              "xMin": 131.16,
+              "xMax": 139.65
+            },
+            {
+              "text": "First.",
+              "xMin": 145.1,
+              "xMax": 171.1
+            }
+          ]
+        },
+        {
+          "text": "2. Second.",
+          "xMin": 131.16,
+          "yMin": 565.56,
+          "xMax": 181.47,
+          "yMax": 575.25,
+          "words": [
+            {
+              "text": "2.",
+              "xMin": 131.16,
+              "xMax": 139.65
+            },
+            {
+              "text": "Second.",
+              "xMin": 145.1,
+              "xMax": 181.47
+            }
+          ]
+        },
+        {
+          "text": "2",
+          "xMin": 117.83,
+          "yMin": 597.55,
+          "xMax": 125.9,
+          "yMax": 610.29,
+          "words": [
+            {
+              "text": "2",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Conclusion",
+          "xMin": 142.04,
+          "yMin": 597.55,
+          "xMax": 219.24,
+          "yMax": 610.29,
+          "words": [
+            {
+              "text": "Conclusion",
+              "xMin": 142.04,
+              "xMax": 219.24
+            }
+          ]
+        },
+        {
+          "text": "That is all for now.",
+          "xMin": 117.83,
+          "yMin": 624.29,
+          "xMax": 210.04,
+          "yMax": 633.98,
+          "words": [
+            {
+              "text": "That",
+              "xMin": 117.83,
+              "xMax": 141.46
+            },
+            {
+              "text": "is",
+              "xMin": 145.1,
+              "xMax": 152.43
+            },
+            {
+              "text": "all",
+              "xMin": 156.07,
+              "xMax": 167.59
+            },
+            {
+              "text": "for",
+              "xMin": 171.22,
+              "xMax": 184.28
+            },
+            {
+              "text": "now.",
+              "xMin": 187.92,
+              "xMax": 210.04
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

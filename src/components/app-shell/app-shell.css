@@ -25,6 +25,28 @@
   font-weight: 600;
 }
 
+:host .print-button {
+  margin-left: auto;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--boba-border);
+  border-radius: 0.375rem;
+  background: var(--boba-primary);
+  color: var(--boba-bg);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+:host .print-button:hover {
+  background: var(--boba-accent-hover);
+}
+
+:host .print-button:focus-visible {
+  outline: 2px solid var(--boba-accent);
+  outline-offset: 2px;
+}
+
 :host .panes {
   display: grid;
   grid-template-columns: 1fr 1fr;

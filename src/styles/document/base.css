@@ -1,70 +1,613 @@
 /*
- * Document stylesheet — loaded ONLY inside the preview iframe, never into the
- * app chrome. Provisional values for milestone 1: the class-accurate geometry,
- * Latin Modern fonts and @page rules arrive in roadmap step 4 (AGENTS.md §7),
- * where each value will be verified against article.cls / size1x.clo.
+ * The LaTeX look. Loaded ONLY inside the preview iframe (never app chrome).
+ * Every length comes from custom properties generated from article.cls /
+ * size1x.clo by src/render/document-css.ts; nothing here is a magic number
+ * except TeX constants noted inline.
+ *
+ * Vertical spacing model (TeX's rule: the distance between consecutive
+ * baselines is the next line's \baselineskip plus any skip in between):
+ *   - Text blocks get margin-top = skip + b and margin-bottom = −b, where b is
+ *     the part of the line box below its baseline. When margins collapse
+ *     (positive + negative = their sum) this yields baseline-to-baseline =
+ *     \baselineskip(next) + skip, exactly as in TeX.
+ *   - Containers are flow-root, so a container ends at its last baseline.
+ *   - --before is an element's own skip; --prev-after is set on the element
+ *     that follows a heading/list/etc. Like \addvspace, the larger one wins.
  */
 
-:root {
-  --latex-font-size: 11pt;
-  --latex-baselineskip: 13.6pt;
-  --latex-parindent: 17pt;
-  --latex-paper-width: 210mm;
-  --latex-paper-height: 297mm;
-}
+/* ------------------------------------------------------------ page (screen) */
 
 html {
   background: #e5e7eb;
+  /* The page is laid out at full size and scaled down visually. */
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
   padding: 24px 0;
-  /* Set by <latex-preview> to fit the page to the pane (screen only). */
-  zoom: var(--preview-zoom, 1);
 }
 
 .latex-page {
   box-sizing: border-box;
-  width: var(--latex-paper-width);
-  min-height: var(--latex-paper-height);
-  margin: 0 auto;
-  padding: 25mm 30mm;
+  width: var(--paper-width);
+  min-height: var(--paper-height);
+  /*
+   * Fit-to-pane: <latex-preview> sets --preview-zoom and --page-height. The
+   * page keeps its full-size layout (so line breaks match the PDF) and is
+   * scaled with a transform; the margins centre it and give back the height.
+   */
+  transform: scale(var(--preview-zoom, 1));
+  transform-origin: top left;
+  margin: 0 0 calc((var(--preview-zoom, 1) - 1) * var(--page-height, 0px))
+    max(0px, calc((100% - var(--paper-width) * var(--preview-zoom, 1)) / 2));
+  padding: var(--text-top)
+    calc(var(--paper-width) - var(--text-left) - var(--text-width))
+    var(--text-top) var(--text-left);
   background: #fff;
   color: #000;
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
-  font-family:
-    'Latin Modern Roman', 'Computer Modern Serif', 'CMU Serif', serif;
-  font-size: var(--latex-font-size);
-  line-height: var(--latex-baselineskip);
+}
+
+/* ------------------------------------------------------------ document */
+
+.latex-document {
+  display: flow-root;
+  margin-top: var(--first-line-offset);
+  font-family: var(--rm-family), 'LM Roman 10', serif;
+  font-size: var(--fs);
+  line-height: var(--lh);
   text-align: justify;
   hyphens: auto;
+  /*
+   * Not text-wrap: pretty: it avoids one-word last lines, which TeX happily
+   * produces, and so moves line breaks away from pdflatex's.
+   */
+  text-wrap: wrap;
   font-kerning: normal;
   font-variant-ligatures: common-ligatures;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
 }
 
-.latex-page p {
-  margin: 0;
-  text-indent: var(--latex-parindent);
+/* Reset the inherited spacing knobs on every element (lowest specificity). */
+:where(.latex-document *) {
+  --before: 0pt;
+  --prev-after: 0pt;
 }
 
-.latex-page p:first-child {
+/* Text blocks: one rule implements the baseline model. */
+:where(
+  .latex-document p,
+  .latex-document h2,
+  .latex-document h3,
+  .latex-document h4,
+  .latex-document pre,
+  .latex-document .title,
+  .latex-document .authors,
+  .latex-document .date,
+  .latex-document .math-display,
+  .latex-document .abstract-title
+) {
+  --bfs: var(--fs);
+  --blh: var(--lh);
+  /* Below-baseline part of a line box with the 80.6/19.4 metric overrides. */
+  --b: calc((var(--blh) + var(--bfs)) / 2 - 0.806 * var(--bfs));
+  margin: calc(max(var(--before), var(--prev-after)) + var(--b)) 0
+    calc(-1 * var(--b));
+  font-size: var(--bfs);
+  line-height: var(--blh);
+}
+
+/* Containers. */
+:where(
+  .latex-document header,
+  .latex-document ul,
+  .latex-document ol,
+  .latex-document li,
+  .latex-document blockquote,
+  .latex-document .center,
+  .latex-document .flushleft,
+  .latex-document .flushright,
+  .latex-document .abstract,
+  .latex-document .abstract-body,
+  .latex-document .unknown-environment,
+  .latex-document section
+) {
+  display: flow-root;
+  margin: max(var(--before), var(--prev-after)) 0 0;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------ paragraphs */
+
+.latex-document p {
+  text-indent: var(--parindent);
+  /*
+   * TeX can shrink interword glue (cmr: 3.33pt minus 1.11pt at 10pt); CSS
+   * justification can only stretch. Starting justified text from half of
+   * TeX's shrink lets lines hold what TeX would fit. Exact Knuth–Plass line
+   * breaking is a roadmap item.
+   */
+  word-spacing: -0.0555em;
+  orphans: 2;
+  widows: 2;
+}
+
+.latex-document p.noindent,
+.latex-document p.runin {
   text-indent: 0;
 }
+
+.latex-document p.runin {
+  --before: var(--subsection-before);
+}
+
+.latex-document .runin-heading {
+  font-weight: bold;
+  margin-right: 1em;
+}
+
+/* ------------------------------------------------------------ title */
+
+.latex-document header.maketitle {
+  text-align: center;
+  hyphens: manual;
+}
+
+.latex-document .title {
+  --bfs: var(--fs-LARGE);
+  --blh: var(--lh-LARGE);
+  --before: var(--title-before);
+  font-family: 'LM Roman 17', 'LM Roman 12', serif;
+}
+
+.latex-document .authors {
+  --bfs: var(--fs-large);
+  --blh: var(--lh-large);
+  --before: var(--author-before);
+  font-family: 'LM Roman 12', serif;
+}
+
+/* \begin{tabular}[t]{c} per author, \hskip 1em between them. */
+.latex-document .author {
+  display: inline-table;
+  padding: 0 6pt; /* \tabcolsep */
+}
+
+.latex-document .author + .author {
+  margin-left: 1em;
+}
+
+/* {\large \@date} ends before \par, so the line uses the normal \baselineskip. */
+.latex-document .date {
+  --bfs: var(--fs-large);
+  --before: var(--date-before);
+  font-family: 'LM Roman 12', serif;
+}
+
+.latex-document header.maketitle + * {
+  --prev-after: var(--title-after);
+}
+
+/* ------------------------------------------------------------ headings */
+
+.latex-document h2,
+.latex-document h3,
+.latex-document h4 {
+  font-weight: bold;
+  text-align: left;
+  hyphens: manual;
+  break-after: avoid;
+  break-inside: avoid;
+}
+
+.latex-document h2 {
+  --bfs: var(--fs-Large);
+  --blh: var(--lh-Large);
+  --before: var(--section-before);
+  font-family: 'LM Roman 12', serif;
+}
+
+.latex-document h3 {
+  --bfs: var(--fs-large);
+  --blh: var(--lh-large);
+  --before: var(--subsection-before);
+  font-family: 'LM Roman 12', serif;
+}
+
+.latex-document h4 {
+  --before: var(--subsection-before);
+}
+
+/* \@seccntformat: number then \quad (cmbx quad = 1.125em at 12pt design). */
+.latex-document .secnum {
+  margin-right: 1.125em;
+}
+
+.latex-document h4 .secnum {
+  margin-right: 1.15em;
+}
+
+.latex-document h2 + * {
+  --prev-after: var(--section-after);
+}
+
+.latex-document :is(h3, h4) + * {
+  --prev-after: var(--subsection-after);
+}
+
+/* ------------------------------------------------------------ lists */
+
+.latex-document :is(ul, ol) {
+  --lm: var(--leftmargin-1);
+  --before: var(--topsep);
+  list-style: none;
+  padding-left: var(--lm);
+}
+
+.latex-document
+  :is(ul, ol, blockquote, .center, .flushleft, .flushright, pre).vmode {
+  --before: calc(var(--topsep) + var(--partopsep));
+}
+
+.latex-document :is(ul, ol) :is(ul, ol) {
+  --lm: var(--leftmargin-2);
+}
+
+.latex-document :is(ul, ol) :is(ul, ol) :is(ul, ol) {
+  --lm: var(--leftmargin-3);
+}
+
+.latex-document :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) {
+  --lm: var(--leftmargin-4);
+}
+
+.latex-document li + li {
+  --before: calc(var(--itemsep) + var(--parsep));
+}
+
+.latex-document li > p {
+  text-indent: 0;
+}
+
+.latex-document li > p + p {
+  --before: var(--parsep);
+}
+
+/* Label in a box of \labelwidth, \labelsep before the text, right-aligned. */
+.latex-document .item-label {
+  display: inline-block;
+  box-sizing: border-box;
+  width: calc(var(--lm) - var(--labelsep));
+  margin-left: calc(-1 * var(--lm));
+  margin-right: var(--labelsep);
+  text-align: right;
+  text-indent: 0;
+}
+
+/* \labelitemii is \bfseries\textendash. */
+.latex-document ul.itemize ul.itemize > li > p > .item-label {
+  font-weight: bold;
+}
+
+/* description: \labelwidth 0, label in bold starting \labelsep in. */
+.latex-document ul.description > li > p > .item-label {
+  width: auto;
+  margin-left: calc(-1 * var(--lm) + var(--labelsep));
+  text-align: left;
+  font-weight: bold;
+}
+
+/* After a list-like environment: \topsep (+\partopsep), \addvspace-style. */
+.latex-document
+  :is(ul, ol, blockquote, .center, .flushleft, .flushright, pre)
+  + * {
+  --prev-after: var(--topsep);
+}
+
+.latex-document
+  :is(ul, ol, blockquote, .center, .flushleft, .flushright, pre).vmode
+  + * {
+  --prev-after: calc(var(--topsep) + var(--partopsep));
+}
+
+/* ------------------------------------------------------------ environments */
+
+.latex-document :is(.center, .flushleft, .flushright) {
+  --before: var(--topsep);
+}
+
+.latex-document :is(.center, .flushleft, .flushright) p {
+  text-indent: 0;
+}
+
+/* Unjustified lines use natural interword spacing, as in TeX. */
+.latex-document
+  :is(.center, .flushleft, .flushright, .centering, .raggedright, .raggedleft)
+  p {
+  word-spacing: normal;
+}
+
+.latex-document .center,
+.latex-document .centering {
+  text-align: center;
+}
+
+.latex-document .flushleft,
+.latex-document .raggedright {
+  text-align: left;
+}
+
+.latex-document .flushright,
+.latex-document .raggedleft {
+  text-align: right;
+}
+
+.latex-document blockquote {
+  --before: var(--topsep);
+  margin-left: var(--leftmargin-1);
+  margin-right: var(--leftmargin-1);
+}
+
+.latex-document blockquote.quote p {
+  text-indent: 0;
+}
+
+.latex-document blockquote p + p {
+  --before: var(--parsep);
+}
+
+/* quotation: \listparindent 1.5em, \parsep 0. */
+.latex-document blockquote.quotation p {
+  text-indent: 1.5em;
+}
+
+.latex-document blockquote.quotation p + p {
+  --before: 0pt;
+}
+
+.latex-document .abstract {
+  --fs: var(--fs-small);
+  --lh: var(--lh-small);
+  font-size: var(--fs);
+}
+
+.latex-document .abstract-title {
+  font-weight: bold;
+  text-align: center;
+}
+
+.latex-document .abstract-body {
+  margin-left: var(--leftmargin-1);
+  margin-right: var(--leftmargin-1);
+}
+
+.latex-document .abstract-body p {
+  text-indent: 1.5em;
+}
+
+.latex-document pre.verbatim {
+  --before: var(--topsep);
+  font-family: 'LM Mono 10', monospace;
+  white-space: pre;
+  text-align: left;
+}
+
+.latex-document .pagebreak {
+  break-after: page;
+}
+
+/* ------------------------------------------------------------ fonts */
+
+.latex-document em {
+  font-style: italic;
+}
+
+.latex-document :is(em, .it, .sl) em {
+  font-style: normal;
+}
+
+.latex-document .bf {
+  font-weight: bold;
+}
+
+.latex-document .md {
+  font-weight: normal;
+}
+
+.latex-document .it {
+  font-style: italic;
+}
+
+.latex-document .up {
+  font-style: normal;
+}
+
+.latex-document .sl {
+  font-family: 'LM Roman Slanted 10', serif;
+}
+
+.latex-document .sc {
+  font-family: 'LM Roman Caps 10', serif;
+}
+
+.latex-document .sf {
+  font-family: 'LM Sans 10', sans-serif;
+}
+
+.latex-document .rm {
+  font-family: var(--rm-family), serif;
+}
+
+.latex-document :is(.tt, code.verb) {
+  font-family: 'LM Mono 10', monospace;
+  hyphens: none;
+}
+
+.latex-document .normalfont {
+  font-family: var(--rm-family), serif;
+  font-weight: normal;
+  font-style: normal;
+}
+
+.latex-document .size-tiny {
+  --fs: var(--fs-tiny);
+  --lh: var(--lh-tiny);
+  font-size: var(--fs);
+}
+.latex-document .size-scriptsize {
+  --fs: var(--fs-scriptsize);
+  --lh: var(--lh-scriptsize);
+  font-size: var(--fs);
+}
+.latex-document .size-footnotesize {
+  --fs: var(--fs-footnotesize);
+  --lh: var(--lh-footnotesize);
+  font-size: var(--fs);
+}
+.latex-document .size-small {
+  --fs: var(--fs-small);
+  --lh: var(--lh-small);
+  font-size: var(--fs);
+}
+.latex-document .size-normalsize {
+  --fs: var(--fs-normalsize);
+  --lh: var(--lh-normalsize);
+  font-size: var(--fs);
+}
+.latex-document .size-large {
+  --fs: var(--fs-large);
+  --lh: var(--lh-large);
+  font-size: var(--fs);
+}
+.latex-document .size-Large {
+  --fs: var(--fs-Large);
+  --lh: var(--lh-Large);
+  font-size: var(--fs);
+}
+.latex-document .size-LARGE {
+  --fs: var(--fs-LARGE);
+  --lh: var(--lh-LARGE);
+  font-size: var(--fs);
+}
+.latex-document .size-huge {
+  --fs: var(--fs-huge);
+  --lh: var(--lh-huge);
+  font-size: var(--fs);
+}
+.latex-document .size-Huge {
+  --fs: var(--fs-Huge);
+  --lh: var(--lh-Huge);
+  font-size: var(--fs);
+}
+
+/* ------------------------------------------------------------ logos & marks */
+
+.latex-document :is(.logo-tex, .logo-latex) {
+  white-space: nowrap;
+}
+
+/* L\kern-.36em{\sbox A}\kern-.15em T\kern-.1667em\lower.5ex E\kern-.125em X */
+.latex-document :is(.logo-a, .logo-e) {
+  /* Shifted visually without enlarging the line box (TeX boxes don't). */
+  line-height: 0;
+}
+
+.latex-document .logo-a {
+  font-size: 0.7em;
+  vertical-align: 0.22em;
+  margin-left: -0.36em;
+  margin-right: -0.15em;
+}
+
+.latex-document .logo-e {
+  vertical-align: -0.5ex;
+  margin-left: -0.1667em;
+  margin-right: -0.125em;
+}
+
+.latex-document .unresolved {
+  font-weight: bold;
+}
+
+.latex-document .footnote-mark {
+  font-size: 0.7em;
+  vertical-align: 0.5em;
+  line-height: 0;
+}
+
+/* ------------------------------------------------------------ footnotes */
+
+/* Collected at the end of the document until on-screen pagination exists. */
+.latex-document section.footnotes {
+  --fs: var(--fs-footnotesize);
+  --lh: var(--lh-footnotesize);
+  --before: var(--footnotesep);
+  font-size: var(--fs);
+}
+
+/* \footnoterule: a 0.4pt rule, 0.4\columnwidth wide. */
+.latex-document section.footnotes::before {
+  content: '';
+  display: block;
+  width: 40%;
+  border-top: 0.4pt solid currentColor;
+  margin-bottom: 2.6pt;
+}
+
+.latex-document section.footnotes p {
+  text-indent: 0;
+}
+
+/* \@makefntext: mark right-aligned in a 1.8em box. */
+.latex-document section.footnotes .footnote-mark {
+  display: inline-block;
+  width: 1.8em;
+  text-align: right;
+  vertical-align: baseline;
+  position: relative;
+  top: -0.5em;
+}
+
+/* ------------------------------------------------------------ math (placeholder) */
+
+/* TeX source shown in italics until the math milestone (MathML). */
+.latex-document .math-placeholder {
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+.latex-document .math-display {
+  --before: var(--displayskip);
+  text-align: center;
+  text-indent: 0;
+}
+
+.latex-document .math-display + * {
+  --prev-after: var(--displayskip);
+}
+
+.latex-document .eqno {
+  float: right;
+}
+
+/* ------------------------------------------------------------ print */
 
 @media print {
   html,
   body {
     background: none;
     padding: 0;
-    zoom: 1;
   }
 
+  /* @page supplies the margins; the page box is exactly the text block. */
   .latex-page {
-    width: auto;
+    width: var(--text-width);
     min-height: 0;
     margin: 0;
     padding: 0;
     box-shadow: none;
+    transform: none;
   }
 }

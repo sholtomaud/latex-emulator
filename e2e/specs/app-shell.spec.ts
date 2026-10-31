@@ -22,7 +22,6 @@ test.describe('app shell', () => {
     page,
   }) => {
     const doc = page.frameLocator('latex-preview iframe');
-    // Milestone 1 placeholder renderer: commands appear as raw text.
     await expect(doc.locator('.latex-page')).toContainText(
       'This document is written in the LaTeX Emulator'
     );

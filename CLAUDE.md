@@ -25,9 +25,14 @@ with AGENTS.md, AGENTS.md wins; fix the conflict in the same change.
   class dimension, cite the source macro (`article.cls`, `size1x.clo`,
   `amsmath.sty`) in a code comment. If you can't confirm a value, say so
   instead of guessing, and add a fixture so it can be verified against `pdflatex`.
-- **Verify visually.** For any change under `src/render/` or `src/styles/document/`,
-  run the Playwright print-fidelity specs and look at the produced screenshots
-  or PDF. Passing assertions alone are not enough for typography work.
+- **Verify visually and numerically.** For any change under `src/render/` or
+  `src/styles/document/`, run `e2e/specs/print-fidelity.spec.ts` (it prints a
+  dx/dy table against pdflatex) and look at the screenshots. For layout work,
+  add a fixture (`scripts/make-reference.sh`, needs TeX Live and poppler) so
+  the new behaviour is measured against real pdflatex output.
+- **Run Playwright in the pinned image before trusting a pass.** Glyph
+  advances and line breaks differ between Chromium builds. Several fidelity
+  issues only showed in the CI image (`scripts/playwright-docker.sh`).
 - **Erasable TypeScript only:** no `enum`, `namespace` or constructor parameter
   properties. Use explicit `.ts` import extensions and `import type`. Node's
   type stripping will reject anything else at test time.
