@@ -7,8 +7,13 @@ spell checking, a LaTeX-faithful preview and a print-CSS PDF download. It is
 built on [Boba](https://github.com/sholtomaud/boba). It doesn't run TeX: it
 emulates a well-defined subset of LaTeX with native browser technology.
 
-**Status:** milestone 1, the app shell (editor | preview split) with the test
-harness in place. See the roadmap in [`AGENTS.md`](AGENTS.md#14-build-order-roadmap).
+**Status:** LaTeX parsing and a print-faithful `article` layout are in place.
+Monaco is next. See the roadmap in [`AGENTS.md`](AGENTS.md#14-build-order-roadmap).
+
+![pdflatex output beside the emulator's printed PDF](docs/fidelity-article-basic.png)
+
+*Left: real `pdflatex`. Right: this app's PDF, printed by Chromium. The same
+lines break in the same places; positions agree to within about 1pt.*
 
 ## Getting started
 

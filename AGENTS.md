@@ -174,31 +174,33 @@ src/
 │   ├── parser/                   # error-tolerant parser → AST
 │   ├── ast/                      # node types, visitors, source ranges
 │   ├── macros/                   # \newcommand / \renewcommand expansion
+│   ├── classes/                  # class geometry from article.cls / size1x.clo
+│   ├── document/                 # preamble/body split, class options, metadata
 │   ├── commands/                 # registry: supported commands & environments,
 │   │                             #   arity, docs, render hooks (single table)
 │   ├── lint/                     # rule-per-file lint rules
 │   ├── spell/                    # prose extraction + checker interface
 │   └── math/                     # TeX math → MathML
-├── render/                       # AST → DOM (uses DOM APIs; Playwright-tested)
+├── render/                       # AST → HNode tree (pure) → DOM (to-dom.ts only);
+│                                 #   document-css.ts generates @font-face, @page and
+│                                 #   geometry custom properties
+├── assets/fonts/                 # Latin Modern WOFF2 (Vite-fingerprinted) + GUST licence
 ├── language/                     # Monaco glue: Monarch grammar, providers, markers
 ├── workers/
 │   └── language.worker.ts        # hosts src/latex/* (+ WASM) off main thread
 ├── styles/
 │   ├── app.css                   # app chrome (Tailwind allowed here only)
 │   └── document/                 # LaTeX look: NEVER loaded into app chrome
-│       ├── base.css              # fonts, sizes, paragraphs, lists
-│       ├── article.css           # class-specific geometry
-│       ├── math.css
-│       └── print.css             # @page rules, page-break control
+│       └── base.css              # all document rules, driven by generated
+│                                 #   custom properties (math.css arrives with math)
 └── wasm/                         # generated wasm-bindgen output (gitignored)
 crates/                           # Rust workspace (only if/when needed)
 └── latex-spell/ …                # each crate: lib.rs, wasm.rs, ts-rs exports
 public/
 ├── manifest.webmanifest
 ├── sw.js                         # hand-written service worker
-├── fonts/                        # Latin Modern woff2 + Latin Modern Math (licenses alongside)
 └── dict/                         # Hunspell .aff/.dic (licenses alongside)
-fixtures/                         # *.tex inputs + expected outputs (see §10)
+fixtures/                         # *.tex inputs + pdflatex references (see §10)
 docs/decisions/                   # short ADRs: NNNN-title.md
 e2e/
 ├── specs/                        # functional e2e (dev + prod builds)
@@ -207,6 +209,7 @@ e2e/
 └── pages/                        # GitHub Pages build + live-site checks
 scripts/playwright-docker.sh      # run Playwright in the pinned CI image
 scripts/build-pages.sh            # GitHub Pages build (.pages/<repo>/)
+scripts/make-reference.sh         # regenerate a fixture's pdflatex references
 playwright.config.ts              # projects: functional-dev/-prod, smoke, visual, pages
 ```
 
@@ -224,7 +227,10 @@ Grow the subset deliberately. Every supported command or environment lives in
 mode (text/math/both), hover documentation and render hook. Completion, hover,
 lint ("unknown command") and rendering all read the same registry.
 
-**Tier 1 (MVP)**
+**Tier 1 (MVP)**: implemented except where noted. Math renders as TeX source
+in italics until step 5. `\ref`/`\eqref`/`\pageref` print a bold `??` until
+step 5. `\tableofcontents` is not yet supported. Footnotes are collected at
+the end of the document (ADR 0003).
 - Preamble: `\documentclass[opts]{article}` (`10pt|11pt|12pt`, `a4paper|letterpaper`,
   `twocolumn` later), `\usepackage` (recognised and validated; known packages
   toggle features, unknown ones warn), `\title`, `\author`, `\date`, `\maketitle`.
@@ -259,30 +265,49 @@ and render its arguments' text so content is never silently lost.
 "Perfect PDF" means: **a reader should not be able to tell at a glance that
 it didn't come from `pdflatex`.** Measure that with fixtures (§10), not by eye.
 
-**Fonts.** Self-host **Latin Modern Roman/Sans/Mono** (woff2) and **Latin
-Modern Math** (for MathML) in `public/fonts/`, with their GUST Font License
-files. Never fall back silently to system fonts: preload the fonts and
-`await document.fonts.ready` inside the iframe before printing.
+**Fonts.** Self-host **Latin Modern Roman/Sans/Mono** (WOFF2, subset to Latin
+and punctuation from TeX Live's OpenType files) in `src/assets/fonts/`, with
+the GUST Font License, and **Latin Modern Math** for MathML when math lands.
+Use optical sizes the way LaTeX does: LM Roman 10 for text (12 for 12pt
+documents), 12 for headings, 17 for the title. Every `@font-face` pins
+`ascent-override: 80.6%; descent-override: 19.4%; line-gap-override: 0%`
+(LM's own typo metrics), so baselines land in the same place on every
+platform. Never fall back silently to system fonts. Await
+`document.fonts.ready` inside the iframe before printing.
 
 **Geometry.** Derive sizes from the LaTeX `article` class and its `size1x.clo`
 files, exposed as CSS custom properties set from `\documentclass` options.
-For example, at 10pt: base 10pt/12pt leading, `\parindent` 15pt, `\textwidth`
-345pt, `\section` at `\Large` (14.4pt) bold. **Before hard-coding any value,
-verify it against `article.cls`/`size10.clo`/`size11.clo`/`size12.clo` and a
-`pdflatex` reference PDF.** Write those values in `styles/document/article.css`
-with a comment citing the source macro.
+`src/latex/classes/article.ts` reproduces the class's own arithmetic
+(`\textwidth`, `\textheight`, `\oddsidemargin`, `\topmargin` with
+`\@settopoint`, size tables, `\@listi`). Lengths are TeX points, and
+`toBp` converts them to CSS points (TeX pt = 1/72.27 in, CSS pt = 1/72 in).
+**Before adding any value, verify it against `article.cls`/`size1x.clo` and
+a `pdflatex` reference.** Cite the source macro in a comment.
+
+**Vertical spacing model** (`styles/document/base.css`, top comment). Every
+text block gets `margin-top: skip + b` and `margin-bottom: −b`, where `b` is
+the part of its line box below the baseline. With CSS margin collapsing, the
+distance between consecutive baselines becomes the next block's
+`\baselineskip` plus the skip, which is TeX's rule. `--before`/`--prev-after`
+take the maximum, like `\addvspace`. Containers are `flow-root`.
 
 **Paragraph and typography rules (CSS):**
 - `text-align: justify; hyphens: auto;` with the document's `lang` set on the
   root, so the browser's hyphenation dictionary for that language is used.
 - First paragraph after a heading has no indent; later paragraphs indent by
   `\parindent` with zero `\parskip`, like LaTeX's default.
-- `text-wrap: pretty` as a cheap approximation to Knuth–Plass. Real Knuth–Plass
-  is a Tier-3 Rust candidate.
+- **Not** `text-wrap: pretty`: it avoids one-word last lines, which TeX
+  happily produces, and so moves breaks away from pdflatex's (found by the
+  line-break fidelity test).
+- Justified paragraphs use `word-spacing: −0.0555em`, half of Computer
+  Modern's interword shrink, because CSS can stretch spaces but never shrink
+  them. In the CI browser any value from −0.03em to −0.08em reproduces the
+  fixture's breaks. Real Knuth–Plass is a Tier-3 Rust candidate.
 - `font-variant-ligatures: common-ligatures`, `font-kerning: normal`,
   old-style figures off, as in LaTeX's defaults.
 
-**Paged media (`styles/document/print.css`):**
+**Paged media** (`@page` generated by `document-css.ts`, other rules in
+`base.css`):
 - `@page { size: A4 | letter; margin: … }` computed from the class geometry.
 - Page numbers in `@page { @bottom-center { content: counter(page); } }` margin boxes.
 - `break-before/after/inside` on headings, figures, equations, list items;
@@ -301,8 +326,11 @@ relying on a paged-media feature, check its current support and say which
 browsers it was verified in.
 
 **Pagination in the preview.** The on-screen preview must show page boundaries
-that match the PDF. Start with a single flow plus CSS print emulation. If
-on-screen pages are needed, implement our own lightweight paginator in
+that match the PDF. Today it is a single long page, laid out at full size and
+scaled with `transform: scale()`, never `zoom`. Zoom re-runs layout at the
+smaller size and changes line breaks in some Chromium builds; a test checks
+that the scaled preview breaks lines exactly like the full-size page. For
+on-screen pages, implement our own lightweight paginator in
 `src/render/paginate/` rather than adding a polyfill dependency.
 
 ---
@@ -396,12 +424,18 @@ the commit message.
   because fonts and the Chromium build change pixels. Generate them with
   `npm run e2e:visual:update` (Docker) or the **"Update visual baselines"**
   GitHub workflow. Never commit baselines generated on a host OS.
-- **Fixtures (from roadmap step 3).** `fixtures/<name>/` holds `input.tex`,
-  `ast.json`, `diagnostics.json`, and `reference.pdf` +
-  `reference-page-N.png` generated once by real `pdflatex`, with the
-  generating command recorded in `fixtures/README.md`. Print-fidelity visual
-  specs compare our rendering of each fixture with its `pdflatex` reference.
-  `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
+- **Fixtures and print fidelity.** `fixtures/<name>/` holds `input.tex` and
+  real-`pdflatex` references: `reference.pdf`, `reference-page-N.png`, and
+  `reference-lines.json` (every line's and word's box from
+  `pdftotext -bbox-layout`). Regenerate them with `scripts/make-reference.sh`
+  (needs TeX Live and poppler; see `fixtures/README.md`).
+  `e2e/specs/print-fidelity.spec.ts` renders each fixture and asserts that:
+  - every line breaks where pdflatex breaks it;
+  - checked lines start within **0.5pt** horizontally (1pt for centred
+    lines) and sit within **1pt** vertically.
+
+  Tighten these tolerances as fidelity improves; never loosen them to get
+  green. `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
 
 ### Before every push
 
@@ -495,10 +529,14 @@ chosen branch.
    split (textarea placeholder editor, iframe preview, placeholder
    plain-text renderer); unit/e2e/smoke/visual suites and CI; GitHub Pages
    deployment with post-deploy smoke tests.
-2. Monaco integration (core editor + worker only) with a Monarch LaTeX grammar.
-3. Lexer + error-tolerant parser + AST with ranges; syntax diagnostics → markers.
-4. Renderer for Tier-1 text constructs; iframe preview; `document/*.css`;
-   Latin Modern fonts; print → PDF; first `pdflatex` reference fixtures.
+2. ✅ (done before Monaco, by request) Lexer, error-tolerant parser, AST with
+   ranges, command registry, syntax diagnostics; class geometry from
+   `size1x.clo`; Tier-1 renderer; Latin Modern fonts; `@page` print and the
+   Download PDF button / Cmd/Ctrl+P; `pdflatex` reference fixture and
+   print-fidelity tests.
+3. **Next:** Monaco integration (core editor and worker only) with a Monarch
+   LaTeX grammar; parser diagnostics shown as markers.
+4. Language worker: move parsing and diagnostics off the main thread.
 5. TeX math → MathML; equation numbering; `\label`/`\ref` two-pass.
 6. Lint rules; completion and hover from the command registry; quick-fixes.
 7. Spell checking (TS first; Rust/WASM crate if it misses the budget).
