@@ -11,6 +11,14 @@ entry point bundles far more than we need.
 - **Version:** `monaco-editor@0.57.0`, pinned exactly. Monaco brings two
   transitive runtime dependencies of its own, `marked` (hover Markdown) and
   `dompurify` (sanitising that Markdown). We don't import either directly.
+  Monaco 0.57.0 pins `dompurify@3.4.15`, which has critical advisories
+  (GHSA-cg2g-xh64-v4q7 and others). An npm `overrides` entry forces the
+  patched `3.4.17`. This path is live: hover Markdown displays diagnostic
+  messages that contain user text. Remove the override once Monaco depends
+  on a fixed version.
+- **Audit gate:** `npm run audit` (`npm audit --omit=dev --audit-level=high`)
+  runs in CI's Unit job. A high or critical advisory in any runtime
+  dependency fails the build.
 - **Curated entry, not `editor.main`.** `src/language/monaco.ts` imports
   `editor.api.js` plus only the editor features we use: hover, find,
   folding, bracket matching, comment toggle, suggest, context menu, line and

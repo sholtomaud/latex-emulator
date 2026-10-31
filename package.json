@@ -22,7 +22,8 @@
     "e2e:visual": "scripts/playwright-docker.sh test --project=visual",
     "e2e:visual:update": "scripts/playwright-docker.sh test --project=visual --update-snapshots",
     "build:pages": "scripts/build-pages.sh",
-    "e2e:pages": "playwright test --project=pages"
+    "e2e:pages": "playwright test --project=pages",
+    "audit": "npm audit --omit=dev --audit-level=high"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0",
@@ -39,7 +40,8 @@
     "vite": "^8.1.4"
   },
   "overrides": {
-    "compression": "^1.8.2"
+    "compression": "^1.8.2",
+    "dompurify": "3.4.17"
   },
   "description": "A LaTeX editing PWA built on Boba: Monaco editor, live diagnostics, and print-CSS PDF output.",
   "private": true,

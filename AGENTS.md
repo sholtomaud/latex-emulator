@@ -447,6 +447,7 @@ the commit message.
 npm ci
 npm run typecheck            # tsc -p .
 npm run lint                 # oxlint + prettier --check
+npm run audit                # no high/critical advisories in runtime deps
 npm run test:coverage        # unit tests + coverage gate
 npm run build                # vite build
 npm run e2e:smoke            # smoke
@@ -467,7 +468,7 @@ run `npx playwright install --with-deps chromium`.
 **`ci.yml`** runs on every PR, and is called by `deploy.yml` on every push to
 `main`. Its jobs run in parallel, and all must pass:
 
-- **Unit:** typecheck, lint, `test:coverage`, build (Node 25).
+- **Unit:** typecheck, lint, runtime dependency audit, `test:coverage`, build (Node 25).
 - **Playwright (smoke)**, **(e2e)**, **(visual)**, **(pages)**: each runs in the
   pinned Playwright container and uploads its report and diffs as an artifact.
 
