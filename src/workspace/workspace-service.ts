@@ -10,6 +10,8 @@ import { SAMPLE_DOCUMENT } from '../store/sample-document.ts';
 import { debounce } from '../util/debounce.ts';
 import { readPref, writePref } from '../util/browser-prefs.ts';
 import { downloadText } from '../util/download.ts';
+import { requestPrint } from '../store/print-requests.ts';
+import type { Bump } from './versions.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -85,6 +87,23 @@ export const workspaceActions = {
     act((w) => {
       const file = id ? w.exportDocument(id) : w.exportActive();
       if (file) downloadText(file.fileName, file.text, 'application/x-tex');
+    }),
+  saveVersion: (bump: Bump = 'patch') =>
+    act((w) => w.saveVersion(bump).then(() => {})),
+  downloadVersion: (versionId: string) =>
+    act((w) => {
+      const file = w.exportVersion(versionId);
+      if (file) downloadText(file.fileName, file.text, 'application/x-tex');
+    }),
+  /**
+   * Print a preprint of a version; without one, of the current text (saved
+   * as a new patch version first if it changed since the last version).
+   */
+  preprint: (versionId?: string) =>
+    act(async (w) => {
+      const id = versionId ?? (await w.saveVersion('patch')).id;
+      const p = w.preprintOf(id);
+      if (p) requestPrint({ source: p.source, title: p.title, stamp: p.stamp });
     }),
   toggleExplorer: () =>
     uiStore.setState({ explorerOpen: !uiStore.getState().explorerOpen }),

@@ -163,7 +163,8 @@ src/
 ├── main.ts                       # routes, boot, SW registration
 ├── core/                         # Boba core (base-component, router, store)
 ├── store/                        # app stores: document, diagnostics, workspace, ui, print
-├── storage/                      # DocumentRepository: IndexedDB + in-memory
+├── storage/                      # DocumentRepository (documents + versions):
+│                                 #   IndexedDB + in-memory
 ├── workspace/                    # documents: pure Workspace logic, names, and the
 │                                 #   browser wiring (autosave, import/export)
 ├── components/
@@ -552,12 +553,11 @@ chosen branch.
    hover messages (ADR 0004).
 4. ✅ Documents: VS Code-style explorer (Ctrl/⌘+B), new/open/rename/delete,
    autosave to IndexedDB, `.tex` import and download (ADR 0005).
-5. **Next:** Versions and preprints. Saved snapshots with semantic versions
-   (patch by default, minor/major on request), a version history, and a
-   Download Preprint that stamps the footer with version, date and the
-   SHA-256 of the exact `.tex` source. The `.tex` download for a version
-   carries the same hash, so every PDF can be matched to its source.
-6. Citations and bibliography: natbib (`\cite`, `\citep`, `\citet`,
+5. ✅ Versions and preprints. Semantic-version snapshots (0.1.0 first; patch
+   by default, minor/major on request), a version history, version `.tex`
+   downloads, and Download Preprint with a footer stamp of version, date and
+   SHA-256 of the exact `.tex` source (ADR 0006).
+6. **Next:** Citations and bibliography: natbib (`\cite`, `\citep`, `\citet`,
    `\citeauthor`, `\citeyear`, `[pre][post]` notes), a `.bib` library in
    IndexedDB, `\bibliography` + `\bibliographystyle` (plainnat/author–year)
    checked against real pdflatex + BibTeX, DOI/URL lookup, reference

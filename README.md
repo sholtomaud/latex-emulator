@@ -8,9 +8,16 @@ built on [Boba](https://github.com/sholtomaud/boba). It doesn't run TeX: it
 emulates a well-defined subset of LaTeX with native browser technology.
 
 **Status:** a document workspace (VS Code-style explorer, autosave in the
-browser, `.tex` import and download), the Monaco editor with live error
-markers, and a print-faithful `article` layout are in place. Next: versions
-and preprints, then citations. See the roadmap in [`AGENTS.md`](AGENTS.md#14-build-order-roadmap).
+browser, `.tex` import and download), versioned snapshots with preprint PDFs
+stamped with a SHA-256 checksum, the Monaco editor with live error markers,
+and a print-faithful `article` layout are in place. Next: citations.
+
+To check that a preprint matches its source, download that version's `.tex`
+and compare its hash with the PDF footer:
+
+```bash
+shasum -a 256 a-short-example-v0.1.0.tex   # first 16 hex digits = the footer
+```
 
 ![pdflatex output beside the emulator's printed PDF](docs/fidelity-article-basic.png)
 

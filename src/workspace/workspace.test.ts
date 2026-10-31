@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import { Workspace, NEW_DOCUMENT_SOURCE } from './workspace.ts';
 import type { WorkspaceState } from './workspace.ts';
 import { MemoryRepository } from '../storage/memory-repository.ts';
+import { createHash } from 'node:crypto';
 
 function setup(
   options: { repo?: MemoryRepository; activeId?: string | null } = {}
@@ -232,5 +233,95 @@ describe('Workspace', () => {
       NEW_DOCUMENT_SOURCE,
       /\\begin\{document\}[\s\S]*\\end\{document\}/
     );
+  });
+});
+
+describe('Workspace versions', () => {
+  test('the first saved version is 0.1.0 with the hash of the exact source', async () => {
+    const { workspace, last } = setup();
+    await workspace.init(SAMPLE);
+    const v = await workspace.saveVersion();
+    assert.strictEqual(v.version, '0.1.0');
+    assert.strictEqual(
+      v.sha256,
+      createHash('sha256').update(SAMPLE.source, 'utf8').digest('hex')
+    );
+    assert.deepStrictEqual(
+      last().versions.map((x) => x.version),
+      ['0.1.0']
+    );
+  });
+
+  test('saving unchanged text as a patch reuses the latest version', async () => {
+    const { workspace, last } = setup();
+    await workspace.init(SAMPLE);
+    const a = await workspace.saveVersion();
+    const b = await workspace.saveVersion('patch');
+    assert.strictEqual(b.id, a.id);
+    assert.strictEqual(last().versions.length, 1);
+  });
+
+  test('changes bump the patch; minor and major bump on request', async () => {
+    const { workspace, last } = setup();
+    await workspace.init(SAMPLE);
+    await workspace.saveVersion();
+    await workspace.save('edit 1');
+    await workspace.saveVersion();
+    await workspace.saveVersion('minor'); // explicit bump even without edits
+    await workspace.save('edit 2');
+    await workspace.saveVersion('major');
+    assert.deepStrictEqual(
+      last().versions.map((x) => x.version),
+      ['1.0.0', '0.2.0', '0.1.1', '0.1.0']
+    );
+  });
+
+  test('versions belong to their document and load when it opens', async () => {
+    const { workspace, last } = setup();
+    await workspace.init(SAMPLE);
+    await workspace.saveVersion();
+    await workspace.create();
+    assert.deepStrictEqual(last().versions, []);
+    await workspace.open('doc-1');
+    assert.deepStrictEqual(
+      last().versions.map((x) => x.version),
+      ['0.1.0']
+    );
+  });
+
+  test('a version exports as a .tex file named with its version', async () => {
+    const { workspace } = setup();
+    await workspace.init(SAMPLE);
+    const v = await workspace.saveVersion();
+    await workspace.save('later edit');
+    assert.deepStrictEqual(workspace.exportVersion(v.id), {
+      fileName: 'a-short-example-v0.1.0.tex',
+      text: SAMPLE.source,
+    });
+    assert.strictEqual(workspace.exportVersion('nope'), null);
+  });
+
+  test('a preprint of a version carries its source, stamp and file title', async () => {
+    const { workspace } = setup();
+    await workspace.init(SAMPLE);
+    const v = await workspace.saveVersion();
+    const p = workspace.preprintOf(v.id)!;
+    assert.strictEqual(p.source, SAMPLE.source);
+    assert.strictEqual(p.title, 'a-short-example-v0.1.0-preprint');
+    assert.deepStrictEqual(p.stamp, {
+      version: '0.1.0',
+      date: v.createdAt,
+      sha256: v.sha256,
+    });
+    assert.strictEqual(workspace.preprintOf('nope'), null);
+  });
+
+  test('deleting a document deletes its versions', async () => {
+    const { workspace, repo } = setup();
+    await workspace.init(SAMPLE);
+    await workspace.saveVersion();
+    await workspace.create();
+    await workspace.delete('doc-1');
+    assert.deepStrictEqual(await repo.listVersions('doc-1'), []);
   });
 });

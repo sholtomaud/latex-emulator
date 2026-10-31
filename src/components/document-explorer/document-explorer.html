@@ -43,6 +43,41 @@
       </span>
     </li>
   </template>
+  <section class="versions" aria-label="Versions">
+    <div class="explorer-header">
+      <h2 class="explorer-title">Versions</h2>
+    </div>
+    <div class="version-controls">
+      <select class="version-bump" aria-label="Version bump">
+        <option value="patch">Patch</option>
+        <option value="minor">Minor</option>
+        <option value="major">Major</option>
+      </select>
+      <button type="button" class="save-version">Save version</button>
+    </div>
+    <p class="versions-empty">
+      No versions yet. Save one, or use Download Preprint.
+    </p>
+    <ul class="version-list"></ul>
+  </section>
+  <template class="version-item-template">
+    <li class="version-item">
+      <span class="version-text">
+        <span class="version-label"></span>
+        <span class="version-meta"
+          ><time></time> · <code class="version-hash"></code
+        ></span>
+      </span>
+      <span class="version-actions">
+        <button type="button" class="icon-button version-download">
+          <span aria-hidden="true">⤓</span>
+        </button>
+        <button type="button" class="icon-button version-preprint">
+          <span aria-hidden="true">⎙</span>
+        </button>
+      </span>
+    </li>
+  </template>
   <template class="doc-rename-template">
     <input class="doc-name-input" type="text" aria-label="Document name" />
   </template>

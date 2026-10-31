@@ -1,8 +1,13 @@
-import type { DocumentRepository, StoredDocument } from './types.ts';
+import type {
+  DocumentRepository,
+  StoredDocument,
+  VersionRecord,
+} from './types.ts';
 
 /** In-memory documents: for tests, and a fallback when IndexedDB is unavailable. */
 export class MemoryRepository implements DocumentRepository {
   private docs = new Map<string, StoredDocument>();
+  private versions: VersionRecord[] = [];
 
   async list(): Promise<StoredDocument[]> {
     return [...this.docs.values()].map((d) => ({ ...d }));
@@ -19,5 +24,20 @@ export class MemoryRepository implements DocumentRepository {
 
   async delete(id: string): Promise<void> {
     this.docs.delete(id);
+  }
+
+  async listVersions(documentId: string): Promise<VersionRecord[]> {
+    return this.versions
+      .filter((v) => v.documentId === documentId)
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map((v) => ({ ...v }));
+  }
+
+  async addVersion(version: VersionRecord): Promise<void> {
+    this.versions.push({ ...version });
+  }
+
+  async deleteVersions(documentId: string): Promise<void> {
+    this.versions = this.versions.filter((v) => v.documentId !== documentId);
   }
 }

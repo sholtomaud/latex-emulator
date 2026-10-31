@@ -20,7 +20,10 @@ test.describe('Monaco editor', () => {
     await expect(command).toBeVisible();
     const color = (l: typeof command) =>
       l.evaluate((el) => getComputedStyle(el).color);
-    expect(await color(command)).not.toBe(await color(prose));
+    // Monaco paints text first and tokenizes a moment later.
+    await expect
+      .poll(async () => (await color(command)) !== (await color(prose)))
+      .toBe(true);
   });
 
   test('an unclosed environment is marked as an error with the parser message', async ({
