@@ -1,0 +1,176 @@
+% Ground-truth BibTeX test library: every standard type and the awkward
+% name, macro and crossref cases. Expected outputs come from real bibtex
+% (scripts/make-bibtex-reference.sh).
+@string{ecomod = "Ecological Modelling"}
+@string{wiley  = {John Wiley \& Sons}}
+@preamble{"\providecommand{\noopsort}[1]{}"}
+
+@book{odum_energy_1996,
+  author    = {Odum, Howard T.},
+  title     = {Environmental Accounting: {Emergy} and Environmental Decision Making},
+  publisher = wiley,
+  address   = {New York},
+  year      = 1996,
+  isbn      = {978-0-471-11442-0}
+}
+
+@article{brown_emergy_2004,
+  author  = {Brown, Mark T. and Ulgiati, Sergio},
+  title   = {Energy quality, emergy, and transformity: {H.T.} {Odum}'s contributions to quantifying and understanding systems},
+  journal = ecomod,
+  volume  = {178},
+  number  = {1--2},
+  pages   = {201--213},
+  year    = {2004},
+  month   = may,
+  doi     = {10.1016/j.ecolmodel.2003.12.032}
+}
+
+@inproceedings{hall_energy_2014,
+  author    = {Hall, Charles A. S. and Lambert, Jessica G. and Balogh, Stephen B.},
+  title     = {{EROI} of different fuels and the implications for society},
+  booktitle = {Proceedings of the Energy Policy Workshop},
+  editor    = {Smith, Jane and Doe, John},
+  pages     = {141-152},
+  year      = {2014},
+  url       = {https://example.org/eroi}
+}
+
+@article{waals_continuity_1873,
+  author  = {van der Waals, Johannes Diderik},
+  title   = {On the Continuity of the Gaseous and Liquid States},
+  journal = {Doctoral Dissertation, " # "Leiden},
+  year    = {1873},
+  pages   = {7}
+}
+
+@book{fontaine_fables_1668,
+  author    = {Jean de la Fontaine},
+  title     = {Fables Choisies},
+  publisher = {Claude Barbin},
+  address   = {Paris},
+  year      = {1668},
+  edition   = {first},
+  volume    = {1},
+  series    = {Classiques}
+}
+
+@misc{king_letter_1963,
+  author       = {King, Jr., Martin Luther},
+  title        = {Letter from {Birmingham} Jail},
+  howpublished = {Pamphlet},
+  month        = apr,
+  year         = {1963},
+  note         = {Widely reprinted}
+}
+
+@techreport{who_report_2020,
+  author      = {{World Health Organization}},
+  title       = {Global Report on Energy and Health},
+  institution = {WHO},
+  number      = {WHO/123},
+  type        = {Technical Report},
+  year        = {2020},
+  address     = {Geneva}
+}
+
+@phdthesis{ozturk_thesis_2010,
+  author = {{\"O}zt{\"u}rk, Ay{\c s}e},
+  title  = {Emergy Synthesis of {Turkish} Agriculture},
+  school = {University of Florida},
+  year   = {2010}
+}
+
+@mastersthesis{li_masters_2015,
+  author = {Li, Wei},
+  title  = {Short Names in Bibliographies},
+  school = {MIT},
+  year   = {2015},
+  type   = {{MSc} thesis}
+}
+
+@incollection{ng_chapter_2012,
+  author    = {Ng, A. Y. and Jordan, M. I. and others},
+  title     = {A Chapter on Learning},
+  booktitle = {Advances in Learning},
+  editor    = {Sartre, Jean-Paul},
+  publisher = {Springer},
+  year      = {2012},
+  pages     = {1--20},
+  chapter   = {3}
+}
+
+@unpublished{aristotle_physics,
+  author = {Aristotle},
+  title  = {Physics},
+  note   = {Manuscript},
+  year   = {-350}
+}
+
+@manual{r_manual_2023,
+  title        = {R: A Language and Environment for Statistical Computing},
+  organization = {R Core Team},
+  address      = {Vienna, Austria},
+  year         = {2023},
+  url          = {https://www.R-project.org/}
+}
+
+@booklet{anon_booklet_1999,
+  title        = {An Anonymous Booklet},
+  howpublished = {Distributed at the conference},
+  year         = {1999},
+  key          = {Anon}
+}
+
+@proceedings{energy_proc_2014,
+  title     = {Proceedings of the Energy Policy Workshop},
+  editor    = {Smith, Jane and Doe, John},
+  publisher = {Energy Press},
+  year      = {2014}
+}
+
+@inproceedings{crossref_paper_2014,
+  author   = {Doe, John},
+  title    = {A Paper Inheriting Its Proceedings},
+  crossref = {energy_proc_2014},
+  pages    = {5--9}
+}
+
+@inbook{tufte_inbook_1983,
+  author    = {Tufte, Edward R.},
+  title     = {The Visual Display of Quantitative Information},
+  chapter   = {2},
+  pages     = {13--52},
+  publisher = {Graphics Press},
+  year      = {1983}
+}
+
+@article{odum_maximum_1955,
+  author  = {Odum, Howard T. and Pinkerton, Richard C.},
+  title   = {Time's speed regulator: the optimum efficiency for maximum power output in physical and biological systems},
+  journal = {American Scientist},
+  volume  = {43},
+  pages   = {331--343},
+  year    = {1955},
+  issn    = {0003-0996}
+}
+
+@article{odum_maximum_1955b,
+  author  = {Odum, Howard T. and Pinkerton, Richard C.},
+  title   = {A second 1955 paper},
+  journal = {American Scientist},
+  year    = {1955},
+  eid     = {e17}
+}
+
+@misc{foreign_letters,
+  author = {{\O}stergaard, {\AE}lfred and {\l}ukasz {\'E}mile and de la {\ss}tra{\ss}e, X. and {\o}rsted, {\i}da and {\oe}hman, A},
+  title  = {{\AE}sop {\oe}uvre {\'E}cole {\ss} {\i}{\j} {\l}{\L} {\o}{\O} {\aa}{\AA} {\"u}ber: {\'{E}}tude {\TeX} {\`a} la {\c C}a{\c c}a},
+  year   = {2001}
+}
+
+@misc{von_cases,
+  author = {Jean {\'e}tienne {\v{S}}koda and {de} Gaulle, Charles and Ludwig {van} Beethoven and d'Alembert, Jean le Rond and Charles Louis de Secondat, Baron de Montesquieu and {\relax Ch}arles Dickens},
+  title  = {Von Cases},
+  year   = {1750}
+}

@@ -1,0 +1,477 @@
+ENTRY odum_energy_1996
+author num.names=1
+NAME 1
+  full=Howard~T. Odum
+  short=Odum
+  init=H.~T. Odum
+  sort=Odum  H T
+  last.first=Odum, H.~T
+  title.t=Environmental accounting: {Emergy} and environmental decision making
+  title.l=environmental accounting: {Emergy} and environmental decision making
+  title.u=ENVIRONMENTAL ACCOUNTING: {Emergy} AND ENVIRONMENTAL DECISION MAKING
+  title.purify=Environmental Accounting Emergy and Environmental Decision
+  Making
+  title.prefix3=Env
+  title.length=66
+  title.sub2_5=nviro
+  title.sub-1_3=ing
+  title.period=Environmental Accounting: {Emergy} and Environmental Decision
+  Making.
+ENTRY brown_emergy_2004
+author num.names=2
+NAME 1
+  full=Mark~T. Brown
+  short=Brown
+  init=M.~T. Brown
+  sort=Brown  M T
+  last.first=Brown, M.~T
+NAME 2
+  full=Sergio Ulgiati
+  short=Ulgiati
+  init=S.~Ulgiati
+  sort=Ulgiati  S
+  last.first=Ulgiati, S
+  title.t=Energy quality, emergy, and transformity: {H.T.} {Odum}'s
+  contributions to quantifying and understanding systems
+  title.l=energy quality, emergy, and transformity: {H.T.} {Odum}'s
+  contributions to quantifying and understanding systems
+  title.u=ENERGY QUALITY, EMERGY, AND TRANSFORMITY: {H.T.} {Odum}'S
+  CONTRIBUTIONS TO QUANTIFYING AND UNDERSTANDING SYSTEMS
+  title.purify=Energy quality emergy and transformity HT Odums contributions to
+  quantifying and understanding systems
+  title.prefix3=Ene
+  title.length=108
+  title.sub2_5=nergy
+  title.sub-1_3=ems
+  title.period=Energy quality, emergy, and transformity: {H.T.} {Odum}'s
+  contributions to quantifying and understanding systems.
+ENTRY hall_energy_2014
+author num.names=3
+NAME 1
+  full=Charles A.~S. Hall
+  short=Hall
+  init=C.~A.~S. Hall
+  sort=Hall  C A S
+  last.first=Hall, C. A.~S
+NAME 2
+  full=Jessica~G. Lambert
+  short=Lambert
+  init=J.~G. Lambert
+  sort=Lambert  J G
+  last.first=Lambert, J.~G
+NAME 3
+  full=Stephen~B. Balogh
+  short=Balogh
+  init=S.~B. Balogh
+  sort=Balogh  S B
+  last.first=Balogh, S.~B
+editor:
+NAME 1
+  full=Jane Smith
+  short=Smith
+  init=J.~Smith
+  sort=Smith  J
+  last.first=Smith, J
+NAME 2
+  full=John Doe
+  short=Doe
+  init=J.~Doe
+  sort=Doe  J
+  last.first=Doe, J
+  title.t={EROI} of different fuels and the implications for society
+  title.l={EROI} of different fuels and the implications for society
+  title.u={EROI} OF DIFFERENT FUELS AND THE IMPLICATIONS FOR SOCIETY
+  title.purify=EROI of different fuels and the implications for society
+  title.prefix3={ERO}
+  title.length=56
+  title.sub2_5=EROI}
+  title.sub-1_3=ety
+  title.period={EROI} of different fuels and the implications for society.
+ENTRY waals_continuity_1873
+author num.names=1
+NAME 1
+  full=Johannes~Diderik van~der Waals
+  short=van~der Waals
+  init=J.~D. van~der Waals
+  sort=van der Waals  J D
+  last.first=van~der Waals, J.~D
+  title.t=On the continuity of the gaseous and liquid states
+  title.l=on the continuity of the gaseous and liquid states
+  title.u=ON THE CONTINUITY OF THE GASEOUS AND LIQUID STATES
+  title.purify=On the Continuity of the Gaseous and Liquid States
+  title.prefix3=On
+  title.length=50
+  title.sub2_5=n the
+  title.sub-1_3=tes
+  title.period=On the Continuity of the Gaseous and Liquid States.
+ENTRY fontaine_fables_1668
+author num.names=1
+NAME 1
+  full=Jean de~la Fontaine
+  short=de~la Fontaine
+  init=J.~de~la Fontaine
+  sort=de la Fontaine  J
+  last.first=de~la Fontaine, J
+  title.t=Fables choisies
+  title.l=fables choisies
+  title.u=FABLES CHOISIES
+  title.purify=Fables Choisies
+  title.prefix3=Fab
+  title.length=15
+  title.sub2_5=ables
+  title.sub-1_3=ies
+  title.period=Fables Choisies.
+ENTRY king_letter_1963
+author num.names=1
+NAME 1
+  full=Martin~Luther King, Jr.
+  short=King
+  init=M.~L. King, Jr.
+  sort=King  M L  Jr.
+  last.first=King, Jr., M.~L
+  title.t=Letter from {Birmingham} jail
+  title.l=letter from {Birmingham} jail
+  title.u=LETTER FROM {Birmingham} JAIL
+  title.purify=Letter from Birmingham Jail
+  title.prefix3=Let
+  title.length=27
+  title.sub2_5=etter
+  title.sub-1_3=ail
+  title.period=Letter from {Birmingham} Jail.
+ENTRY who_report_2020
+author num.names=1
+NAME 1
+  full={World Health Organization}
+  short={World Health Organization}
+  init={World Health Organization}
+  sort={World Health Organization}
+  last.first={World Health Organization}
+  title.t=Global report on energy and health
+  title.l=global report on energy and health
+  title.u=GLOBAL REPORT ON ENERGY AND HEALTH
+  title.purify=Global Report on Energy and Health
+  title.prefix3=Glo
+  title.length=34
+  title.sub2_5=lobal
+  title.sub-1_3=lth
+  title.period=Global Report on Energy and Health.
+ENTRY ozturk_thesis_2010
+author num.names=1
+NAME 1
+  full=Ay{\c s}e {\"O}zt{\"u}rk
+  short={\"O}zt{\"u}rk
+  init=A.~{\"O}zt{\"u}rk
+  sort={\"O}zt{\"u}rk  A
+  last.first={\"O}zt{\"u}rk, A
+  title.t=Emergy synthesis of {Turkish} agriculture
+  title.l=emergy synthesis of {Turkish} agriculture
+  title.u=EMERGY SYNTHESIS OF {Turkish} AGRICULTURE
+  title.purify=Emergy Synthesis of Turkish Agriculture
+  title.prefix3=Eme
+  title.length=39
+  title.sub2_5=mergy
+  title.sub-1_3=ure
+  title.period=Emergy Synthesis of {Turkish} Agriculture.
+ENTRY li_masters_2015
+author num.names=1
+NAME 1
+  full=Wei Li
+  short=Li
+  init=W.~Li
+  sort=Li  W
+  last.first=Li, W
+  title.t=Short names in bibliographies
+  title.l=short names in bibliographies
+  title.u=SHORT NAMES IN BIBLIOGRAPHIES
+  title.purify=Short Names in Bibliographies
+  title.prefix3=Sho
+  title.length=29
+  title.sub2_5=hort
+  title.sub-1_3=ies
+  title.period=Short Names in Bibliographies.
+ENTRY ng_chapter_2012
+author num.names=3
+NAME 1
+  full=A.~Y. Ng
+  short=Ng
+  init=A.~Y. Ng
+  sort=Ng  A Y
+  last.first=Ng, A.~Y
+NAME 2
+  full=M.~I. Jordan
+  short=Jordan
+  init=M.~I. Jordan
+  sort=Jordan  M I
+  last.first=Jordan, M.~I
+NAME 3
+  full=others
+  short=others
+  init=others
+  sort=others
+  last.first=others
+editor:
+NAME 1
+  full=Jean-Paul Sartre
+  short=Sartre
+  init=J.-P. Sartre
+  sort=Sartre  J P
+  last.first=Sartre, J.-P
+  title.t=A chapter on learning
+  title.l=a chapter on learning
+  title.u=A CHAPTER ON LEARNING
+  title.purify=A Chapter on Learning
+  title.prefix3=A C
+  title.length=21
+  title.sub2_5= Chap
+  title.sub-1_3=ing
+  title.period=A Chapter on Learning.
+ENTRY aristotle_physics
+author num.names=1
+NAME 1
+  full=Aristotle
+  short=Aristotle
+  init=Aristotle
+  sort=Aristotle
+  last.first=Aristotle
+  title.t=Physics
+  title.l=physics
+  title.u=PHYSICS
+  title.purify=Physics
+  title.prefix3=Phy
+  title.length=7
+  title.sub2_5=hysic
+  title.sub-1_3=ics
+  title.period=Physics.
+ENTRY r_manual_2023
+  title.t=R: A language and environment for statistical computing
+  title.l=r: a language and environment for statistical computing
+  title.u=R: A LANGUAGE AND ENVIRONMENT FOR STATISTICAL COMPUTING
+  title.purify=R A Language and Environment for Statistical Computing
+  title.prefix3=R:
+  title.length=55
+  title.sub2_5=: A L
+  title.sub-1_3=ing
+  title.period=R: A Language and Environment for Statistical Computing.
+ENTRY anon_booklet_1999
+  title.t=An anonymous booklet
+  title.l=an anonymous booklet
+  title.u=AN ANONYMOUS BOOKLET
+  title.purify=An Anonymous Booklet
+  title.prefix3=An
+  title.length=20
+  title.sub2_5=n Ano
+  title.sub-1_3=let
+  title.period=An Anonymous Booklet.
+ENTRY energy_proc_2014
+editor:
+NAME 1
+  full=Jane Smith
+  short=Smith
+  init=J.~Smith
+  sort=Smith  J
+  last.first=Smith, J
+NAME 2
+  full=John Doe
+  short=Doe
+  init=J.~Doe
+  sort=Doe  J
+  last.first=Doe, J
+  title.t=Proceedings of the energy policy workshop
+  title.l=proceedings of the energy policy workshop
+  title.u=PROCEEDINGS OF THE ENERGY POLICY WORKSHOP
+  title.purify=Proceedings of the Energy Policy Workshop
+  title.prefix3=Pro
+  title.length=41
+  title.sub2_5=rocee
+  title.sub-1_3=hop
+  title.period=Proceedings of the Energy Policy Workshop.
+ENTRY crossref_paper_2014
+author num.names=1
+NAME 1
+  full=John Doe
+  short=Doe
+  init=J.~Doe
+  sort=Doe  J
+  last.first=Doe, J
+editor:
+NAME 1
+  full=Jane Smith
+  short=Smith
+  init=J.~Smith
+  sort=Smith  J
+  last.first=Smith, J
+NAME 2
+  full=John Doe
+  short=Doe
+  init=J.~Doe
+  sort=Doe  J
+  last.first=Doe, J
+  title.t=A paper inheriting its proceedings
+  title.l=a paper inheriting its proceedings
+  title.u=A PAPER INHERITING ITS PROCEEDINGS
+  title.purify=A Paper Inheriting Its Proceedings
+  title.prefix3=A P
+  title.length=34
+  title.sub2_5= Pape
+  title.sub-1_3=ngs
+  title.period=A Paper Inheriting Its Proceedings.
+ENTRY tufte_inbook_1983
+author num.names=1
+NAME 1
+  full=Edward~R. Tufte
+  short=Tufte
+  init=E.~R. Tufte
+  sort=Tufte  E R
+  last.first=Tufte, E.~R
+  title.t=The visual display of quantitative information
+  title.l=the visual display of quantitative information
+  title.u=THE VISUAL DISPLAY OF QUANTITATIVE INFORMATION
+  title.purify=The Visual Display of Quantitative Information
+  title.prefix3=The
+  title.length=46
+  title.sub2_5=he Vi
+  title.sub-1_3=ion
+  title.period=The Visual Display of Quantitative Information.
+ENTRY odum_maximum_1955
+author num.names=2
+NAME 1
+  full=Howard~T. Odum
+  short=Odum
+  init=H.~T. Odum
+  sort=Odum  H T
+  last.first=Odum, H.~T
+NAME 2
+  full=Richard~C. Pinkerton
+  short=Pinkerton
+  init=R.~C. Pinkerton
+  sort=Pinkerton  R C
+  last.first=Pinkerton, R.~C
+  title.t=Time's speed regulator: the optimum efficiency for maximum power
+  output in physical and biological systems
+  title.l=time's speed regulator: the optimum efficiency for maximum power
+  output in physical and biological systems
+  title.u=TIME'S SPEED REGULATOR: THE OPTIMUM EFFICIENCY FOR MAXIMUM POWER
+  OUTPUT IN PHYSICAL AND BIOLOGICAL SYSTEMS
+  title.purify=Times speed regulator the optimum efficiency for maximum power
+  output in physical and biological systems
+  title.prefix3=Tim
+  title.length=106
+  title.sub2_5=ime's
+  title.sub-1_3=ems
+  title.period=Time's speed regulator: the optimum efficiency for maximum power
+  output in physical and biological systems.
+ENTRY odum_maximum_1955b
+author num.names=2
+NAME 1
+  full=Howard~T. Odum
+  short=Odum
+  init=H.~T. Odum
+  sort=Odum  H T
+  last.first=Odum, H.~T
+NAME 2
+  full=Richard~C. Pinkerton
+  short=Pinkerton
+  init=R.~C. Pinkerton
+  sort=Pinkerton  R C
+  last.first=Pinkerton, R.~C
+  title.t=A second 1955 paper
+  title.l=a second 1955 paper
+  title.u=A SECOND 1955 PAPER
+  title.purify=A second 1955 paper
+  title.prefix3=A s
+  title.length=19
+  title.sub2_5= seco
+  title.sub-1_3=per
+  title.period=A second 1955 paper.
+ENTRY foreign_letters
+author num.names=5
+NAME 1
+  full={\AE}lfred {\O}stergaard
+  short={\O}stergaard
+  init={\AE}.~{\O}stergaard
+  sort={\O}stergaard  {\AE}
+  last.first={\O}stergaard, {\AE}
+NAME 2
+  full={\l}ukasz {\'E}mile
+  short={\l}ukasz {\'E}mile
+  init={\l}ukasz {\'E}mile
+  sort={\l}ukasz {\'E}mile
+  last.first={\l}ukasz {\'E}mile
+NAME 3
+  full=X.~de~la {\ss}tra{\ss}e
+  short=de~la {\ss}tra{\ss}e
+  init=X.~de~la {\ss}tra{\ss}e
+  sort=de la {\ss}tra{\ss}e  X
+  last.first=de~la {\ss}tra{\ss}e, X
+NAME 4
+  full={\i}da {\o}rsted
+  short={\o}rsted
+  init={\i}.~{\o}rsted
+  sort={\o}rsted  {\i}
+  last.first={\o}rsted, {\i}
+NAME 5
+  full=A~{\oe}hman
+  short={\oe}hman
+  init=A.~{\oe}hman
+  sort={\oe}hman  A
+  last.first={\oe}hman, A
+  title.t={\AE}sop {\oe}uvre {\'e}cole {\ss} {\i}{\j} {\l}{\l} {\o}{\o}
+  {\aa}{\aa} {\"u}ber: {\'{E}}tude {\TeX} {\`a} la {\c c}a{\c c}a
+  title.l={\ae}sop {\oe}uvre {\'e}cole {\ss} {\i}{\j} {\l}{\l} {\o}{\o}
+  {\aa}{\aa} {\"u}ber: {\'{e}}tude {\TeX} {\`a} la {\c c}a{\c c}a
+  title.u={\AE}SOP {\OE}UVRE {\'E}COLE {SS} {I}{J} {\L}{\L} {\O}{\O} {\AA}{\AA}
+  {\"U}BER: {\'{E}}TUDE {\TeX} {\`A} LA {\c C}A{\c C}A
+  title.purify=AEsop oeuvre Ecole ss ij lL oO aA uber Etude  a la Caca
+  title.prefix3={\AE}so
+  title.length=54
+  title.sub2_5=\AE}s
+  title.sub-1_3=c}a
+  title.period={\AE}sop {\oe}uvre {\'E}cole {\ss} {\i}{\j} {\l}{\L} {\o}{\O}
+  {\aa}{\AA} {\"u}ber: {\'{E}}tude {\TeX} {\`a} la {\c C}a{\c c}a.
+ENTRY von_cases
+author num.names=6
+NAME 1
+  full=Jean {\'e}tienne {\v{S}}koda
+  short={\'e}tienne {\v{S}}koda
+  init=J.~{\'e}tienne {\v{S}}koda
+  sort={\'e}tienne {\v{S}}koda  J
+  last.first={\'e}tienne {\v{S}}koda, J
+NAME 2
+  full=Charles {de}~Gaulle
+  short={de}~Gaulle
+  init=C.~{de}~Gaulle
+  sort={de} Gaulle  C
+  last.first={de}~Gaulle, C
+NAME 3
+  full=Ludwig~{van} Beethoven
+  short=Beethoven
+  init=L.~v. Beethoven
+  sort=Beethoven  L v
+  last.first=Beethoven, L.~v
+NAME 4
+  full=Jean le~Rond d'Alembert
+  short=d'Alembert
+  init=J.~l.~R. d'Alembert
+  sort=d'Alembert  J l R
+  last.first=d'Alembert, J. l.~R
+NAME 5
+  full=Baron de~Montesquieu Charles Louis~de Secondat
+  short=Charles Louis~de Secondat
+  init=B.~d.~M. Charles Louis~de Secondat
+  sort=Charles Louis de Secondat  B d M
+  last.first=Charles Louis~de Secondat, B. d.~M
+NAME 6
+  full={\relax Ch}arles Dickens
+  short=Dickens
+  init={\relax Ch}.~Dickens
+  sort=Dickens  {\relax Ch}
+  last.first=Dickens, {\relax Ch}
+  title.t=Von cases
+  title.l=von cases
+  title.u=VON CASES
+  title.purify=Von Cases
+  title.prefix3=Von
+  title.length=9
+  title.sub2_5=on Ca
+  title.sub-1_3=ses
+  title.period=Von Cases.
