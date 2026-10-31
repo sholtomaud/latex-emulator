@@ -18,12 +18,18 @@ export class AppShellComponent extends BaseComponent {
       requestPrint()
     );
     // Cmd/Ctrl+P prints the document, not the editor UI around it.
-    window.addEventListener('keydown', (e) => {
-      if (isPrintShortcut(e)) {
-        e.preventDefault();
-        requestPrint();
-      }
-    });
+    // Capture phase: the editor handles (and may swallow) its own key events.
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        if (isPrintShortcut(e)) {
+          e.preventDefault();
+          e.stopPropagation();
+          requestPrint();
+        }
+      },
+      { capture: true }
+    );
   }
 }
 

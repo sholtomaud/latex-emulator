@@ -2,6 +2,7 @@ import { BaseComponent } from '../../core/base-component.ts';
 import { documentStore } from '../../store/document-store.ts';
 import type { DocumentState } from '../../store/document-store.ts';
 import { printRequests } from '../../store/print-requests.ts';
+import { diagnosticsStore } from '../../store/diagnostics-store.ts';
 import { renderDocument } from '../../render/render-document.ts';
 import { toDom } from '../../render/to-dom.ts';
 import { fontFaceCss, geometryCss } from '../../render/document-css.ts';
@@ -112,6 +113,7 @@ export class LatexPreviewComponent extends BaseComponent {
       queueMicrotask(() => this.fitToPane());
     }
     this.title = result.title || 'document';
+    diagnosticsStore.setState({ source, diagnostics: result.diagnostics });
     this.page.replaceChildren(toDom(result.tree, this.page.ownerDocument));
   }
 

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { editorInput, editorReady, setSource } from '../support/editor.ts';
 import type { Page } from '@playwright/test';
 
 /** Replace the preview iframe's print() with a recorder. */
@@ -38,15 +39,14 @@ test.describe('PDF download', () => {
   });
 
   test('Cmd/Ctrl+P prints the preview instead of the app', async ({ page }) => {
-    await page.getByRole('textbox', { name: 'LaTeX source' }).focus();
+    await editorReady(page);
+    await editorInput(page).focus();
     await page.keyboard.press('ControlOrMeta+p');
     await expect.poll(() => prints(page)).toEqual(['A Short Example']);
   });
 
   test('a document without a title prints as "document"', async ({ page }) => {
-    await page
-      .getByRole('textbox', { name: 'LaTeX source' })
-      .fill('Just text.');
+    await setSource(page, 'Just text.');
     await expect(
       page.frameLocator('latex-preview iframe').locator('article')
     ).toHaveText('Just text.');

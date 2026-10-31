@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setSource } from '../support/editor.ts';
 
 /**
  * Smoke tests: the minimum that must hold for a build to be shippable. They
@@ -30,9 +31,7 @@ test.describe('smoke', () => {
 
   test('editing reaches the preview', async ({ page }) => {
     await page.goto('/');
-    await page
-      .getByRole('textbox', { name: 'LaTeX source' })
-      .fill('Smoke check.');
+    await setSource(page, 'Smoke check.');
     await expect(
       page.frameLocator('latex-preview iframe').locator('.latex-page')
     ).toHaveText('Smoke check.');

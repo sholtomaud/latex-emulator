@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setSource } from '../support/editor.ts';
 
 test.describe('LaTeX rendering', () => {
   test.beforeEach(async ({ page }) => {
@@ -47,9 +48,7 @@ test.describe('LaTeX rendering', () => {
   });
 
   test('edits re-render the document', async ({ page }) => {
-    await page
-      .getByRole('textbox', { name: 'LaTeX source' })
-      .fill('\\section{Fresh}\nText with \\emph{emphasis}.');
+    await setSource(page, '\\section{Fresh}\nText with \\emph{emphasis}.');
     const doc = page.frameLocator('latex-preview iframe');
     await expect(doc.getByRole('heading', { level: 2 })).toHaveCount(1);
     await expect(doc.getByRole('heading', { level: 2 })).toHaveText('1Fresh');

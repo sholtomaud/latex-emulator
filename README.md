@@ -7,8 +7,9 @@ spell checking, a LaTeX-faithful preview and a print-CSS PDF download. It is
 built on [Boba](https://github.com/sholtomaud/boba). It doesn't run TeX: it
 emulates a well-defined subset of LaTeX with native browser technology.
 
-**Status:** LaTeX parsing and a print-faithful `article` layout are in place.
-Monaco is next. See the roadmap in [`AGENTS.md`](AGENTS.md#14-build-order-roadmap).
+**Status:** the Monaco editor (LaTeX highlighting, live error and warning
+markers), LaTeX parsing and a print-faithful `article` layout are in place.
+Next: move parsing into a Web Worker. See the roadmap in [`AGENTS.md`](AGENTS.md#14-build-order-roadmap).
 
 ![pdflatex output beside the emulator's printed PDF](docs/fidelity-article-basic.png)
 

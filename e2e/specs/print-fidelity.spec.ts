@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setSource } from '../support/editor.ts';
 import fs from 'node:fs';
 
 /**
@@ -59,7 +60,7 @@ test.describe(`print fidelity: ${fixture}`, () => {
 
   test('every line breaks where pdflatex breaks it', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('textbox', { name: 'LaTeX source' }).fill(source);
+    await setSource(page, source);
     await expect(
       page.frameLocator('latex-preview iframe').locator('.date')
     ).toHaveText('31 October 2026');
@@ -123,7 +124,7 @@ test.describe(`print fidelity: ${fixture}`, () => {
     page,
   }) => {
     await page.goto('/');
-    await page.getByRole('textbox', { name: 'LaTeX source' }).fill(source);
+    await setSource(page, source);
     await expect(
       page.frameLocator('latex-preview iframe').locator('.date')
     ).toHaveText('31 October 2026');

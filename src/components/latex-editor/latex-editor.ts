@@ -1,30 +1,45 @@
 import { BaseComponent } from '../../core/base-component.ts';
 import { documentStore } from '../../store/document-store.ts';
+import { diagnosticsStore } from '../../store/diagnostics-store.ts';
+import type { DiagnosticsState } from '../../store/diagnostics-store.ts';
+import type { LatexEditor } from '../../language/monaco.ts';
 import template from './latex-editor.html?raw';
 import style from './latex-editor.css?raw';
 
 /**
- * The LaTeX source editor.
- *
- * Milestone 1 uses a plain <textarea> so the shell, store and preview wiring
- * can be built and tested first. Roadmap step 2 replaces it with Monaco; the
- * contract with the rest of the app (read/write `documentStore.source`) stays
- * the same.
+ * The LaTeX source editor: Monaco, loaded lazily so the app shell and preview
+ * appear before the editor's (large) code arrives. Reads and writes
+ * `documentStore.source`; shows `diagnosticsStore` as markers.
  */
 export class LatexEditorComponent extends BaseComponent {
   static tagName = 'latex-editor';
-  textarea!: HTMLTextAreaElement;
+  editor: LatexEditor | null = null;
 
   constructor() {
     super(template, style);
   }
 
-  init() {
-    this.textarea = this.querySelector('textarea')!;
-    this.textarea.value = documentStore.getState().source;
-    this.textarea.addEventListener('input', () => {
-      documentStore.setState({ source: this.textarea.value });
-    });
+  /** The current source text (also used by tests and future features). */
+  get value(): string {
+    return this.editor?.getValue() ?? documentStore.getState().source;
+  }
+
+  async init() {
+    const host = this.querySelector<HTMLElement>('.host')!;
+    const { createLatexEditor } = await import('../../language/monaco.ts');
+    this.editor = createLatexEditor(
+      host,
+      documentStore.getState().source,
+      (source) => documentStore.setState({ source })
+    );
+    host.removeAttribute('data-loading');
+
+    const show = ({ source, diagnostics }: DiagnosticsState) =>
+      this.editor?.setDiagnostics(source, diagnostics);
+    show(diagnosticsStore.getState());
+    diagnosticsStore.addEventListener('change', ((
+      e: CustomEvent<DiagnosticsState>
+    ) => show(e.detail)) as EventListener);
   }
 }
 

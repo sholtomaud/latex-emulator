@@ -162,7 +162,7 @@ were removed. Grow toward:
 src/
 ├── main.ts                       # routes, boot, SW registration
 ├── core/                         # Boba core (base-component, router, store)
-├── store/                        # app stores: document, settings, diagnostics
+├── store/                        # app stores: document, diagnostics, print requests
 ├── components/
 │   ├── app-shell/                # layout: editor | preview split, toolbar
 │   ├── latex-editor/             # Monaco host element
@@ -185,7 +185,9 @@ src/
 │                                 #   document-css.ts generates @font-face, @page and
 │                                 #   geometry custom properties
 ├── assets/fonts/                 # Latin Modern WOFF2 (Vite-fingerprinted) + GUST licence
-├── language/                     # Monaco glue: Monarch grammar, providers, markers
+├── language/                     # Monaco glue. monaco.ts (curated Monaco entry, the
+│                                 #   only runtime import of monaco-editor), Monarch
+│                                 #   grammar, and pure positions/markers mapping
 ├── workers/
 │   └── language.worker.ts        # hosts src/latex/* (+ WASM) off main thread
 ├── styles/
@@ -412,7 +414,9 @@ the commit message.
 - **E2E.** Real user flows: typing updates the preview, diagnostics appear as
   Monaco markers, quick-fixes apply, the layout responds to width, and offline
   reload works. Use role/label locators (`getByRole`, `getByLabel`) rather than
-  CSS where possible.
+  CSS where possible. Set editor content with `setSource()` from
+  `e2e/support/editor.ts`. It pastes, because typing a multi-line document
+  triggers Monaco's auto-indent, and then asserts the exact text.
 - **Smoke.** A handful of fast checks (< 10 s total) proving a build is alive:
   it boots with no console errors, page errors or failed requests, an edit
   reaches the preview, and routing works. If a smoke test fails, nothing else matters.
@@ -443,6 +447,7 @@ the commit message.
 npm ci
 npm run typecheck            # tsc -p .
 npm run lint                 # oxlint + prettier --check
+npm run audit                # no high/critical advisories in runtime deps
 npm run test:coverage        # unit tests + coverage gate
 npm run build                # vite build
 npm run e2e:smoke            # smoke
@@ -463,7 +468,7 @@ run `npx playwright install --with-deps chromium`.
 **`ci.yml`** runs on every PR, and is called by `deploy.yml` on every push to
 `main`. Its jobs run in parallel, and all must pass:
 
-- **Unit:** typecheck, lint, `test:coverage`, build (Node 25).
+- **Unit:** typecheck, lint, runtime dependency audit, `test:coverage`, build (Node 25).
 - **Playwright (smoke)**, **(e2e)**, **(visual)**, **(pages)**: each runs in the
   pinned Playwright container and uploads its report and diffs as an artifact.
 
@@ -502,8 +507,10 @@ chosen branch.
 - Keystroke → preview updated: **< 300 ms** p95 (debounced; render only
   changed top-level blocks where possible).
 - Main thread long tasks during typing: none > 50 ms.
-- Initial load (excluding Monaco): JS < 150 KB gzip. Load only Monaco's core
-  editor worker; do **not** bundle Monaco's TS/JSON/CSS/HTML language services.
+- Initial load (excluding Monaco): JS < 150 KB gzip (currently ~22 KB). Load
+  only Monaco's core editor worker; do **not** bundle Monaco's TS/JSON/CSS/HTML
+  language services. Import Monaco only through `src/language/monaco.ts`,
+  never `monaco-editor` or `editor.main` directly (ADR 0004).
 
 ---
 
@@ -534,9 +541,10 @@ chosen branch.
    `size1x.clo`; Tier-1 renderer; Latin Modern fonts; `@page` print and the
    Download PDF button / Cmd/Ctrl+P; `pdflatex` reference fixture and
    print-fidelity tests.
-3. **Next:** Monaco integration (core editor and worker only) with a Monarch
-   LaTeX grammar; parser diagnostics shown as markers.
-4. Language worker: move parsing and diagnostics off the main thread.
+3. ✅ Monaco integration: curated core editor and editor worker, loaded
+   lazily; Monarch LaTeX grammar; parser diagnostics shown as markers with
+   hover messages (ADR 0004).
+4. **Next:** Language worker: move parsing and diagnostics off the main thread.
 5. TeX math → MathML; equation numbering; `\label`/`\ref` two-pass.
 6. Lint rules; completion and hover from the command registry; quick-fixes.
 7. Spell checking (TS first; Rust/WASM crate if it misses the budget).
