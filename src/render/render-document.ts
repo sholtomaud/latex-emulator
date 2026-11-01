@@ -622,7 +622,7 @@ class Renderer {
       this.warn(
         c.range,
         'ref/undefined-citation',
-        `Citation "${key}" is undefined: it is not in the references library.`,
+        bibliography.explain(key),
         'warning',
         'ref'
       );
