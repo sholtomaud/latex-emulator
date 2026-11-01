@@ -167,3 +167,26 @@
     border-top: 1px solid var(--boba-border);
   }
 }
+
+/* App-level notices (e.g. another tab blocking a database upgrade). Fixed,
+   so showing one never changes the layout. */
+:host .app-notice {
+  position: fixed;
+  top: 3.75rem; /* below the toolbar */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: min(36rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #f59e0b;
+  border-radius: 0.375rem;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+}
+
+:host .app-notice[hidden] {
+  display: none;
+}
