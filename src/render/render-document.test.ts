@@ -177,9 +177,14 @@ Text.
   });
 
   test('\\newpage, \\label and \\ref', () => {
+    // Before any counter, LaTeX's \\@currentlabel is empty: \\ref prints nothing.
     assert.strictEqual(
       html('a\\label{x}\\newpage b \\ref{x}'),
-      '<p>a</p><div class="pagebreak"></div><p>b <span class="unresolved">??</span></p>'
+      '<p>a</p><div class="pagebreak"></div><p>b</p>'
+    );
+    assert.strictEqual(
+      html('\\section*{S}\\section{T}\\label{t}\\newpage See \\ref{t}.'),
+      '<h2 class="section">S</h2><h2 class="section"><span class="secnum">1</span>T</h2><div class="pagebreak"></div><p>See 1.</p>'
     );
   });
 });
@@ -288,15 +293,17 @@ describe('renderDocument: environments, notes and math', () => {
     );
   });
 
-  test('math is shown as TeX source until the math milestone', () => {
+  test('math is MathML: inline in the text, displays as grids (math.test.ts has the details)', () => {
+    const cell = (x: string) =>
+      `<div class="math-row"><div class="math-cell c1"><math displaystyle="true"><mi>${x}</mi></math></div>`;
     assert.strictEqual(
       html(
         'Let $x^2$ be.\n\\[ y \\]\n\\begin{equation}z\\end{equation}\\begin{equation*}w\\end{equation*}'
       ),
-      '<p>Let <span class="math-placeholder">x^2</span> be.</p>' +
-        '<div class="math-display"><span class="math-placeholder">y</span></div>' +
-        '<div class="math-display"><span class="math-placeholder">z</span><span class="eqno">(1)</span></div>' +
-        '<div class="math-display"><span class="math-placeholder">w</span></div>'
+      '<p>Let <math><msup><mi>x</mi><mn>2</mn></msup></math> be.</p>' +
+        `<div class="math-display cols-1">${cell('y')}</div></div>` +
+        `<div class="math-display cols-1">${cell('z')}<span class="eqno">(1)</span></div></div>` +
+        `<div class="math-display cols-1">${cell('w')}</div></div>`
     );
   });
 

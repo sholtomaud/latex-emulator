@@ -21,6 +21,13 @@ export interface FontFace {
 
 /** Optical sizes as LaTeX uses them: 10 for text, 12 for headings, 17 for the title. */
 export const FONT_FACES: FontFace[] = [
+  // Latin Modern Math (GUST Font License): the OpenType MATH font MathML uses.
+  {
+    file: 'latinmodern-math',
+    family: 'Latin Modern Math',
+    weight: 400,
+    style: 'normal',
+  },
   {
     file: 'lmroman10-regular',
     family: 'LM Roman 10',
@@ -176,6 +183,8 @@ export function geometryCss(g: ArticleGeometry): string {
     `  --leftmargin-3: ${pt(1.87 * em)};`,
     `  --leftmargin-4: ${pt(1.7 * em)};`,
     `  --displayskip: ${pt(ABOVE_DISPLAY[g.options.size])};`,
+    // \jot (latex.ltx): extra space between amsmath display rows.
+    `  --jot: ${pt(3)};`,
     `  --footnotesep: ${pt(g.footnotesep)};`,
     `  --em-normal: ${pt(em)};`,
   ].join('\n');

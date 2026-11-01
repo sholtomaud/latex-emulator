@@ -453,11 +453,20 @@ class Parser {
       node.range = { start: node.range.start, end: node.nameRange.end };
   }
 
-  /** Generic parsing for unknown commands: take directly attached [..] and {..}. */
+  /**
+   * Generic parsing for unknown commands: take directly attached [..] and
+   * {..}. In math, [ is a delimiter (\left[, \big[), never an optional
+   * argument: TeX only gives optional arguments to commands that define one.
+   */
   parseAdjacentArgs(node: CommandNode, ctx: Context) {
     for (;;) {
       const t = this.peek();
-      if (t?.type === 'text' && t.raw === '[' && this.isAdjacent()) {
+      if (
+        t?.type === 'text' &&
+        t.raw === '[' &&
+        this.isAdjacent() &&
+        !ctx.math
+      ) {
         node.args.push(this.parseOptionalArg(ctx));
       } else if (t?.type === 'begin-group' && this.isAdjacent()) {
         const group = this.parseGroup(ctx) as {

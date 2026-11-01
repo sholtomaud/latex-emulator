@@ -587,26 +587,203 @@ body {
   top: -0.5em;
 }
 
-/* ------------------------------------------------------------ math (placeholder) */
+/* ------------------------------------------------------------ math */
 
-/* TeX source shown in italics until the math milestone (MathML). */
-.latex-document .math-placeholder {
-  font-style: italic;
-  white-space: pre-wrap;
+/* MathML Core with Latin Modern Math (its OpenType MATH table drives the
+   layout); \text{…} is set in the text font, as in LaTeX. */
+.latex-document math {
+  font-family: 'Latin Modern Math', math;
 }
 
+.latex-document mtext {
+  font-family: var(--rm-family), 'LM Roman 10', serif;
+}
+
+/*
+ * Displays (equation, align, gather, \[ \]): \abovedisplayskip before,
+ * \belowdisplayskip after (size1x.clo). A grid: one column per & cell so
+ * columns line up across rows, between two flexible columns that centre
+ * the whole display; the number sits at the right margin on its row's
+ * baseline (amsmath's \@eqnnum).
+ */
 .latex-document .math-display {
   --before: var(--displayskip);
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr repeat(var(--cells), auto) 1fr;
   text-indent: 0;
+  text-align: left;
 }
 
 .latex-document .math-display + * {
   --prev-after: var(--displayskip);
 }
 
+.latex-document .math-display.cols-1 {
+  --cells: 1;
+}
+.latex-document .math-display.cols-2 {
+  --cells: 2;
+}
+.latex-document .math-display.cols-3 {
+  --cells: 3;
+}
+.latex-document .math-display.cols-4 {
+  --cells: 4;
+}
+.latex-document .math-display.cols-5 {
+  --cells: 5;
+}
+.latex-document .math-display.cols-6 {
+  --cells: 6;
+}
+.latex-document .math-display.cols-7 {
+  --cells: 7;
+}
+.latex-document .math-display.cols-8 {
+  --cells: 8;
+}
+
+.latex-document .math-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+}
+
+/* amsmath separates rows by \jot (3pt, latex.ltx) on top of \baselineskip. */
+.latex-document .math-row + .math-row {
+  margin-top: var(--jot);
+}
+
+.latex-document .math-cell.c1 {
+  grid-column: 2;
+}
+.latex-document .math-cell.c2 {
+  grid-column: 3;
+}
+.latex-document .math-cell.c3 {
+  grid-column: 4;
+}
+.latex-document .math-cell.c4 {
+  grid-column: 5;
+}
+.latex-document .math-cell.c5 {
+  grid-column: 6;
+}
+.latex-document .math-cell.c6 {
+  grid-column: 7;
+}
+.latex-document .math-cell.c7 {
+  grid-column: 8;
+}
+.latex-document .math-cell.c8 {
+  grid-column: 9;
+}
+
+/* align pairs: right-aligned before each &, left-aligned after it. */
+.latex-document .math-cell:is(.c1, .c3, .c5, .c7) {
+  justify-self: end;
+}
+
+.latex-document .math-cell:is(.c2, .c4, .c6, .c8) {
+  justify-self: start;
+}
+
+/* One cell per row (equation, gather, \[ \]): centred. */
+.latex-document .math-display.cols-1 .math-cell {
+  justify-self: center;
+}
+
+/* multline: first line left, last line right, the rest centred. */
+.latex-document .math-display.multline .math-cell.first {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.latex-document .math-display.multline .math-cell.last {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
 .latex-document .eqno {
-  float: right;
+  grid-column: -2;
+  justify-self: end;
+}
+
+/*
+ * TeX puts \bigopspacing5 (ξ13 = 0.1em in cmex10) above an upper limit and
+ * below a lower one (TeXbook, Appendix G, rule 13a); MathML Core has no such
+ * constant. Only in displays: inline, limits become scripts.
+ */
+.latex-document .math-display :is(munderover, mover).limits {
+  padding-top: 0.1em;
+}
+
+.latex-document .math-display :is(munderover, munder).limits {
+  padding-bottom: 0.1em;
+}
+
+/* \eqref and other upright text inside italic contexts. */
+.latex-document .up {
+  font-style: normal;
+}
+
+/* ------------------------------------------------------------ contents */
+
+/*
+ * \tableofcontents (article.cls): \l@section is bold with a 1.5em number
+ * box and \addvspace{1em} before; \l@subsection is \@dottedtocline{2}
+ * {1.5em}{2.3em}, \l@subsubsection {3}{3.8em}{3.2em}. Page numbers sit
+ * in a \@pnumwidth (1.55em) box at the right.
+ */
+.latex-document .toc p {
+  display: flex;
+  align-items: baseline;
+  text-indent: 0;
+  text-align: left;
+}
+
+.latex-document .toc-section {
+  --before: var(--em-normal);
+  font-weight: bold;
+}
+
+.latex-document .toc-num {
+  flex: none;
+  width: 1.5em;
+}
+
+.latex-document .toc-subsection {
+  padding-left: 1.5em;
+}
+
+.latex-document .toc-subsection .toc-num {
+  width: 2.3em;
+}
+
+.latex-document .toc-subsubsection {
+  padding-left: 3.8em;
+}
+
+.latex-document .toc-subsubsection .toc-num {
+  width: 3.2em;
+}
+
+/* \@dottedtocline's leaders: a dot every 4.5mu (0.25em). */
+.latex-document .toc-leaders {
+  flex: 1;
+  align-self: baseline;
+  height: 0.2em;
+  margin: 0 0.5em;
+  background: radial-gradient(circle, currentColor 0.04em, transparent 0.05em)
+    left bottom / 0.25em 0.2em repeat-x;
+}
+
+.latex-document .toc-page {
+  flex: none;
+  min-width: 1.55em;
+  margin-left: auto;
+  text-align: right;
 }
 
 /* ------------------------------------------------------------ print */

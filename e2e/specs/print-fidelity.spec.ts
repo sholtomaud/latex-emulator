@@ -52,6 +52,15 @@ interface FixtureSpec {
    * expected failure, so it turns red (and this note must go) once fixed.
    */
   knownLineBreakGap?: string;
+  /** Reference lines that are display math, not paragraph text. */
+  displayLines?: string[];
+  /** Equation numbers, checked against the .eqno elements in order. */
+  eqnos?: string[];
+  /**
+   * Checked lines known to miss the tolerance, with the reason. They are
+   * asserted in an expected-failure test, so it turns red once fixed.
+   */
+  knownPositionGaps?: { needles: string[]; reason: string };
 }
 
 const FIXTURES: FixtureSpec[] = [
@@ -94,6 +103,45 @@ const FIXTURES: FixtureSpec[] = [
     body: [140, 700],
     knownLineBreakGap:
       'pdflatex fits these lines by shrinking interword glue close to its limit and hyphenates with TeX patterns ("trans-formity"); greedy CSS line breaking cannot. Needs Knuth–Plass (AGENTS.md §6, Tier 3; ADR 0007).',
+  },
+  {
+    name: 'math-basic',
+    ready: { selector: '.eqno', text: '(1)' },
+    checked: [
+      'Equations',
+      'Energy is conserved',
+      // Not 'such as': its line holds an inline fraction, which pdftotext
+      // counts in the line box, so the reference baseline can't be derived.
+      'and the next display',
+      'Aligned equations',
+      'Section',
+      'ends it.',
+    ],
+    headings: ['Equations'],
+    body: [140, 700],
+    displayLines: [
+      'e iπ + 1 = 0',
+      '(1)',
+      'n',
+      'X',
+      'k=1',
+      'k =',
+      'n(n + 1)',
+      '.',
+      '2',
+      'f (x) = x 2 + 2x + 1',
+      '(2)',
+      '= (x + 1) 2 .',
+      '(3)',
+      'p',
+      'α + β ≤ γ 2 + δ 2',
+    ],
+    eqnos: ['(1)', '(2)', '(3)'],
+    knownPositionGaps: {
+      needles: ['ends it.'],
+      reason:
+        'Text after a display with a \\sqrt drifts down a few points: Chromium sets radicals and their superscripts higher than TeX (Latin Modern Math’s MATH constants, not cmex/cmsy), and a CSS line box grows above and below for tall content where TeX’s interline glue absorbs the depth (ADR 0010).',
+    },
   },
 ];
 
@@ -144,8 +192,10 @@ for (const fixture of FIXTURES) {
         const starts: string[] = [];
         for (const para of document.querySelectorAll('article p')) {
           const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT, {
+            // Labels aren't text; inline math is one box (its fraction
+            // denominators are not new lines).
             acceptNode: (n) =>
-              n.parentElement!.closest('.item-label')
+              n.parentElement!.closest('.item-label, math')
                 ? NodeFilter.FILTER_REJECT
                 : NodeFilter.FILTER_ACCEPT,
           });
@@ -185,7 +235,10 @@ for (const fixture of FIXTURES) {
       const [top, bottom] = fixture.body;
       // poppler splits a line at font changes: merge fragments on one baseline.
       const merged: RefLine[] = [];
-      for (const l of reference.pages[0].lines) {
+      const display = new Set(fixture.displayLines ?? []);
+      for (const l of reference.pages[0].lines.filter(
+        (x) => !display.has(x.text)
+      )) {
         const same = merged.find((m) => Math.abs(m.yMin - l.yMin) < 2);
         if (same) {
           if (l.xMin < same.xMin)
@@ -204,77 +257,147 @@ for (const fixture of FIXTURES) {
       expect(ours.map(norm)).toEqual(expected.map(norm));
     });
 
-    test('paragraph, heading and list positions match pdflatex', async ({
-      page,
-    }) => {
-      const frame = await load(page);
+    const gaps = fixture.knownPositionGaps;
+    for (const group of [
+      {
+        title: 'paragraph, heading and list positions match pdflatex',
+        needles: CHECKED.filter((n) => !gaps?.needles.includes(n)),
+        gap: undefined as string | undefined,
+      },
+      ...(gaps
+        ? [
+            {
+              title: 'known position gap',
+              needles: gaps.needles,
+              gap: gaps.reason,
+            },
+          ]
+        : []),
+    ])
+      test(group.title, async ({ page }) => {
+        test.fail(!!group.gap, group.gap);
+        const frame = await load(page);
 
-      const measured = await frame.evaluate(async (needles) => {
-        await document.fonts.ready;
-        const pageBox = document
-          .querySelector('.latex-page')!
-          .getBoundingClientRect();
-        // The test viewport is wide enough that the preview is not scaled.
-        const zoom = 1;
-        const PX_TO_PT = 0.75;
-        const out: Record<string, { x: number; baseline: number } | null> = {};
-        for (const needle of needles) {
-          const walker = document.createTreeWalker(
-            document.querySelector('article')!,
-            NodeFilter.SHOW_TEXT
-          );
-          let found: { x: number; baseline: number } | null = null;
-          for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-            const i = n.textContent!.indexOf(needle);
-            if (i === -1) continue;
-            const range = document.createRange();
-            range.setStart(n, i);
-            range.setEnd(n, i + 1);
-            const rect = range.getClientRects()[0];
-            const fs = parseFloat(getComputedStyle(n.parentElement!).fontSize);
-            // Inline content box = ascent + descent = 1em (font metric overrides).
-            found = {
-              x: ((rect.left - pageBox.left) / zoom) * PX_TO_PT,
-              baseline:
-                ((rect.top - pageBox.top) / zoom + 0.806 * fs) * PX_TO_PT,
-            };
-            break;
+        const measured = await frame.evaluate(async (needles) => {
+          await document.fonts.ready;
+          const pageBox = document
+            .querySelector('.latex-page')!
+            .getBoundingClientRect();
+          // The test viewport is wide enough that the preview is not scaled.
+          const zoom = 1;
+          const PX_TO_PT = 0.75;
+          const out: Record<string, { x: number; baseline: number } | null> =
+            {};
+          for (const needle of needles) {
+            const walker = document.createTreeWalker(
+              document.querySelector('article')!,
+              NodeFilter.SHOW_TEXT
+            );
+            let found: { x: number; baseline: number } | null = null;
+            for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+              const i = n.textContent!.indexOf(needle);
+              if (i === -1) continue;
+              const range = document.createRange();
+              range.setStart(n, i);
+              range.setEnd(n, i + 1);
+              const rect = range.getClientRects()[0];
+              const fs = parseFloat(
+                getComputedStyle(n.parentElement!).fontSize
+              );
+              // Inline content box = ascent + descent = 1em (font metric overrides).
+              found = {
+                x: ((rect.left - pageBox.left) / zoom) * PX_TO_PT,
+                baseline:
+                  ((rect.top - pageBox.top) / zoom + 0.806 * fs) * PX_TO_PT,
+              };
+              break;
+            }
+            out[needle] = found;
           }
-          out[needle] = found;
-        }
-        return out;
-      }, CHECKED);
+          return out;
+        }, group.needles);
 
-      const lines = reference.pages[0].lines;
-      const rows = CHECKED.map((needle) => {
-        const { line, x } = locate(lines, needle);
-        const ours = measured[needle];
-        expect(ours, `"${needle}" not found in the preview`).not.toBeNull();
-        return {
-          needle,
-          dx: ours!.x - x,
-          dy: ours!.baseline - refBaseline(line),
-        };
+        const lines = reference.pages[0].lines;
+        const rows = group.needles.map((needle) => {
+          const { line, x } = locate(lines, needle);
+          const ours = measured[needle];
+          expect(ours, `"${needle}" not found in the preview`).not.toBeNull();
+          return {
+            needle,
+            dx: ours!.x - x,
+            dy: ours!.baseline - refBaseline(line),
+          };
+        });
+        console.log(
+          rows
+            .map(
+              (r) =>
+                `${r.needle.padEnd(32)} dx=${r.dx.toFixed(2)}pt dy=${r.dy.toFixed(2)}pt`
+            )
+            .join('\n')
+        );
+        // Centred lines move by half any difference in line width, and glyph
+        // advances differ slightly between Chromium builds: allow 1pt for those.
+        const centred = new Set(fixture.centred ?? []);
+        for (const r of rows) {
+          expect
+            .soft(Math.abs(r.dx), `x of "${r.needle}" (pt)`)
+            .toBeLessThanOrEqual(centred.has(r.needle) ? 1 : 0.5);
+          expect
+            .soft(Math.abs(r.dy), `baseline of "${r.needle}" (pt)`)
+            .toBeLessThanOrEqual(1);
+        }
       });
-      console.log(
-        rows
-          .map(
-            (r) =>
-              `${r.needle.padEnd(32)} dx=${r.dx.toFixed(2)}pt dy=${r.dy.toFixed(2)}pt`
-          )
-          .join('\n')
-      );
-      // Centred lines move by half any difference in line width, and glyph
-      // advances differ slightly between Chromium builds: allow 1pt for those.
-      const centred = new Set(fixture.centred ?? []);
-      for (const r of rows) {
-        expect
-          .soft(Math.abs(r.dx), `x of "${r.needle}" (pt)`)
-          .toBeLessThanOrEqual(centred.has(r.needle) ? 1 : 0.5);
-        expect
-          .soft(Math.abs(r.dy), `baseline of "${r.needle}" (pt)`)
-          .toBeLessThanOrEqual(1);
-      }
-    });
+
+    if (fixture.eqnos)
+      test('equation numbers sit where pdflatex puts them', async ({
+        page,
+      }) => {
+        const frame = await load(page);
+        const ours = await frame.evaluate(async () => {
+          await document.fonts.ready;
+          const box = document
+            .querySelector('.latex-page')!
+            .getBoundingClientRect();
+          const PX_TO_PT = 0.75;
+          return [...document.querySelectorAll('.eqno')].map((el) => {
+            const r = el.getBoundingClientRect();
+            const fs = parseFloat(getComputedStyle(el).fontSize);
+            const lh = parseFloat(getComputedStyle(el).lineHeight);
+            return {
+              text: el.textContent,
+              right: (r.right - box.left) * PX_TO_PT,
+              // A one-line box: baseline = top + half-leading + ascent.
+              baseline:
+                (r.top - box.top + (lh - fs) / 2 + 0.806 * fs) * PX_TO_PT,
+            };
+          });
+        });
+        const lines = reference.pages[0].lines.filter((l) =>
+          fixture.eqnos!.includes(l.text)
+        );
+        expect(ours.map((o) => o.text)).toEqual(fixture.eqnos);
+        const rows = ours.map((o, i) => ({
+          text: o.text,
+          dx: o.right - lines[i].xMax,
+          dy: o.baseline - refBaseline(lines[i]),
+        }));
+        console.log(
+          rows
+            .map(
+              (r) =>
+                `${r.text!.padEnd(8)} dx=${r.dx.toFixed(2)}pt dy=${r.dy.toFixed(2)}pt`
+            )
+            .join('\n')
+        );
+        for (const r of rows) {
+          expect
+            .soft(Math.abs(r.dx), `right edge of ${r.text} (pt)`)
+            .toBeLessThanOrEqual(0.5);
+          expect
+            .soft(Math.abs(r.dy), `baseline of ${r.text} (pt)`)
+            .toBeLessThanOrEqual(1);
+        }
+      });
   });
 }

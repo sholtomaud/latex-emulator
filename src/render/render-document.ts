@@ -28,6 +28,8 @@ import type { Bibliography } from './bibliography.ts';
 import { formatCitation, natbibOptions } from './natbib.ts';
 import type { CitationMode, NatbibOptions } from './natbib.ts';
 import { keyText, toLatex } from '../latex/ast/to-latex.ts';
+import { alignmentRows, mathToMathML } from '../latex/math/mathml.ts';
+import type { AlignmentRow, MathLabel } from '../latex/math/mathml.ts';
 
 export interface RenderOptions {
   /** Date used for \today (defaults to now). */
@@ -148,6 +150,7 @@ const BLOCK_COMMANDS = new Set([
   ...Object.keys(SECTIONS),
   ...RUN_IN,
   'maketitle',
+  'tableofcontents',
   'bibliography',
   'par',
   'newpage',
@@ -160,7 +163,6 @@ const IGNORED = new Set([
   'title',
   'author',
   'date',
-  'label',
   'indent',
   'item',
   'thanks',
@@ -188,7 +190,21 @@ const MATH_ENVS = new Set([
   'multline',
   'multline*',
 ]);
-const NUMBERED_MATH = new Set(['equation', 'align', 'gather', 'multline']);
+/** Most cells in one display row the CSS grid supports (cols-1 … cols-8). */
+const MAX_CELLS = 8;
+
+/** A \section entry for \tableofcontents (collected in the first pass). */
+interface TocEntry {
+  level: number;
+  number: string;
+  title: HChild[];
+}
+
+/** What the first pass learnt, like LaTeX's .aux file. */
+interface Aux {
+  labels: Map<string, string>;
+  toc: TocEntry[];
+}
 
 interface Context {
   typewriter: boolean;
@@ -215,10 +231,23 @@ export function renderDocument(
   // \bibitem has no author–year label.
   if ([...bibliography.labels.values()].some((l) => l.numeric))
     punctuation.numbers = true;
-  const renderer = new Renderer(structure, options.today ?? new Date(), {
+  const citations: Citations = {
     bibliography,
     mode: natbib ? 'natbib' : 'classic',
     natbib: punctuation,
+  };
+  const today = options.today ?? new Date();
+  // Two passes, like LaTeX and its .aux file: the first learns where every
+  // \label points and what the table of contents holds; the second renders
+  // with them (forward references included). Only its diagnostics count.
+  const first = new Renderer(structure, today, citations, {
+    labels: new Map(),
+    toc: [],
+  });
+  first.renderBlocks(structure.body, first.rootContext());
+  const renderer = new Renderer(structure, today, citations, {
+    labels: first.labelsOut,
+    toc: first.tocOut,
   });
   const blocks = renderer.renderBlocks(structure.body, renderer.rootContext());
   if (renderer.footnotes.length)
@@ -249,6 +278,12 @@ class Renderer {
   citations: Citations;
   diagnostics: Diagnostic[] = [];
   footnotes: HElement[] = [];
+  aux: Aux;
+  /** Labels defined in this pass (the first wins, as in LaTeX). */
+  labelsOut = new Map<string, string>();
+  tocOut: TocEntry[] = [];
+  /** What \label refers to here: LaTeX's \@currentlabel. */
+  currentRef = '';
   counters = {
     section: 0,
     subsection: 0,
@@ -257,10 +292,31 @@ class Renderer {
     equation: 0,
   };
 
-  constructor(structure: DocumentStructure, today: Date, citations: Citations) {
+  constructor(
+    structure: DocumentStructure,
+    today: Date,
+    citations: Citations,
+    aux: Aux
+  ) {
     this.structure = structure;
     this.today = today;
     this.citations = citations;
+    this.aux = aux;
+  }
+
+  /** \label{key} at the current counter. */
+  defineLabel(key: string, range: Range) {
+    if (this.labelsOut.has(key)) {
+      this.warn(
+        range,
+        'ref/duplicate-label',
+        `Label "${key}" is defined more than once; references use the first.`,
+        'warning',
+        'ref'
+      );
+      return;
+    }
+    this.labelsOut.set(key, this.currentRef);
   }
 
   rootContext(): Context {
@@ -381,7 +437,9 @@ class Renderer {
         case 'math':
           flush();
           blocks.push(
-            h('div', { class: 'math-display' }, [this.mathPlaceholder(n)])
+            this.renderDisplay('displaymath', [
+              { cells: [n.children], labels: [], numbered: false },
+            ])
           );
           after = 'block';
           continue;
@@ -421,6 +479,11 @@ class Renderer {
           flush();
           blocks.push(this.renderTitle(c, ctx));
           after = 'par';
+          break;
+        case 'tableofcontents':
+          flush();
+          blocks.push(...this.renderToc(c));
+          after = 'block';
           break;
         case 'bibliography': {
           flush();
@@ -472,6 +535,8 @@ class Renderer {
     const number = [section, subsection, subsubsection]
       .slice(0, level)
       .join('.');
+    this.currentRef = number;
+    this.tocOut.push({ level, number, title });
     return h(tag, { class: c.name }, [
       h('span', { class: 'secnum' }, [number]),
       ...title,
@@ -513,16 +578,7 @@ class Renderer {
   ): HElement[] {
     const cls = vertical ? `${env.name} vmode` : env.name;
     if (LIST_TAGS[env.name]) return [this.renderList(env, ctx, cls)];
-    if (MATH_ENVS.has(env.name)) {
-      const children: HChild[] = [
-        h('span', { class: 'math-placeholder' }, [rawSource(env).trim()]),
-      ];
-      if (NUMBERED_MATH.has(env.name))
-        children.push(
-          h('span', { class: 'eqno' }, [`(${++this.counters.equation})`])
-        );
-      return [h('div', { class: 'math-display' }, children)];
-    }
+    if (MATH_ENVS.has(env.name)) return [this.renderMathEnvironment(env)];
     const body = () => this.renderBlocks(env.children, ctx);
     switch (env.name) {
       case 'document':
@@ -661,9 +717,14 @@ class Renderer {
       if (custom) label = tidy(this.renderInline(custom.children, inner));
       else if (kind === 'itemize')
         label = [ITEMIZE_LABELS[Math.min(depth.itemize, 4) - 1]];
-      else if (kind === 'enumerate')
+      else if (kind === 'enumerate') {
         label = [enumerateLabel(depth.enumerate, ++counter)];
-      else label = [];
+        // \theenumi is 1, \theenumii is a, with \p@enumii = \theenumi: "1a".
+        this.currentRef =
+          depth.enumerate === 1
+            ? String(counter)
+            : `${this.currentRef.replace(/[a-z]+$/, '')}${String.fromCharCode(96 + counter)}`;
+      } else label = [];
       const labelNode = h('span', { class: 'item-label' }, label);
       const blocks = this.renderBlocks(body, inner, 'block');
       // The label starts the first paragraph (LaTeX sets it in the first line).
@@ -703,7 +764,7 @@ class Renderer {
           out.push(h('code', { class: 'verb' }, [n.value]));
           break;
         case 'math':
-          out.push(this.mathPlaceholder(n));
+          out.push(this.inlineMath(n));
           break;
         case 'group':
           out.push(...this.renderInline(n.children, ctx));
@@ -800,18 +861,51 @@ class Renderer {
         const number = custom
           ? plainText(custom.children).trim()
           : String(++this.counters.footnote);
+        // A \label inside the footnote refers to its number.
+        const outer = this.currentRef;
+        this.currentRef = number;
         this.footnotes.push(
           h('p', {}, [
             h('sup', { class: 'footnote-mark' }, [number]),
             ...tidy(arg()),
           ])
         );
+        this.currentRef = outer;
         return [h('sup', { class: 'footnote-mark' }, [number])];
       }
+      case 'label':
+        this.defineLabel(
+          keyText(lastMandatory(c)?.children ?? []).trim(),
+          c.range
+        );
+        return [];
       case 'ref':
-      case 'eqref':
+      case 'eqref': {
+        const key = keyText(lastMandatory(c)?.children ?? []).trim();
+        const value = this.aux.labels.get(key);
+        if (value === undefined) {
+          this.warn(
+            c.range,
+            'ref/undefined-reference',
+            `Reference "${key}" is undefined: no \\label{${key}} in this document.`,
+            'warning',
+            'ref'
+          );
+          return [h('span', { class: 'unresolved' }, ['??'])];
+        }
+        // amsmath: \eqref is \textup{(\ref{…})}.
+        return c.name === 'eqref'
+          ? [h('span', { class: 'up' }, [`(${value})`])]
+          : [value];
+      }
       case 'pageref':
-        // Cross-references are resolved in the math/references milestone.
+        this.warn(
+          c.range,
+          'ref/pageref',
+          'Page numbers are only known in the printed PDF: \\pageref shows ??.',
+          'info',
+          'ref'
+        );
         return [h('span', { class: 'unresolved' }, ['??'])];
     }
     if (IGNORED.has(c.name) || BLOCK_COMMANDS.has(c.name)) return [];
@@ -821,8 +915,110 @@ class Renderer {
       .flatMap((a) => this.renderInline(a.children, ctx));
   }
 
-  mathPlaceholder(m: MathNode): HElement {
-    return h('span', { class: 'math-placeholder' }, [m.source.trim()]);
+  inlineMath(m: MathNode): HElement {
+    const r = mathToMathML(m.children, { display: false });
+    this.diagnostics.push(...r.diagnostics);
+    for (const l of r.labels) this.defineLabel(l.key, l.range);
+    return r.math;
+  }
+
+  /** equation, align, gather, multline and their starred forms. */
+  renderMathEnvironment(env: EnvironmentNode): HElement {
+    const name = env.name.replace(/\*$/, '');
+    const starred =
+      env.name.endsWith('*') || name === 'displaymath' || name === 'math';
+    if (name === 'equation' || name === 'displaymath' || name === 'math')
+      return this.renderDisplay(name, [
+        { cells: [env.children], labels: [], numbered: !starred },
+      ]);
+    const rows = alignmentRows(env.children).map((r) => ({
+      ...r,
+      numbered: r.numbered && !starred,
+    }));
+    if (name === 'align') return this.renderDisplay(name, rows);
+    // gather and multline: one centred cell per row (an & is ignored).
+    const single = rows.map((r) => ({ ...r, cells: [r.cells.flat()] }));
+    if (name === 'multline')
+      // One number, on the last line.
+      single.forEach(
+        (r, i) =>
+          (r.numbered = r.numbered && i === single.length - 1 && !starred)
+      );
+    return this.renderDisplay(name, single);
+  }
+
+  /**
+   * A displayed equation as a CSS grid: one column per cell (so & columns
+   * line up across rows), centred between two flexible columns, with the
+   * number at the right margin on its row's baseline.
+   */
+  renderDisplay(kind: string, rows: AlignmentRow[]): HElement {
+    const cols = Math.min(
+      Math.max(...rows.map((r) => r.cells.length), 1),
+      MAX_CELLS
+    );
+    const rowEls = rows.map((row, i) => {
+      const labels: MathLabel[] = [...row.labels];
+      let nonumber = false;
+      let tag = row.tag;
+      const cells = row.cells.slice(0, MAX_CELLS).map((cell, j) => {
+        const r = mathToMathML(cell, { display: true });
+        this.diagnostics.push(...r.diagnostics);
+        labels.push(...r.labels);
+        nonumber ||= r.nonumber;
+        tag ??= r.tag;
+        const position =
+          kind === 'multline' && rows.length > 1
+            ? i === 0
+              ? ' first'
+              : i === rows.length - 1
+                ? ' last'
+                : ''
+            : '';
+        return h('div', { class: `math-cell c${j + 1}${position}` }, [r.math]);
+      });
+      const children: HChild[] = [...cells];
+      if (tag !== undefined) {
+        this.currentRef = tag;
+        children.push(h('span', { class: 'eqno' }, [`(${tag})`]));
+      } else if (row.numbered && !nonumber) {
+        this.currentRef = String(++this.counters.equation);
+        children.push(h('span', { class: 'eqno' }, [`(${this.currentRef})`]));
+      }
+      for (const l of labels) this.defineLabel(l.key, l.range);
+      return h('div', { class: 'math-row' }, children);
+    });
+    const cls = ['math-display', `cols-${cols}`];
+    if (kind === 'gather' || kind === 'multline') cls.push(kind);
+    return h('div', { class: cls.join(' ') }, rowEls);
+  }
+
+  /** \tableofcontents: \section*{\contentsname} and the first pass's entries. */
+  renderToc(c: CommandNode): HElement[] {
+    this.warn(
+      c.range,
+      'ref/toc-pages',
+      'Page numbers are only known in the printed PDF: the contents show ??.',
+      'info',
+      'ref'
+    );
+    const levels = ['', 'section', 'subsection', 'subsubsection'];
+    return [
+      h('h2', { class: 'section' }, ['Contents']),
+      h(
+        'div',
+        { class: 'toc' },
+        this.aux.toc.map((e) =>
+          h('p', { class: `toc-${levels[e.level]}` }, [
+            h('span', { class: 'toc-num' }, [e.number]),
+            ...e.title,
+            // article.cls: sections have no dot leaders (\l@section).
+            ...(e.level > 1 ? [h('span', { class: 'toc-leaders' })] : []),
+            h('span', { class: 'toc-page' }, ['??']),
+          ])
+        )
+      ),
+    ];
   }
 }
 
@@ -882,33 +1078,6 @@ function toRoman(n: number): string {
       n -= value;
     }
   return out;
-}
-
-/** The TeX source of an environment's body (for the math placeholder). */
-function rawSource(env: EnvironmentNode): string {
-  const flat = (nodes: Node[]): string =>
-    nodes
-      .map((n) => {
-        switch (n.kind) {
-          case 'text':
-            return n.value;
-          case 'space':
-          case 'parbreak':
-            return ' ';
-          case 'special':
-            return n.char;
-          case 'command':
-            return `\\${n.name}${n.args.map((a) => (a.optional ? `[${flat(a.children)}]` : `{${flat(a.children)}}`)).join('')}`;
-          case 'group':
-            return `{${flat(n.children)}}`;
-          case 'math':
-            return n.source;
-          default:
-            return '';
-        }
-      })
-      .join('');
-  return flat(env.children);
 }
 
 /**

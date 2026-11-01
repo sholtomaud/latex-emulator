@@ -43,6 +43,19 @@ test.describe('app shell', () => {
     expect(await width('latex-editor')).toBeGreaterThan(450);
   });
 
+  test('the preview (and so the PDF) is a standards-mode document', async ({
+    page,
+  }) => {
+    const doc = page.frameLocator('latex-preview iframe');
+    await expect(doc.locator('.latex-page p').first()).toBeVisible();
+    const frame = (await (await page
+      .locator('latex-preview iframe')
+      .elementHandle())!.contentFrame())!;
+    // Quirks mode drops the line-height strut around inline math, among
+    // other differences from how browsers lay out real pages.
+    expect(await frame.evaluate(() => document.compatMode)).toBe('CSS1Compat');
+  });
+
   test('renders the sample document body, not the preamble', async ({
     page,
   }) => {
