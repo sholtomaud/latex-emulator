@@ -165,6 +165,8 @@ src/
 ├── store/                        # app stores: document, diagnostics, workspace, ui, print
 ├── storage/                      # DocumentRepository (documents + versions):
 │                                 #   IndexedDB + in-memory
+├── references/                   # pure: DOI/URL input, CSL-JSON → BibTeX, citation
+│                                 #   keys, .bib cleaning (ADR 0008)
 ├── workspace/                    # documents: pure Workspace logic, names, and the
 │                                 #   browser wiring (autosave, import/export)
 ├── components/
@@ -384,7 +386,9 @@ on-screen pages, implement our own lightweight paginator in
 - Keep Boba's CSP meta tag. Tighten it over time (drop `'unsafe-inline'` for
   scripts) and add `worker-src 'self' blob:` as Monaco/Vite workers require.
   Document every relaxation in an ADR.
-- No telemetry and no network calls with document content. Documents live in
+- No telemetry and no network calls with document content. The only
+  outbound requests are user-initiated DOI lookups to doi.org (and the
+  registration agencies it redirects to), carrying just that DOI (ADR 0008). Documents live in
   OPFS/IndexedDB on the user's device.
 
 ---
@@ -577,8 +581,9 @@ chosen branch.
    `\citeauthor`, `\citeyear`, `[pre][post]` notes), a `.bib` library in
    IndexedDB, `\bibliography` + `\bibliographystyle` through a BibTeX
    emulator that matches real bibtex byte for byte, checked against real
-   pdflatex (ADR 0007). **Next:** DOI/URL lookup, reference cleaning, and
-   generating keys in Better BibTeX's `author_topic_year` form.
+   pdflatex (ADR 0007). ✅ Add references by DOI, doi.org/publisher/arXiv
+   link or URL (doi.org content negotiation), `.bib` cleaning, and keys in
+   Better BibTeX's `author_topic_year` form (ADR 0008).
 7. Zotero: web API (user ID + API key) and the local Zotero 7 API on
    localhost:23119 (verify Chrome's private-network rules first).
 8. Math: TeX → MathML (`align`, `equation`, fractions, matrices);

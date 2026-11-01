@@ -11,6 +11,10 @@ export interface BibEntry {
   key: string;
   /** Lower-case field name → value (outer delimiters removed). */
   fields: Map<string, string>;
+  /** Lower-case field name → its value exactly as written, e.g. `may`. */
+  raw: Map<string, string>;
+  /** Where the entry is in the source, from its `@` to its closing delimiter. */
+  span: { start: number; end: number };
 }
 
 export interface ParsedBib {
@@ -147,6 +151,7 @@ export function parseBib(
         pos++;
       const key = text.slice(keyStart, pos);
       const fields = new Map<string, string>();
+      const raw = new Map<string, string>();
       for (;;) {
         skipWhite();
         if (text[pos] === close) {
@@ -165,15 +170,20 @@ export function parseBib(
         skipWhite();
         if (text[pos] !== '=') fail(`Expected = after ${name} in entry ${key}`);
         pos++;
+        skipWhite();
+        const valueStart = pos;
         const value = readValue();
-        if (!fields.has(name)) fields.set(name, value);
+        if (!fields.has(name)) {
+          fields.set(name, value);
+          raw.set(name, text.slice(valueStart, pos).trimEnd());
+        }
       }
       if (seen.has(key.toLowerCase())) {
         warnings.push(`Repeated entry---line ${line(start)}: ${key}`);
         continue;
       }
       seen.add(key.toLowerCase());
-      entries.push({ type, key, fields });
+      entries.push({ type, key, fields, raw, span: { start, end: pos } });
     } catch (error) {
       if (!(error instanceof BibError)) throw error;
       warnings.push(error.message);
