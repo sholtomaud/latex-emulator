@@ -142,7 +142,10 @@ Key design decisions:
    chrome and no Tailwind. "Download PDF" calls `print()` on that iframe, so
    the preview and the PDF use the same CSS. Before printing, set the iframe
    document's `<title>` to the intended filename, because Chromium uses it as
-   the default PDF name.
+   the default PDF name. The iframe gets its document from `srcdoc` with a
+   doctype, so it is in **standards mode** (a bare `about:blank` iframe is in
+   quirks mode, which drops the line-height strut around inline math); an
+   e2e test checks `document.compatMode`.
 5. **Two-pass rendering.** Like LaTeX's `.aux` file: pass 1 collects labels,
    counters, section titles and citations; pass 2 renders with resolved
    `\ref`, `\pageref` (see §7), `\tableofcontents` and the bibliography.
@@ -236,10 +239,10 @@ Grow the subset deliberately. Every supported command or environment lives in
 mode (text/math/both), hover documentation and render hook. Completion, hover,
 lint ("unknown command") and rendering all read the same registry.
 
-**Tier 1 (MVP)**: implemented except where noted. Math renders as TeX source
-in italics until step 5. `\ref`/`\eqref`/`\pageref` print a bold `??` until
-step 5. `\tableofcontents` is not yet supported. Footnotes are collected at
-the end of the document (ADR 0003).
+**Tier 1 (MVP)**: implemented except where noted. Math is MathML (ADR 0010).
+`\pageref` and the page numbers in `\tableofcontents` print `??` (page numbers
+are only known in the printed PDF). Footnotes are collected at the end of the
+document (ADR 0003).
 - Preamble: `\documentclass[opts]{article}` (`10pt|11pt|12pt`, `a4paper|letterpaper`,
   `twocolumn` later), `\usepackage` (recognised and validated; known packages
   toggle features, unknown ones warn), `\title`, `\author`, `\date`, `\maketitle`.
@@ -248,9 +251,13 @@ the end of the document (ADR 0003).
   ` `` ''` quotes, `\emph`, `\textbf`, `\textit`, `\texttt`, `\textsc`, `\underline`,
   size commands, `\footnote`, accents and special-character escapes, `%` comments.
 - Lists: `itemize`, `enumerate` (nesting, LaTeX label styles), `description`.
-- Math: `$…$`, `\(…\)`, `\[…\]`, `equation`, `equation*`, `align`, `align*`
-  (amsmath), common symbols, `\frac`, `\sqrt`, sub/superscripts, `\left…\right`,
-  `\text`, matrices.
+- Math (ADR 0010): `$…$`, `\(…\)`, `\[…\]`, `$$…$$`, `equation(*)`,
+  `align(*)`, `gather(*)`, `multline(*)`, `aligned`, `cases`, matrices and
+  `array`; Greek, operators, relations, arrows, `\frac`/`\dfrac`/`\binom`,
+  `\sqrt[n]`, scripts and primes, big operators with limits, functions,
+  `\left…\middle…\right`, `\big…`, `\text`, `\mathbb`/`\mathcal`/`\mathbf`…,
+  accents, `\overbrace`, spacing; `\label`, `\nonumber`, `\tag`. Symbols live
+  in `src/latex/math/symbols.ts`, the math part of the registry.
 - Cross-refs: `\label`, `\ref`, `\eqref`; `\tableofcontents`.
 - Misc: `\newpage`, `\clearpage`, `center`, `quote`, `verbatim`, `\verb`.
 - Citations (ADR 0007): natbib's `\cite`, `\citet`, `\citep`, `\citealt`,
@@ -464,7 +471,12 @@ the commit message.
   interword shrink and hyphenation patterns, i.e. Knuth–Plass) declares a
   `knownLineBreakGap` reason: its line-break check still runs as an expected
   failure (`test.fail`), so it turns red once fixed. Its positions are still
-  checked. `natbib-basic` is the only one today.
+  checked. `natbib-basic` is the only one today. Likewise
+  `knownPositionGaps` lists checked lines known to miss the position
+  tolerance, asserted in an expected-failure test (`math-basic`: the line
+  after a `\sqrt` display). Fixtures can also check equation numbers
+  (`eqnos`) and skip display-math lines in the line-break check
+  (`displayLines`).
   Tighten these tolerances as fidelity improves; never loosen them to get
   green. `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
 
@@ -594,8 +606,9 @@ chosen branch.
    zotero.org web library (user ID + session-only API key) and add results
    to a `.bib` file (ADR 0009). Still to verify by hand against a real
    Zotero: its CORS headers and Chrome's local-network prompt.
-8. Math: TeX → MathML (`align`, `equation`, fractions, matrices);
-   `\label`/`\ref`/`\eqref`; `\tableofcontents`.
+8. ✅ Math: TeX → MathML Core with Latin Modern Math (`equation`, `align`,
+   `gather`, `multline`, fractions, roots, matrices…); numbered displays;
+   `\label`/`\ref`/`\eqref` in two passes; `\tableofcontents` (ADR 0010).
 9. Figures and tables: `figure`, `\includegraphics` (upload, URL, Zotero;
    stored in IndexedDB), `\caption`, `table`, `tabular`, `booktabs`.
 10. Code: `listings` (`lstlisting`, `\lstinline`) and `algorithm` +

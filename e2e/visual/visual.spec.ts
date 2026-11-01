@@ -83,4 +83,18 @@ test.describe('visual', () => {
     await page.evaluate(() => document.fonts.ready);
     await expect(sheet).toHaveScreenshot('preview-bibliography.png');
   });
+
+  test('preview page with math', async ({ page }) => {
+    await openApp(page);
+    await setSource(
+      page,
+      fs.readFileSync('fixtures/math-basic/input.tex', 'utf8')
+    );
+    const sheet = page
+      .frameLocator('latex-preview iframe')
+      .locator('.latex-page');
+    await expect(sheet.locator('.eqno')).toHaveText(['(1)', '(2)', '(3)']);
+    await page.evaluate(() => document.fonts.ready);
+    await expect(sheet).toHaveScreenshot('preview-math.png');
+  });
 });

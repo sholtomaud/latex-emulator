@@ -340,3 +340,31 @@ describe('parse: other tokens', () => {
     assert.deepStrictEqual(c.nameRange, { start: 0, end: 5 });
   });
 });
+
+describe('math: unknown commands take no [optional] argument', () => {
+  test('\\left[ … \\right] parses cleanly, with the brackets as text', () => {
+    const r = parse('$\\left[ x \\right]$');
+    assert.deepStrictEqual(r.diagnostics, []);
+    const [m] = r.root.children;
+    assert.ok(m.kind === 'math');
+    assert.deepStrictEqual(
+      m.children.map((n) =>
+        n.kind === 'command'
+          ? `\\${n.name}:${n.args.length}`
+          : n.kind === 'text'
+            ? n.value
+            : n.kind
+      ),
+      ['\\left:0', '[', 'space', 'x', 'space', '\\right:0', ']']
+    );
+  });
+
+  test('\\sqrt[3]{x} keeps its optional argument', () => {
+    const [m] = parse('$\\sqrt[3]{x}$').root.children;
+    assert.ok(m.kind === 'math' && m.children[0].kind === 'command');
+    assert.deepStrictEqual(
+      m.children[0].args.map((a) => a.optional),
+      [true, false]
+    );
+  });
+});

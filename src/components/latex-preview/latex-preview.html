@@ -1,1 +1,9 @@
-<iframe class="frame" title="Document preview"></iframe>
+<!--
+  srcdoc gives the preview a doctype, so it (and the printed PDF) is laid out
+  in standards mode; a bare about:blank iframe is in quirks mode.
+-->
+<iframe
+  class="frame"
+  title="Document preview"
+  srcdoc="<!doctype html><html lang='en'><head></head><body></body></html>"
+></iframe>

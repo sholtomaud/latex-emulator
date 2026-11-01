@@ -47,6 +47,16 @@ export class LatexPreviewComponent extends BaseComponent {
 
   init() {
     this.frame = this.querySelector('iframe')!;
+    // The srcdoc document (standards mode) replaces the initial about:blank
+    // asynchronously: build the preview once it has loaded.
+    const doc = this.frame.contentDocument;
+    if (doc?.compatMode === 'CSS1Compat' && doc.readyState === 'complete')
+      this.ready();
+    else
+      this.frame.addEventListener('load', () => this.ready(), { once: true });
+  }
+
+  ready() {
     this.setUpFrameDocument();
     this.render(documentStore.getState().source);
 

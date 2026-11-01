@@ -174,6 +174,10 @@ cmd(
 // Notes and references
 cmd('footnote', 'o m', 'Adds a footnote.');
 cmd('label', 'm', 'Labels the current section or equation for \\ref.');
+cmd('sqrt', 'o m', 'Square root (math); \\sqrt[n]{x} is an nth root.');
+cmd('tableofcontents', '', 'Table of contents, from the sections.');
+cmd(['nonumber', 'notag'], '', 'No number for this equation line (amsmath).');
+cmd('tag', 's m', 'Custom equation number (amsmath).');
 
 // natbib (author–year and numerical citations) and BibTeX
 cmd('cite', 's o o m', 'Citation: Author [Year] with natbib, [n] without.');

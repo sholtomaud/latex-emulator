@@ -1,0 +1,726 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 127.8,
+          "xMax": 125.9,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Equations",
+          "xMin": 142.04,
+          "yMin": 127.8,
+          "xMax": 212.12,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "Equations",
+              "xMin": 142.04,
+              "xMax": 212.12
+            }
+          ]
+        },
+        {
+          "text": "Energy is conserved, so E = mc 2 holds for a particle at rest, and a fraction",
+          "xMin": 117.83,
+          "yMin": 152.62,
+          "xMax": 476.48,
+          "yMax": 164.22,
+          "words": [
+            {
+              "text": "Energy",
+              "xMin": 117.83,
+              "xMax": 151.65
+            },
+            {
+              "text": "is",
+              "xMin": 155.26,
+              "xMax": 162.59
+            },
+            {
+              "text": "conserved,",
+              "xMin": 166.2,
+              "xMax": 215.38
+            },
+            {
+              "text": "so",
+              "xMin": 219,
+              "xMax": 228.76
+            },
+            {
+              "text": "E",
+              "xMin": 232.37,
+              "xMax": 240.43
+            },
+            {
+              "text": "=",
+              "xMin": 244.09,
+              "xMax": 252.57
+            },
+            {
+              "text": "mc",
+              "xMin": 255.6,
+              "xMax": 269.9
+            },
+            {
+              "text": "2",
+              "xMin": 269.9,
+              "xMax": 274.13
+            },
+            {
+              "text": "holds",
+              "xMin": 278.25,
+              "xMax": 303.15
+            },
+            {
+              "text": "for",
+              "xMin": 306.77,
+              "xMax": 319.83
+            },
+            {
+              "text": "a",
+              "xMin": 323.44,
+              "xMax": 328.89
+            },
+            {
+              "text": "particle",
+              "xMin": 332.5,
+              "xMax": 368.29
+            },
+            {
+              "text": "at",
+              "xMin": 371.9,
+              "xMax": 381.6
+            },
+            {
+              "text": "rest,",
+              "xMin": 385.22,
+              "xMax": 405.92
+            },
+            {
+              "text": "and",
+              "xMin": 409.53,
+              "xMax": 427.11
+            },
+            {
+              "text": "a",
+              "xMin": 430.72,
+              "xMax": 436.17
+            },
+            {
+              "text": "fraction",
+              "xMin": 439.78,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "such as ab sits inside the line. Equation (1) is Euler’s identity:",
+          "xMin": 117.83,
+          "yMin": 165.83,
+          "xMax": 412.45,
+          "yMax": 180.96,
+          "words": [
+            {
+              "text": "such",
+              "xMin": 117.83,
+              "xMax": 138.8
+            },
+            {
+              "text": "as",
+              "xMin": 142.44,
+              "xMax": 152.2
+            },
+            {
+              "text": "ab",
+              "xMin": 157.02,
+              "xMax": 161.52
+            },
+            {
+              "text": "sits",
+              "xMin": 166.35,
+              "xMax": 182.23
+            },
+            {
+              "text": "inside",
+              "xMin": 185.86,
+              "xMax": 213.2
+            },
+            {
+              "text": "the",
+              "xMin": 216.84,
+              "xMax": 231.99
+            },
+            {
+              "text": "line.",
+              "xMin": 235.63,
+              "xMax": 255.63
+            },
+            {
+              "text": "Equation",
+              "xMin": 260.47,
+              "xMax": 303.96
+            },
+            {
+              "text": "(1)",
+              "xMin": 307.59,
+              "xMax": 321.53
+            },
+            {
+              "text": "is",
+              "xMin": 325.17,
+              "xMax": 332.51
+            },
+            {
+              "text": "Euler’s",
+              "xMin": 336.14,
+              "xMax": 369.11
+            },
+            {
+              "text": "identity:",
+              "xMin": 372.74,
+              "xMax": 412.45
+            }
+          ]
+        },
+        {
+          "text": "e iπ + 1 = 0",
+          "xMin": 270.96,
+          "yMin": 190.13,
+          "xMax": 323.36,
+          "yMax": 202.28,
+          "words": [
+            {
+              "text": "e",
+              "xMin": 270.96,
+              "xMax": 276.04
+            },
+            {
+              "text": "iπ",
+              "xMin": 276.04,
+              "xMax": 283.78
+            },
+            {
+              "text": "+",
+              "xMin": 286.99,
+              "xMax": 295.48
+            },
+            {
+              "text": "1",
+              "xMin": 297.9,
+              "xMax": 303.35
+            },
+            {
+              "text": "=",
+              "xMin": 306.39,
+              "xMax": 314.87
+            },
+            {
+              "text": "0",
+              "xMin": 317.9,
+              "xMax": 323.36
+            }
+          ]
+        },
+        {
+          "text": "(1)",
+          "xMin": 462.55,
+          "yMin": 192.59,
+          "xMax": 476.49,
+          "yMax": 202.28,
+          "words": [
+            {
+              "text": "(1)",
+              "xMin": 462.55,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "and the next display is not numbered:",
+          "xMin": 117.83,
+          "yMin": 217.1,
+          "xMax": 299.8,
+          "yMax": 226.79,
+          "words": [
+            {
+              "text": "and",
+              "xMin": 117.83,
+              "xMax": 135.4
+            },
+            {
+              "text": "the",
+              "xMin": 139.04,
+              "xMax": 154.19
+            },
+            {
+              "text": "next",
+              "xMin": 157.83,
+              "xMax": 178.74
+            },
+            {
+              "text": "display",
+              "xMin": 182.37,
+              "xMax": 215.77
+            },
+            {
+              "text": "is",
+              "xMin": 219.4,
+              "xMax": 226.73
+            },
+            {
+              "text": "not",
+              "xMin": 230.38,
+              "xMax": 246.14
+            },
+            {
+              "text": "numbered:",
+              "xMin": 249.77,
+              "xMax": 299.8
+            }
+          ]
+        },
+        {
+          "text": "n",
+          "xMin": 260.5,
+          "yMin": 237.74,
+          "xMax": 265.64,
+          "yMax": 244.82,
+          "words": [
+            {
+              "text": "n",
+              "xMin": 260.5,
+              "xMax": 265.64
+            }
+          ]
+        },
+        {
+          "text": "X",
+          "xMin": 255.19,
+          "yMin": 246.11,
+          "xMax": 270.95,
+          "yMax": 253.09,
+          "words": [
+            {
+              "text": "X",
+              "xMin": 255.19,
+              "xMax": 270.95
+            }
+          ]
+        },
+        {
+          "text": "k=1",
+          "xMin": 255.35,
+          "yMin": 264.73,
+          "xMax": 270.79,
+          "yMax": 271.81,
+          "words": [
+            {
+              "text": "k=1",
+              "xMin": 255.35,
+              "xMax": 270.79
+            }
+          ]
+        },
+        {
+          "text": "k =",
+          "xMin": 272.76,
+          "yMin": 249.34,
+          "xMax": 290.3,
+          "yMax": 259.02,
+          "words": [
+            {
+              "text": "k",
+              "xMin": 272.76,
+              "xMax": 278.44
+            },
+            {
+              "text": "=",
+              "xMin": 281.82,
+              "xMax": 290.3
+            }
+          ]
+        },
+        {
+          "text": "n(n + 1)",
+          "xMin": 294.53,
+          "yMin": 241.96,
+          "xMax": 334.9,
+          "yMax": 251.64,
+          "words": [
+            {
+              "text": "n(n",
+              "xMin": 294.53,
+              "xMax": 311.87
+            },
+            {
+              "text": "+",
+              "xMin": 314.29,
+              "xMax": 322.78
+            },
+            {
+              "text": "1)",
+              "xMin": 325.2,
+              "xMax": 334.9
+            }
+          ]
+        },
+        {
+          "text": ".",
+          "xMin": 336.09,
+          "yMin": 249.34,
+          "xMax": 339.12,
+          "yMax": 259.02,
+          "words": [
+            {
+              "text": ".",
+              "xMin": 336.09,
+              "xMax": 339.12
+            }
+          ]
+        },
+        {
+          "text": "2",
+          "xMin": 311.99,
+          "yMin": 256.82,
+          "xMax": 317.44,
+          "yMax": 266.51,
+          "words": [
+            {
+              "text": "2",
+              "xMin": 311.99,
+              "xMax": 317.44
+            }
+          ]
+        },
+        {
+          "text": "Aligned equations line up at the relation:",
+          "xMin": 117.83,
+          "yMin": 283.31,
+          "xMax": 314.89,
+          "yMax": 293,
+          "words": [
+            {
+              "text": "Aligned",
+              "xMin": 117.83,
+              "xMax": 154.5
+            },
+            {
+              "text": "equations",
+              "xMin": 158.13,
+              "xMax": 203.34
+            },
+            {
+              "text": "line",
+              "xMin": 206.98,
+              "xMax": 223.94
+            },
+            {
+              "text": "up",
+              "xMin": 227.59,
+              "xMax": 239.71
+            },
+            {
+              "text": "at",
+              "xMin": 243.34,
+              "xMax": 253.04
+            },
+            {
+              "text": "the",
+              "xMin": 256.67,
+              "xMax": 271.82
+            },
+            {
+              "text": "relation:",
+              "xMin": 275.47,
+              "xMax": 314.89
+            }
+          ]
+        },
+        {
+          "text": "f (x) = x 2 + 2x + 1",
+          "xMin": 251.88,
+          "yMin": 305.35,
+          "xMax": 342.43,
+          "yMax": 317.51,
+          "words": [
+            {
+              "text": "f",
+              "xMin": 251.88,
+              "xMax": 257.22
+            },
+            {
+              "text": "(x)",
+              "xMin": 258.39,
+              "xMax": 273.11
+            },
+            {
+              "text": "=",
+              "xMin": 276.14,
+              "xMax": 284.63
+            },
+            {
+              "text": "x",
+              "xMin": 287.66,
+              "xMax": 293.89
+            },
+            {
+              "text": "2",
+              "xMin": 293.89,
+              "xMax": 298.13
+            },
+            {
+              "text": "+",
+              "xMin": 301.05,
+              "xMax": 309.53
+            },
+            {
+              "text": "2x",
+              "xMin": 311.95,
+              "xMax": 323.65
+            },
+            {
+              "text": "+",
+              "xMin": 326.07,
+              "xMax": 334.56
+            },
+            {
+              "text": "1",
+              "xMin": 336.98,
+              "xMax": 342.43
+            }
+          ]
+        },
+        {
+          "text": "(2)",
+          "xMin": 462.54,
+          "yMin": 307.82,
+          "xMax": 476.48,
+          "yMax": 317.51,
+          "words": [
+            {
+              "text": "(2)",
+              "xMin": 462.54,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "= (x + 1) 2 .",
+          "xMin": 276.14,
+          "yMin": 323.04,
+          "xMax": 328.93,
+          "yMax": 335.2,
+          "words": [
+            {
+              "text": "=",
+              "xMin": 276.14,
+              "xMax": 284.63
+            },
+            {
+              "text": "(x",
+              "xMin": 287.66,
+              "xMax": 298.13
+            },
+            {
+              "text": "+",
+              "xMin": 300.56,
+              "xMax": 309.04
+            },
+            {
+              "text": "1)",
+              "xMin": 311.46,
+              "xMax": 321.16
+            },
+            {
+              "text": "2",
+              "xMin": 321.16,
+              "xMax": 325.4
+            },
+            {
+              "text": ".",
+              "xMin": 325.9,
+              "xMax": 328.93
+            }
+          ]
+        },
+        {
+          "text": "(3)",
+          "xMin": 462.54,
+          "yMin": 325.51,
+          "xMax": 476.48,
+          "yMax": 335.2,
+          "words": [
+            {
+              "text": "(3)",
+              "xMin": 462.54,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "Section 1 has equations (2) and (3), and",
+          "xMin": 117.83,
+          "yMin": 350.02,
+          "xMax": 310.37,
+          "yMax": 359.7,
+          "words": [
+            {
+              "text": "Section",
+              "xMin": 117.83,
+              "xMax": 152.37
+            },
+            {
+              "text": "1",
+              "xMin": 156.01,
+              "xMax": 161.46
+            },
+            {
+              "text": "has",
+              "xMin": 165.1,
+              "xMax": 180.92
+            },
+            {
+              "text": "equations",
+              "xMin": 184.56,
+              "xMax": 229.77
+            },
+            {
+              "text": "(2)",
+              "xMin": 233.4,
+              "xMax": 247.34
+            },
+            {
+              "text": "and",
+              "xMin": 250.98,
+              "xMax": 268.56
+            },
+            {
+              "text": "(3),",
+              "xMin": 272.19,
+              "xMax": 289.16
+            },
+            {
+              "text": "and",
+              "xMin": 292.8,
+              "xMax": 310.37
+            }
+          ]
+        },
+        {
+          "text": "p",
+          "xMin": 295.37,
+          "yMin": 372.71,
+          "xMax": 306.28,
+          "yMax": 379.69,
+          "words": [
+            {
+              "text": "p",
+              "xMin": 295.37,
+              "xMax": 306.28
+            }
+          ]
+        },
+        {
+          "text": "α + β ≤ γ 2 + δ 2",
+          "xMin": 253.72,
+          "yMin": 374.68,
+          "xMax": 340.09,
+          "yMax": 385.48,
+          "words": [
+            {
+              "text": "α",
+              "xMin": 253.72,
+              "xMax": 260.7
+            },
+            {
+              "text": "+",
+              "xMin": 263.17,
+              "xMax": 271.65
+            },
+            {
+              "text": "β",
+              "xMin": 274.08,
+              "xMax": 280.25
+            },
+            {
+              "text": "≤",
+              "xMin": 283.85,
+              "xMax": 292.34
+            },
+            {
+              "text": "γ",
+              "xMin": 306.27,
+              "xMax": 311.92
+            },
+            {
+              "text": "2",
+              "xMin": 312.53,
+              "xMax": 316.76
+            },
+            {
+              "text": "+",
+              "xMin": 319.69,
+              "xMax": 328.17
+            },
+            {
+              "text": "δ",
+              "xMin": 330.6,
+              "xMax": 335.44
+            },
+            {
+              "text": "2",
+              "xMin": 335.86,
+              "xMax": 340.09
+            }
+          ]
+        },
+        {
+          "text": "ends it.",
+          "xMin": 117.83,
+          "yMin": 400.3,
+          "xMax": 153.04,
+          "yMax": 409.98,
+          "words": [
+            {
+              "text": "ends",
+              "xMin": 117.83,
+              "xMax": 139.1
+            },
+            {
+              "text": "it.",
+              "xMin": 142.73,
+              "xMax": 153.04
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
