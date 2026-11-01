@@ -267,9 +267,13 @@ document (ADR 0003).
   `\bibliographystyle` + `\bibliography{a,b}` run through the BibTeX
   emulator with shipped `.bst` styles (`src/assets/bst/`); hand-written
   `thebibliography`/`\bibitem`.
+- Tables (ADR 0012): `tabular` (`l c r p{}`, `|`, `@{}`, `*{n}{}`,
+  `\hline`, `\cline`, `\multicolumn`), `booktabs` rules and `\cmidrule`,
+  and the `table` float with `\caption`, `\label` and `\ref`. Floats are
+  set where they are written (as `[h]`).
 
 **Tier 2:** `\newcommand`/`\renewcommand` (with optional-arg defaults),
-`figure`/`table` + `\caption`, `tabular`, `\includegraphics` (local images
+`figure` + `\caption`, `\includegraphics` (local images
 from the project store), `abstract`,
 `\hyperref`/`\href`/`\url`, `twocolumn`, `geometry` package options.
 
@@ -296,7 +300,10 @@ documents), 12 for headings, 17 for the title. Every `@font-face` pins
 `ascent-override: 80.6%; descent-override: 19.4%; line-gap-override: 0%`
 (LM's own typo metrics), so baselines land in the same place on every
 platform. Never fall back silently to system fonts. Await
-`document.fonts.ready` inside the iframe before printing.
+`document.fonts.ready` inside the iframe before printing. A tie (`~`,
+U+00A0) is TeX's interword space, not LM's 0.5em no-break space: our own
+`tie-<width>.ttf` fonts are declared with `unicode-range: U+00A0` after
+each face (ADR 0012).
 
 **Geometry.** Derive sizes from the LaTeX `article` class and its `size1x.clo`
 files, exposed as CSS custom properties set from `\documentclass` options.
@@ -468,7 +475,8 @@ the commit message.
   `e2e/specs/print-fidelity.spec.ts` renders each fixture and asserts that:
   - every line breaks where pdflatex breaks it;
   - checked lines start within **0.5pt** horizontally (1pt for centred
-    lines) and sit within **1pt** vertically.
+    lines and centred or right-aligned table cells, whose start depends on
+    their own width) and sit within **1pt** vertically.
 
   A fixture whose line breaks need something CSS can't do yet (TeX's
   interword shrink and hyphenation patterns, i.e. Knuth–Plass) declares a
@@ -614,8 +622,10 @@ chosen branch.
 8. ✅ Math: TeX → MathML Core with Latin Modern Math (`equation`, `align`,
    `gather`, `multline`, fractions, roots, matrices…); numbered displays;
    `\label`/`\ref`/`\eqref` in two passes; `\tableofcontents` (ADR 0010).
-9. Figures and tables: `figure`, `\includegraphics` (upload, URL, Zotero;
-   stored in IndexedDB), `\caption`, `table`, `tabular`, `booktabs`.
+9. Figures and tables. ✅ `tabular`, `booktabs`, the `table` float and
+   `\caption`, checked against pdflatex, with ties at TeX's width
+   (ADR 0012). Still to do: `figure` and `\includegraphics` (upload, URL,
+   Zotero; stored in IndexedDB).
 10. Code: `listings` (`lstlisting`, `\lstinline`) and `algorithm` +
     `algpseudocode` for pseudocode. No invented `\code` command.
 11. `elsarticle` class (Elsevier), checked against pdflatex.

@@ -30,6 +30,10 @@ import type { CitationMode, NatbibOptions } from './natbib.ts';
 import { keyText, toLatex } from '../latex/ast/to-latex.ts';
 import { alignmentRows, mathToMathML } from '../latex/math/mathml.ts';
 import type { AlignmentRow, MathLabel } from '../latex/math/mathml.ts';
+import { parseColumnSpec, tabularRows } from './tabular.ts';
+import type { Column } from './tabular.ts';
+import type { LengthContext } from './lengths.ts';
+import { toBp } from '../latex/classes/article.ts';
 
 export interface RenderOptions {
   /** Date used for \today (defaults to now). */
@@ -150,6 +154,7 @@ const BLOCK_COMMANDS = new Set([
   ...Object.keys(SECTIONS),
   ...RUN_IN,
   'maketitle',
+  'caption',
   'tableofcontents',
   'bibliography',
   'par',
@@ -249,15 +254,23 @@ export function renderDocument(
   // Two passes, like LaTeX and its .aux file: the first learns where every
   // \label points and what the table of contents holds; the second renders
   // with them (forward references included). Only its diagnostics count.
+  const lengths: LengthContext = {
+    textwidth: toBp(geometry.textWidth),
+    em: toBp(geometry.em),
+    // cmr10's x-height is 0.430554 of its quad.
+    ex: toBp(geometry.em) * 0.430554,
+  };
   const first = new Renderer(structure, today, citations, {
     labels: new Map(),
     toc: [],
   });
+  first.lengths = lengths;
   first.renderBlocks(structure.body, first.rootContext());
   const renderer = new Renderer(structure, today, citations, {
     labels: first.labelsOut,
     toc: first.tocOut,
   });
+  renderer.lengths = lengths;
   const blocks = renderer.renderBlocks(structure.body, renderer.rootContext());
   if (renderer.footnotes.length)
     blocks.push(h('section', { class: 'footnotes' }, renderer.footnotes));
@@ -299,7 +312,13 @@ class Renderer {
     subsubsection: 0,
     footnote: 0,
     equation: 0,
+    table: 0,
+    figure: 0,
   };
+  /** The float being rendered (\\caption numbers within it). */
+  float: 'table' | 'figure' | null = null;
+  /** Lengths for p{…} columns and \\includegraphics, in bp. */
+  lengths: LengthContext = { textwidth: 345, em: 10, ex: 4.3 };
 
   constructor(
     structure: DocumentStructure,
@@ -489,6 +508,11 @@ class Renderer {
           blocks.push(this.renderTitle(c, ctx));
           after = 'par';
           break;
+        case 'caption':
+          flush();
+          blocks.push(this.renderCaption(c, ctx));
+          after = 'block';
+          break;
         case 'tableofcontents':
           flush();
           blocks.push(...this.renderToc(c));
@@ -601,6 +625,21 @@ class Renderer {
         return [h('blockquote', { class: cls }, body())];
       case 'thebibliography':
         return this.renderBibliography(env, ctx);
+      case 'tabular':
+        return [this.renderTabular(env, ctx)];
+      case 'table':
+      case 'table*':
+      case 'figure':
+      case 'figure*': {
+        // Shown where written (no floating): ADR 0012.
+        const outer = this.float;
+        this.float = env.name.startsWith('table') ? 'table' : 'figure';
+        const inner = this.renderBlocks(env.children, ctx);
+        this.float = outer;
+        return [
+          h('div', { class: `float ${env.name.replace('*', '')}` }, inner),
+        ];
+      }
       case 'abstract':
         return [
           h('div', { class: 'abstract' }, [
@@ -689,6 +728,142 @@ class Renderer {
       if (fixes) this.diagnostics[this.diagnostics.length - 1].fixes = fixes;
     }
     return this.renderInline(parse(result.latex).root.children, ctx);
+  }
+
+  /**
+   * \\caption (article.cls \\@makecaption): "Table 1: text", centred when it
+   * fits on one line, otherwise set as a paragraph (CSS: shrink-to-fit box).
+   */
+  renderCaption(c: CommandNode, ctx: Context): HElement {
+    const text = tidy(this.renderArg(lastMandatory(c), ctx));
+    if (!this.float) {
+      this.warn(
+        c.range,
+        'syntax/caption-outside-float',
+        '\\caption belongs inside a figure or table environment.',
+        'error'
+      );
+      return h('p', { class: 'caption' }, text);
+    }
+    const n = ++this.counters[this.float];
+    this.currentRef = String(n);
+    const name = this.float === 'table' ? 'Table' : 'Figure';
+    // article.cls \@makecaption: `#1: #2`. The space sits inside the label:
+    // a whitespace-only text node directly in the caption (display: table)
+    // would be dropped by CSS table fix-up.
+    return h('p', { class: 'caption' }, [
+      h('span', { class: 'caption-label' }, [`${name}\u00a0${n}: `]),
+      ...text,
+    ]);
+  }
+
+  /** tabular as an HTML table: one column per spec column (rules included). */
+  renderTabular(env: EnvironmentNode, ctx: Context): HElement {
+    const spec = parseColumnSpec(lastMandatoryEnv(env), this.lengths);
+    for (const p of spec.problems)
+      this.warn(
+        env.range,
+        'syntax/unsupported-column',
+        `Column type ${p} is not supported by the emulator.`
+      );
+    const columns = spec.columns;
+    // Physical index of each content column (1-based content numbering).
+    const contentIndex: number[] = [];
+    columns.forEach((col, i) => col.kind === 'cell' && contentIndex.push(i));
+    const total = columns.length;
+    const cellAttrs = (col: Extract<Column, { kind: 'cell' }>) => {
+      const cls: string[] = [col.align];
+      if (!col.padLeft) cls.push('nopad-l');
+      if (!col.padRight) cls.push('nopad-r');
+      const attrs: Record<string, string> = { class: cls.join(' ') };
+      if (col.width !== undefined)
+        attrs.style = `width: ${Math.round(col.width * 10000) / 10000}pt`;
+      return attrs;
+    };
+    const rows: HElement[] = [];
+    let previousRule = false;
+    for (const row of tabularRows(env.children, this.lengths)) {
+      if (row.kind === 'rule') {
+        // Two \\hline in a row: \\doublerulesep between them.
+        if (previousRule && row.rule === 'hline')
+          rows.push(
+            h('tr', { class: 'hgap' }, [h('td', { colspan: String(total) })])
+          );
+        rows.push(
+          h('tr', { class: row.rule }, [h('td', { colspan: String(total) })])
+        );
+        previousRule = row.rule === 'hline';
+        continue;
+      }
+      previousRule = false;
+      if (row.kind === 'partial') {
+        const from = contentIndex[row.from - 1] ?? 0;
+        const to =
+          contentIndex[Math.min(row.to, contentIndex.length) - 1] ?? total - 1;
+        const cls = ['rule'];
+        if (row.trimLeft) cls.push('trim-l');
+        if (row.trimRight) cls.push('trim-r');
+        const tds: HElement[] = [];
+        if (from > 0)
+          tds.push(h('td', from > 1 ? { colspan: String(from) } : {}));
+        const span = to - from + 1;
+        tds.push(
+          h(
+            'td',
+            span > 1
+              ? { class: cls.join(' '), colspan: String(span) }
+              : { class: cls.join(' ') }
+          )
+        );
+        const rest = total - to - 1;
+        if (rest > 0)
+          tds.push(h('td', rest > 1 ? { colspan: String(rest) } : {}));
+        rows.push(h('tr', { class: row.rule }, tds));
+        continue;
+      }
+      const tds: HElement[] = [];
+      let content = 0; // content columns used so far
+      let next = 0; // the row's next cell
+      let i = 0; // physical column
+      const cells = row.cells;
+      while (i < total) {
+        const col = columns[i];
+        if (col.kind === 'rule') {
+          tds.push(h('td', { class: 'vrule' }));
+          i++;
+          continue;
+        }
+        if (col.kind === 'gap') {
+          tds.push(h('td', { class: 'vgap' }));
+          i++;
+          continue;
+        }
+        if (col.kind === 'sep') {
+          tds.push(
+            h('td', { class: 'sep' }, tidy(this.renderInline(col.nodes, ctx)))
+          );
+          i++;
+          continue;
+        }
+        const cell = cells[next++];
+        const span = Math.max(1, cell?.span ?? 1);
+        const own = cell?.columns?.find((c) => c.kind === 'cell');
+        const lastContent =
+          contentIndex[Math.min(content + span, contentIndex.length) - 1] ?? i;
+        const attrs = cellAttrs(own && own.kind === 'cell' ? own : col);
+        const colspan = lastContent - i + 1;
+        if (colspan > 1) attrs.colspan = String(colspan);
+        tds.push(
+          h('td', attrs, cell ? tidy(this.renderInline(cell.nodes, ctx)) : [])
+        );
+        content += span;
+        i = lastContent + 1;
+      }
+      rows.push(h('tr', {}, tds));
+    }
+    return h('div', { class: 'tabular' }, [
+      h('table', {}, [h('tbody', {}, rows)]),
+    ]);
   }
 
   renderList(env: EnvironmentNode, ctx: Context, cls: string): HElement {
@@ -1029,6 +1204,10 @@ class Renderer {
 }
 
 // ------------------------------------------------------------ helpers
+
+function lastMandatoryEnv(env: EnvironmentNode): Node[] {
+  return env.args.filter((a) => !a.optional).at(-1)?.children ?? [];
+}
 
 function lastMandatory(c: CommandNode): ArgNode | undefined {
   return c.args.filter((a) => !a.optional).at(-1);

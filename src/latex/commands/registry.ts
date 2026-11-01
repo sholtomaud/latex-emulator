@@ -332,6 +332,28 @@ env(
   { math: true }
 );
 env('tabular', 'o m', 'A table.', { alignment: true });
+env(
+  ['table', 'table*'],
+  'o',
+  'A table float (shown where it is written; \\caption numbers it).'
+);
+env(
+  ['figure', 'figure*'],
+  'o',
+  'A figure float (shown where it is written; \\caption numbers it).'
+);
+cmd('caption', 'o m', 'Numbered caption of a figure or table.');
+cmd('hline', '', 'A horizontal rule across the table.');
+cmd('cline', 'm', 'A rule under columns a–b: \\cline{a-b}.');
+cmd(
+  'multicolumn',
+  'm m m',
+  'A cell spanning columns: \\multicolumn{n}{spec}{text}.'
+);
+cmd(['toprule', 'midrule', 'bottomrule'], 'o', 'booktabs rule.');
+// The (lr){a-b} after \cmidrule is read by the table renderer.
+cmd('cmidrule', '', 'booktabs rule under columns: \\cmidrule(lr){a-b}.');
+cmd('tabularnewline', '', 'Ends a table row.');
 env('thebibliography', 'm', 'The bibliography: \\bibitem entries.');
 
 // Keys, labels and URLs are not text.

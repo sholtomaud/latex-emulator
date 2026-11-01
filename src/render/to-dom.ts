@@ -21,8 +21,14 @@ const ALLOWED_TAGS = new Set([
   'blockquote',
   'pre',
   'code',
+  'table',
+  'tbody',
+  'tr',
+  'td',
 ]);
-const ALLOWED_ATTRS = new Set(['class', 'data-env']);
+const ALLOWED_ATTRS = new Set(['class', 'data-env', 'colspan']);
+/** The only inline style the renderer generates: p{…} column widths. */
+const SAFE_STYLE = /^width: \d+(\.\d+)?pt$/;
 
 const MATHML = 'http://www.w3.org/1998/Math/MathML';
 /** MathML Core elements the math translator produces (src/latex/math). */
@@ -83,7 +89,8 @@ export function toDom(node: HChild, doc: Document): Node {
   if (!ALLOWED_TAGS.has(node.tag)) return doc.createTextNode('');
   const el = doc.createElement(node.tag);
   for (const [name, value] of Object.entries(node.attrs))
-    if (ALLOWED_ATTRS.has(name)) el.setAttribute(name, value);
+    if (ALLOWED_ATTRS.has(name) || (name === 'style' && SAFE_STYLE.test(value)))
+      el.setAttribute(name, value);
   for (const child of node.children) el.appendChild(toDom(child, doc));
   return el;
 }

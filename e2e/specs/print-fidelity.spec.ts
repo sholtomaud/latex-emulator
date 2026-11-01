@@ -41,7 +41,11 @@ interface FixtureSpec {
   bibFiles?: string[];
   /** Lines whose start we check: paragraphs, headings, title lines, items. */
   checked: string[];
-  /** Centred lines (1pt horizontal tolerance instead of 0.5pt). */
+  /**
+   * Lines whose start depends on their own width: centred lines and centred
+   * or right-aligned table cells (1pt horizontal tolerance instead of 0.5pt).
+   * The CI browser rounds text widths to device pixels, which moves them.
+   */
   centred?: string[];
   /** Heading lines, which the line-break check skips. */
   headings: string[];
@@ -142,6 +146,54 @@ const FIXTURES: FixtureSpec[] = [
       reason:
         'Text after a display with a \\sqrt drifts down a few points: Chromium sets radicals and their superscripts higher than TeX (Latin Modern Math’s MATH constants, not cmex/cmsy), and a CSS line box grows above and below for tall content where TeX’s interline glue absorbs the depth (ADR 0010).',
     },
+  },
+  {
+    name: 'table-basic',
+    ready: { selector: '.caption', text: 'Table' },
+    checked: [
+      'Tables',
+      'Table',
+      'Table 1:',
+      'Name',
+      'Count',
+      'Apples',
+      '1.20',
+      'Total',
+      'Text continues',
+      'second line',
+      'Table 2:',
+      'need two lines',
+      'Fuel',
+      'EROI',
+      'Coal',
+      'Oil and gas',
+      'After both tables',
+    ],
+    // Count is a c cell; 1.20 and EROI are r cells.
+    centred: ['Table 1:', 'Count', '1.20', 'EROI'],
+    headings: ['Tables'],
+    body: [140, 700],
+    // Table cells are not paragraph text.
+    displayLines: [
+      'Name',
+      'Count Price',
+      'Apples',
+      '3',
+      '1.20',
+      'Pears',
+      '12',
+      '0.85',
+      'Total',
+      '2.05',
+      'Fuel',
+      'EROI',
+      'Year',
+      '46',
+      '16',
+      '2010',
+      'Coal',
+      'Oil and gas',
+    ],
   },
 ];
 
@@ -295,7 +347,8 @@ for (const fixture of FIXTURES) {
             );
             let found: { x: number; baseline: number } | null = null;
             for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-              const i = n.textContent!.indexOf(needle);
+              // A tie (~) is a no-break space here, a space in the reference.
+              const i = n.textContent!.replace(/\u00a0/g, ' ').indexOf(needle);
               if (i === -1) continue;
               const range = document.createRange();
               range.setStart(n, i);

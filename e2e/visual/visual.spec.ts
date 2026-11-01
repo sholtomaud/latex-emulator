@@ -97,4 +97,21 @@ test.describe('visual', () => {
     await page.evaluate(() => document.fonts.ready);
     await expect(sheet).toHaveScreenshot('preview-math.png');
   });
+
+  test('preview page with tables', async ({ page }) => {
+    await openApp(page);
+    await setSource(
+      page,
+      fs.readFileSync('fixtures/table-basic/input.tex', 'utf8')
+    );
+    const sheet = page
+      .frameLocator('latex-preview iframe')
+      .locator('.latex-page');
+    await expect(sheet.locator('.caption-label')).toHaveText([
+      'Table\u00a01: ',
+      'Table\u00a02: ',
+    ]);
+    await page.evaluate(() => document.fonts.ready);
+    await expect(sheet).toHaveScreenshot('preview-tables.png');
+  });
 });

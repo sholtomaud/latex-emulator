@@ -1,0 +1,840 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 127.8,
+          "xMax": 125.9,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Tables",
+          "xMin": 142.04,
+          "yMin": 127.8,
+          "xMax": 186.94,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "Tables",
+              "xMin": 142.04,
+              "xMax": 186.94
+            }
+          ]
+        },
+        {
+          "text": "Table 1 has vertical and horizontal rules, and Table 2 is set in the style of",
+          "xMin": 117.83,
+          "yMin": 154.54,
+          "xMax": 476.48,
+          "yMax": 164.22,
+          "words": [
+            {
+              "text": "Table",
+              "xMin": 117.83,
+              "xMax": 144.2
+            },
+            {
+              "text": "1",
+              "xMin": 148.19,
+              "xMax": 153.64
+            },
+            {
+              "text": "has",
+              "xMin": 157.65,
+              "xMax": 173.46
+            },
+            {
+              "text": "vertical",
+              "xMin": 177.46,
+              "xMax": 212.65
+            },
+            {
+              "text": "and",
+              "xMin": 216.64,
+              "xMax": 234.22
+            },
+            {
+              "text": "horizontal",
+              "xMin": 238.22,
+              "xMax": 285.83
+            },
+            {
+              "text": "rules,",
+              "xMin": 289.82,
+              "xMax": 315.36
+            },
+            {
+              "text": "and",
+              "xMin": 319.46,
+              "xMax": 337.03
+            },
+            {
+              "text": "Table",
+              "xMin": 341.04,
+              "xMax": 367.39
+            },
+            {
+              "text": "2",
+              "xMin": 371.4,
+              "xMax": 376.85
+            },
+            {
+              "text": "is",
+              "xMin": 380.85,
+              "xMax": 388.19
+            },
+            {
+              "text": "set",
+              "xMin": 392.18,
+              "xMax": 405.57
+            },
+            {
+              "text": "in",
+              "xMin": 409.58,
+              "xMax": 418.67
+            },
+            {
+              "text": "the",
+              "xMin": 422.67,
+              "xMax": 437.81
+            },
+            {
+              "text": "style",
+              "xMin": 441.82,
+              "xMax": 463.69
+            },
+            {
+              "text": "of",
+              "xMin": 467.7,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "the booktabs package, with fewer and lighter rules.",
+          "xMin": 117.83,
+          "yMin": 168.08,
+          "xMax": 364.11,
+          "yMax": 178.08,
+          "words": [
+            {
+              "text": "the",
+              "xMin": 117.83,
+              "xMax": 132.98
+            },
+            {
+              "text": "booktabs",
+              "xMin": 136.62,
+              "xMax": 182.43
+            },
+            {
+              "text": "package,",
+              "xMin": 186.07,
+              "xMax": 226.07
+            },
+            {
+              "text": "with",
+              "xMin": 229.71,
+              "xMax": 250.92
+            },
+            {
+              "text": "fewer",
+              "xMin": 254.55,
+              "xMax": 279.44
+            },
+            {
+              "text": "and",
+              "xMin": 283.07,
+              "xMax": 300.65
+            },
+            {
+              "text": "lighter",
+              "xMin": 304.28,
+              "xMax": 334.92
+            },
+            {
+              "text": "rules.",
+              "xMin": 338.56,
+              "xMax": 364.11
+            }
+          ]
+        },
+        {
+          "text": "Table 1: A simple table.",
+          "xMin": 239.25,
+          "yMin": 199.7,
+          "xMax": 355.06,
+          "yMax": 209.39,
+          "words": [
+            {
+              "text": "Table",
+              "xMin": 239.25,
+              "xMax": 265.61
+            },
+            {
+              "text": "1:",
+              "xMin": 269.25,
+              "xMax": 277.73
+            },
+            {
+              "text": "A",
+              "xMin": 282.58,
+              "xMax": 290.76
+            },
+            {
+              "text": "simple",
+              "xMin": 294.4,
+              "xMax": 324.76
+            },
+            {
+              "text": "table.",
+              "xMin": 328.4,
+              "xMax": 355.06
+            }
+          ]
+        },
+        {
+          "text": "Name",
+          "xMin": 242.05,
+          "yMin": 212.7,
+          "xMax": 269.62,
+          "yMax": 222.39,
+          "words": [
+            {
+              "text": "Name",
+              "xMin": 242.05,
+              "xMax": 269.62
+            }
+          ]
+        },
+        {
+          "text": "Count Price",
+          "xMin": 286.49,
+          "yMin": 212.7,
+          "xMax": 352.26,
+          "yMax": 222.39,
+          "words": [
+            {
+              "text": "Count",
+              "xMin": 286.49,
+              "xMax": 315.88
+            },
+            {
+              "text": "Price",
+              "xMin": 327.84,
+              "xMax": 352.26
+            }
+          ]
+        },
+        {
+          "text": "Apples",
+          "xMin": 242.05,
+          "yMin": 226.65,
+          "xMax": 274.53,
+          "yMax": 236.33,
+          "words": [
+            {
+              "text": "Apples",
+              "xMin": 242.05,
+              "xMax": 274.53
+            }
+          ]
+        },
+        {
+          "text": "3",
+          "xMin": 298.46,
+          "yMin": 226.65,
+          "xMax": 303.91,
+          "yMax": 236.33,
+          "words": [
+            {
+              "text": "3",
+              "xMin": 298.46,
+              "xMax": 303.91
+            }
+          ]
+        },
+        {
+          "text": "1.20",
+          "xMin": 332.87,
+          "yMin": 226.65,
+          "xMax": 352.26,
+          "yMax": 236.33,
+          "words": [
+            {
+              "text": "1.20",
+              "xMin": 332.87,
+              "xMax": 352.26
+            }
+          ]
+        },
+        {
+          "text": "Pears",
+          "xMin": 242.05,
+          "yMin": 240.2,
+          "xMax": 268.05,
+          "yMax": 249.88,
+          "words": [
+            {
+              "text": "Pears",
+              "xMin": 242.05,
+              "xMax": 268.05
+            }
+          ]
+        },
+        {
+          "text": "12",
+          "xMin": 295.73,
+          "yMin": 240.2,
+          "xMax": 306.64,
+          "yMax": 249.88,
+          "words": [
+            {
+              "text": "12",
+              "xMin": 295.73,
+              "xMax": 306.64
+            }
+          ]
+        },
+        {
+          "text": "0.85",
+          "xMin": 332.87,
+          "yMin": 240.2,
+          "xMax": 352.26,
+          "yMax": 249.88,
+          "words": [
+            {
+              "text": "0.85",
+              "xMin": 332.87,
+              "xMax": 352.26
+            }
+          ]
+        },
+        {
+          "text": "Total",
+          "xMin": 242.05,
+          "yMin": 254.14,
+          "xMax": 267.2,
+          "yMax": 263.83,
+          "words": [
+            {
+              "text": "Total",
+              "xMin": 242.05,
+              "xMax": 267.2
+            }
+          ]
+        },
+        {
+          "text": "2.05",
+          "xMin": 332.87,
+          "yMin": 254.14,
+          "xMax": 352.26,
+          "yMax": 263.83,
+          "words": [
+            {
+              "text": "2.05",
+              "xMin": 332.87,
+              "xMax": 352.26
+            }
+          ]
+        },
+        {
+          "text": "Text continues after the first table and runs long enough to wrap onto a",
+          "xMin": 134.76,
+          "yMin": 281.99,
+          "xMax": 476.48,
+          "yMax": 291.68,
+          "words": [
+            {
+              "text": "Text",
+              "xMin": 134.76,
+              "xMax": 156.59
+            },
+            {
+              "text": "continues",
+              "xMin": 159.96,
+              "xMax": 204.26
+            },
+            {
+              "text": "after",
+              "xMin": 207.63,
+              "xMax": 229.78
+            },
+            {
+              "text": "the",
+              "xMin": 233.15,
+              "xMax": 248.3
+            },
+            {
+              "text": "first",
+              "xMin": 251.68,
+              "xMax": 270.55
+            },
+            {
+              "text": "table",
+              "xMin": 273.93,
+              "xMax": 297.57
+            },
+            {
+              "text": "and",
+              "xMin": 300.94,
+              "xMax": 318.52
+            },
+            {
+              "text": "runs",
+              "xMin": 321.89,
+              "xMax": 342.59
+            },
+            {
+              "text": "long",
+              "xMin": 345.96,
+              "xMax": 365.96
+            },
+            {
+              "text": "enough",
+              "xMin": 369.33,
+              "xMax": 403.27
+            },
+            {
+              "text": "to",
+              "xMin": 406.64,
+              "xMax": 416.34
+            },
+            {
+              "text": "wrap",
+              "xMin": 419.71,
+              "xMax": 443.38
+            },
+            {
+              "text": "onto",
+              "xMin": 446.75,
+              "xMax": 467.65
+            },
+            {
+              "text": "a",
+              "xMin": 471.02,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "second line, so the spacing after a float can be measured.",
+          "xMin": 117.83,
+          "yMin": 295.54,
+          "xMax": 390.25,
+          "yMax": 305.23,
+          "words": [
+            {
+              "text": "second",
+              "xMin": 117.83,
+              "xMax": 149.4
+            },
+            {
+              "text": "line,",
+              "xMin": 153.04,
+              "xMax": 173.04
+            },
+            {
+              "text": "so",
+              "xMin": 176.68,
+              "xMax": 186.44
+            },
+            {
+              "text": "the",
+              "xMin": 190.07,
+              "xMax": 205.22
+            },
+            {
+              "text": "spacing",
+              "xMin": 208.85,
+              "xMax": 244.07
+            },
+            {
+              "text": "after",
+              "xMin": 247.71,
+              "xMax": 269.86
+            },
+            {
+              "text": "a",
+              "xMin": 273.5,
+              "xMax": 278.95
+            },
+            {
+              "text": "float",
+              "xMin": 282.58,
+              "xMax": 303.8
+            },
+            {
+              "text": "can",
+              "xMin": 307.44,
+              "xMax": 323.8
+            },
+            {
+              "text": "be",
+              "xMin": 327.44,
+              "xMax": 338.65
+            },
+            {
+              "text": "measured.",
+              "xMin": 342.28,
+              "xMax": 390.25
+            }
+          ]
+        },
+        {
+          "text": "Table 2: Energy return on investment by fuel: a caption long enough to",
+          "xMin": 117.83,
+          "yMin": 327.15,
+          "xMax": 476.49,
+          "yMax": 336.84,
+          "words": [
+            {
+              "text": "Table",
+              "xMin": 117.83,
+              "xMax": 144.2
+            },
+            {
+              "text": "2:",
+              "xMin": 148.9,
+              "xMax": 157.38
+            },
+            {
+              "text": "Energy",
+              "xMin": 164.37,
+              "xMax": 198.19
+            },
+            {
+              "text": "return",
+              "xMin": 202.91,
+              "xMax": 232.67
+            },
+            {
+              "text": "on",
+              "xMin": 237.38,
+              "xMax": 248.89
+            },
+            {
+              "text": "investment",
+              "xMin": 253.6,
+              "xMax": 305.18
+            },
+            {
+              "text": "by",
+              "xMin": 309.89,
+              "xMax": 321.4
+            },
+            {
+              "text": "fuel:",
+              "xMin": 326.1,
+              "xMax": 346.41
+            },
+            {
+              "text": "a",
+              "xMin": 353.4,
+              "xMax": 358.85
+            },
+            {
+              "text": "caption",
+              "xMin": 363.57,
+              "xMax": 398.72
+            },
+            {
+              "text": "long",
+              "xMin": 403.43,
+              "xMax": 423.43
+            },
+            {
+              "text": "enough",
+              "xMin": 428.14,
+              "xMax": 462.08
+            },
+            {
+              "text": "to",
+              "xMin": 466.79,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "need two lines in the article class, which then sets it as a paragraph.",
+          "xMin": 117.83,
+          "yMin": 340.7,
+          "xMax": 444.65,
+          "yMax": 350.39,
+          "words": [
+            {
+              "text": "need",
+              "xMin": 117.83,
+              "xMax": 139.65
+            },
+            {
+              "text": "two",
+              "xMin": 143.28,
+              "xMax": 160.25
+            },
+            {
+              "text": "lines",
+              "xMin": 163.89,
+              "xMax": 185.16
+            },
+            {
+              "text": "in",
+              "xMin": 188.79,
+              "xMax": 197.88
+            },
+            {
+              "text": "the",
+              "xMin": 201.53,
+              "xMax": 216.68
+            },
+            {
+              "text": "article",
+              "xMin": 220.31,
+              "xMax": 250.04
+            },
+            {
+              "text": "class,",
+              "xMin": 253.67,
+              "xMax": 278.65
+            },
+            {
+              "text": "which",
+              "xMin": 282.28,
+              "xMax": 309.86
+            },
+            {
+              "text": "then",
+              "xMin": 313.49,
+              "xMax": 334.7
+            },
+            {
+              "text": "sets",
+              "xMin": 338.35,
+              "xMax": 356.04
+            },
+            {
+              "text": "it",
+              "xMin": 359.68,
+              "xMax": 366.95
+            },
+            {
+              "text": "as",
+              "xMin": 370.58,
+              "xMax": 380.34
+            },
+            {
+              "text": "a",
+              "xMin": 383.98,
+              "xMax": 389.44
+            },
+            {
+              "text": "paragraph.",
+              "xMin": 393.07,
+              "xMax": 444.65
+            }
+          ]
+        },
+        {
+          "text": "Fuel",
+          "xMin": 233.19,
+          "yMin": 357.23,
+          "xMax": 253.34,
+          "yMax": 366.92,
+          "words": [
+            {
+              "text": "Fuel",
+              "xMin": 233.19,
+              "xMax": 253.34
+            }
+          ]
+        },
+        {
+          "text": "EROI",
+          "xMin": 299.75,
+          "yMin": 357.23,
+          "xMax": 327.32,
+          "yMax": 366.92,
+          "words": [
+            {
+              "text": "EROI",
+              "xMin": 299.75,
+              "xMax": 327.32
+            }
+          ]
+        },
+        {
+          "text": "Year",
+          "xMin": 339.28,
+          "yMin": 357.23,
+          "xMax": 361.13,
+          "yMax": 366.92,
+          "words": [
+            {
+              "text": "Year",
+              "xMin": 339.28,
+              "xMax": 361.13
+            }
+          ]
+        },
+        {
+          "text": "46",
+          "xMin": 316.41,
+          "yMin": 376.26,
+          "xMax": 327.32,
+          "yMax": 385.94,
+          "words": [
+            {
+              "text": "46",
+              "xMin": 316.41,
+              "xMax": 327.32
+            }
+          ]
+        },
+        {
+          "text": "16",
+          "xMin": 316.41,
+          "yMin": 389.81,
+          "xMax": 327.32,
+          "yMax": 399.49,
+          "words": [
+            {
+              "text": "16",
+              "xMin": 316.41,
+              "xMax": 327.32
+            }
+          ]
+        },
+        {
+          "text": "2010",
+          "xMin": 339.31,
+          "yMin": 376.26,
+          "xMax": 361.13,
+          "yMax": 385.94,
+          "words": [
+            {
+              "text": "2010",
+              "xMin": 339.31,
+              "xMax": 361.13
+            }
+          ]
+        },
+        {
+          "text": "2010",
+          "xMin": 339.31,
+          "yMin": 389.81,
+          "xMax": 361.13,
+          "yMax": 399.49,
+          "words": [
+            {
+              "text": "2010",
+              "xMin": 339.31,
+              "xMax": 361.13
+            }
+          ]
+        },
+        {
+          "text": "Coal",
+          "xMin": 233.19,
+          "yMin": 376.26,
+          "xMax": 255,
+          "yMax": 385.94,
+          "words": [
+            {
+              "text": "Coal",
+              "xMin": 233.19,
+              "xMax": 255
+            }
+          ]
+        },
+        {
+          "text": "Oil and gas",
+          "xMin": 233.19,
+          "yMin": 389.81,
+          "xMax": 287.8,
+          "yMax": 399.49,
+          "words": [
+            {
+              "text": "Oil",
+              "xMin": 233.19,
+              "xMax": 247.73
+            },
+            {
+              "text": "and",
+              "xMin": 251.36,
+              "xMax": 268.94
+            },
+            {
+              "text": "gas",
+              "xMin": 272.58,
+              "xMax": 287.8
+            }
+          ]
+        },
+        {
+          "text": "After both tables the text continues.",
+          "xMin": 134.76,
+          "yMin": 420.01,
+          "xMax": 309.47,
+          "yMax": 429.69,
+          "words": [
+            {
+              "text": "After",
+              "xMin": 134.76,
+              "xMax": 159.64
+            },
+            {
+              "text": "both",
+              "xMin": 163.28,
+              "xMax": 185.4
+            },
+            {
+              "text": "tables",
+              "xMin": 189.03,
+              "xMax": 216.97
+            },
+            {
+              "text": "the",
+              "xMin": 220.62,
+              "xMax": 235.77
+            },
+            {
+              "text": "text",
+              "xMin": 239.4,
+              "xMax": 258.49
+            },
+            {
+              "text": "continues.",
+              "xMin": 262.13,
+              "xMax": 309.47
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

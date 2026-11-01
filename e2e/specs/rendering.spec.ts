@@ -54,6 +54,52 @@ test.describe('LaTeX rendering', () => {
     await expect(doc.getByRole('heading', { level: 2 })).toHaveText('1Fresh');
     await expect(doc.locator('article em')).toHaveText('emphasis');
   });
+
+  test('a tie (~) is as wide as a space, as in TeX, in every Latin Modern face', async ({
+    page,
+  }) => {
+    await setSource(
+      page,
+      '\\documentclass{article}\\begin{document}a~b a b \\textbf{a~b a b} \\textit{a~b a b} \\textsc{a~b a b}\\end{document}'
+    );
+    const frame = (await (await page
+      .locator('latex-preview iframe')
+      .elementHandle())!.contentFrame())!;
+    await expect(
+      page.frameLocator('latex-preview iframe').locator('article p')
+    ).toHaveCount(1);
+    const widths = await frame.evaluate(async () => {
+      await document.fonts.ready;
+      const out: [number, number][] = [];
+      const width = (n: Node, i: number) => {
+        const r = document.createRange();
+        r.setStart(n, i);
+        r.setEnd(n, i + 1);
+        return r.getBoundingClientRect().width;
+      };
+      // Per element (one font): the tie, and a space set in the same font.
+      const elements = [
+        document.querySelector('article p')!,
+        ...document.querySelectorAll('article p *'),
+      ];
+      for (const el of elements) {
+        const texts = [...el.childNodes].filter(
+          (n) => n.nodeType === Node.TEXT_NODE
+        );
+        const tie = texts.find((n) => n.textContent!.includes('\u00a0'));
+        const space = texts.find((n) => n.textContent!.includes(' '));
+        if (!tie || !space) continue;
+        out.push([
+          width(tie, tie.textContent!.indexOf('\u00a0')),
+          width(space, space.textContent!.indexOf(' ')),
+        ]);
+      }
+      return out;
+    });
+    expect(widths.length).toBe(4);
+    for (const [tie, space] of widths)
+      expect(Math.abs(tie - space)).toBeLessThan(0.05);
+  });
 });
 
 test.describe('preview scaling', () => {
