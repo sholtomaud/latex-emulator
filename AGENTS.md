@@ -251,13 +251,20 @@ the end of the document (ADR 0003).
   `\text`, matrices.
 - Cross-refs: `\label`, `\ref`, `\eqref`; `\tableofcontents`.
 - Misc: `\newpage`, `\clearpage`, `center`, `quote`, `verbatim`, `\verb`.
+- Citations (ADR 0007): natbib's `\cite`, `\citet`, `\citep`, `\citealt`,
+  `\citealp`, `\citeauthor`, `\citefullauthor`, `\citeyear`,
+  `\citeyearpar`, `\citenum`, starred and capitalised forms, `[pre][post]`
+  notes and the punctuation options; classic numbered `\cite`; `\nocite`;
+  `\bibliographystyle` + `\bibliography{a,b}` run through the BibTeX
+  emulator with shipped `.bst` styles (`src/assets/bst/`); hand-written
+  `thebibliography`/`\bibitem`.
 
 **Tier 2:** `\newcommand`/`\renewcommand` (with optional-arg defaults),
 `figure`/`table` + `\caption`, `tabular`, `\includegraphics` (local images
-from the project store), `thebibliography`/`\bibitem`/`\cite`, `abstract`,
+from the project store), `abstract`,
 `\hyperref`/`\href`/`\url`, `twocolumn`, `geometry` package options.
 
-**Tier 3 (stretch):** BibTeX `.bib` parsing, `theorem`-style environments,
+**Tier 3 (stretch):** `theorem`-style environments,
 multi-file projects (`\input`/`\include`), Knuth–Plass justification, other
 document classes (`report`, `letter`).
 
@@ -443,6 +450,11 @@ the commit message.
   - checked lines start within **0.5pt** horizontally (1pt for centred
     lines) and sit within **1pt** vertically.
 
+  A fixture whose line breaks need something CSS can't do yet (TeX's
+  interword shrink and hyphenation patterns, i.e. Knuth–Plass) declares a
+  `knownLineBreakGap` reason: its line-break check still runs as an expected
+  failure (`test.fail`), so it turns red once fixed. Its positions are still
+  checked. `natbib-basic` is the only one today.
   Tighten these tolerances as fidelity improves; never loosen them to get
   green. `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
 
@@ -500,7 +512,8 @@ chosen branch.
   Vite plugin may emit the precache list of hashed assets at build time.
 - The app must be fully functional offline after first load, including
   diagnostics, spelling, preview and PDF.
-- Persist documents in IndexedDB (`src/storage/`, ADR 0005), falling back to
+- Persist documents and `.bib` files in IndexedDB (`src/storage/`, ADRs
+  0005 and 0007), falling back to
   memory when IndexedDB is unavailable. `localStorage` holds only small
   preferences (open document, explorer state). Open and save `.tex` files
   with `<input type=file>` and a download link; the File System Access API is
@@ -557,11 +570,12 @@ chosen branch.
    by default, minor/major on request), a version history, version `.tex`
    downloads, and Download Preprint with a footer stamp of version, date and
    SHA-256 of the exact `.tex` source (ADR 0006).
-6. **Next:** Citations and bibliography: natbib (`\cite`, `\citep`, `\citet`,
+6. Citations and bibliography. ✅ natbib (`\cite`, `\citep`, `\citet`,
    `\citeauthor`, `\citeyear`, `[pre][post]` notes), a `.bib` library in
-   IndexedDB, `\bibliography` + `\bibliographystyle` (plainnat/author–year)
-   checked against real pdflatex + BibTeX, DOI/URL lookup, reference
-   cleaning. Keys follow Better BibTeX's `author_topic_year`.
+   IndexedDB, `\bibliography` + `\bibliographystyle` through a BibTeX
+   emulator that matches real bibtex byte for byte, checked against real
+   pdflatex (ADR 0007). **Next:** DOI/URL lookup, reference cleaning, and
+   generating keys in Better BibTeX's `author_topic_year` form.
 7. Zotero: web API (user ID + API key) and the local Zotero 7 API on
    localhost:23119 (verify Chrome's private-network rules first).
 8. Math: TeX → MathML (`align`, `equation`, fractions, matrices);

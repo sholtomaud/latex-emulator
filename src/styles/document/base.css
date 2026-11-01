@@ -76,6 +76,23 @@ body {
   --prev-after: 0pt;
 }
 
+/*
+ * TeX discards glue at the top of a page: a document that starts with
+ * \section has no space above it (the first baseline is still \topskip down).
+ */
+.latex-document > :first-child {
+  --before: 0pt;
+}
+
+/*
+ * The first box's baseline sits \topskip below the top, whatever its size
+ * (when its height fits in \topskip, as a \section's does): remove the
+ * difference between the heading's line height and the body's.
+ */
+.latex-document > :is(h2, h3, h4):first-child {
+  margin-top: calc(var(--lh) - var(--blh) + var(--b));
+}
+
 /* Text blocks: one rule implements the baseline model. */
 :where(
   .latex-document p,
@@ -610,4 +627,57 @@ body {
     box-shadow: none;
     transform: none;
   }
+}
+
+/* ------------------------------------------------------------ bibliography */
+
+/*
+ * thebibliography is a list after \section*{\refname}. natbib sets
+ * \itemsep = \bibsep (= \@listi's \itemsep + \parsep) and \parsep = 0, so
+ * the gap between entries is the ordinary li + li rule. Classic article
+ * keeps \@listi's values: the same sum.
+ */
+.latex-document ul.thebibliography > li > p {
+  text-indent: 0;
+}
+
+/* Author–year (natbib): \leftmargin = \bibhang = 1em, \itemindent = -1em. */
+.latex-document ul.thebibliography.authoryear {
+  --lm: 1em;
+}
+
+.latex-document ul.thebibliography.authoryear > li > p {
+  text-indent: -1em;
+}
+
+/*
+ * Numbered: \labelwidth = width of \@biblabel{#1} = "[#1]",
+ * \leftmargin = \labelwidth + \labelsep. In Latin Modern every digit is
+ * 1ch wide and each bracket 0.556ch (LM Roman 10: 278/500; 12: 272/490).
+ */
+.latex-document ul.thebibliography[class*='labels-'] {
+  --lm: calc(var(--label-chars) * 1ch + 1.111ch + var(--labelsep));
+}
+.latex-document ul.thebibliography.labels-1 {
+  --label-chars: 1;
+}
+.latex-document ul.thebibliography.labels-2 {
+  --label-chars: 2;
+}
+.latex-document ul.thebibliography.labels-3 {
+  --label-chars: 3;
+}
+.latex-document ul.thebibliography.labels-4 {
+  --label-chars: 4;
+}
+.latex-document ul.thebibliography.labels-5 {
+  --label-chars: 5;
+}
+.latex-document ul.thebibliography.labels-6 {
+  --label-chars: 6;
+}
+
+/* natbib's \newblock: \hskip .11em on top of the interword space. */
+.latex-document .newblock {
+  margin-left: 0.11em;
 }

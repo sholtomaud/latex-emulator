@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 # Regenerate a fixture's pdflatex reference outputs:
 #   scripts/make-reference.sh fixtures/<name>
-# Produces reference.pdf, reference-page-N.png (96 dpi) and reference-lines.json
+# Runs BibTeX too when the fixture has .bib files. Produces reference.pdf,
+# reference-page-N.png (96 dpi) and reference-lines.json
 # (every text line's bounding box in PDF points, from `pdftotext -bbox-layout`).
 # Requires TeX Live (pdflatex) and poppler-utils. Commit the outputs.
 set -eu
@@ -9,8 +10,15 @@ DIR="$1"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 cp "$DIR/input.tex" "$WORK/"
-(cd "$WORK" && pdflatex -interaction=nonstopmode -halt-on-error input.tex >/dev/null \
-  && pdflatex -interaction=nonstopmode -halt-on-error input.tex >/dev/null)
+# A fixture with .bib files gets the full BibTeX cycle.
+cp "$DIR"/*.bib "$WORK/" 2>/dev/null || true
+run() { (cd "$WORK" && pdflatex -interaction=nonstopmode -halt-on-error input.tex >/dev/null); }
+run
+if ls "$WORK"/*.bib >/dev/null 2>&1; then
+  (cd "$WORK" && bibtex input >/dev/null)
+  run
+fi
+run
 cp "$WORK/input.pdf" "$DIR/reference.pdf"
 rm -f "$DIR"/reference-page-*.png
 pdftoppm -r 96 -png "$DIR/reference.pdf" "$DIR/reference-page"

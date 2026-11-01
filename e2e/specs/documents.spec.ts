@@ -160,7 +160,7 @@ test.describe('documents', () => {
   }) => {
     await openExplorer(page);
     await explorer(page)
-      .locator('input[type=file]')
+      .locator('input.import-input')
       .setInputFiles({
         name: 'odum_energy.tex',
         mimeType: 'text/x-tex',

@@ -5,6 +5,9 @@ import { workspaceActions } from '../../workspace/workspace-service.ts';
 import type { DocumentMeta, VersionMeta } from '../../workspace/workspace.ts';
 import type { Bump } from '../../workspace/versions.ts';
 import { shortHash } from '../../workspace/versions.ts';
+import { bibStore } from '../../store/bib-store.ts';
+import type { BibStoreState } from '../../store/bib-store.ts';
+import type { BibFileMeta } from '../../workspace/bib-library.ts';
 import template from './document-explorer.html?raw';
 import style from './document-explorer.css?raw';
 
@@ -17,6 +20,8 @@ export class DocumentExplorerComponent extends BaseComponent {
   versionList!: HTMLUListElement;
   versionTemplate!: HTMLTemplateElement;
   versionsEmpty!: HTMLElement;
+  bibList!: HTMLUListElement;
+  bibTemplate!: HTMLTemplateElement;
   /** Document being renamed; re-renders leave its input alone. */
   renaming: string | null = null;
 
@@ -49,6 +54,21 @@ export class DocumentExplorerComponent extends BaseComponent {
       input.value = '';
     });
 
+    this.bibList = this.querySelector('.bib-list')!;
+    this.bibTemplate = this.querySelector('.bib-item-template')!;
+    const bibInput = this.querySelector<HTMLInputElement>('.import-bib-input')!;
+    this.querySelector('.import-bib')!.addEventListener('click', () =>
+      bibInput.click()
+    );
+    bibInput.addEventListener('change', async () => {
+      for (const file of bibInput.files ?? [])
+        await workspaceActions.importBib(file);
+      bibInput.value = '';
+    });
+    this.renderBib(bibStore.getState());
+    bibStore.addEventListener('change', ((e: CustomEvent<BibStoreState>) =>
+      this.renderBib(e.detail)) as EventListener);
+
     this.render(workspaceStore.getState());
     workspaceStore.addEventListener('change', ((
       e: CustomEvent<WorkspaceStoreState>
@@ -64,6 +84,36 @@ export class DocumentExplorerComponent extends BaseComponent {
       ...versions.map((v) => this.renderVersion(v))
     );
     this.versionsEmpty.hidden = versions.length > 0;
+  }
+
+  renderBib({ files, status }: BibStoreState) {
+    this.bibList.replaceChildren(...files.map((f) => this.renderBibFile(f)));
+    this.querySelector<HTMLElement>('.bib-empty')!.hidden = files.length > 0;
+    this.querySelector('.bib-status')!.textContent = status;
+  }
+
+  renderBibFile(f: BibFileMeta): HTMLLIElement {
+    const li = (this.bibTemplate.content.cloneNode(true) as DocumentFragment)
+      .firstElementChild as HTMLLIElement;
+    const fileName = `${f.name}.bib`;
+    li.title = `\\bibliography{${f.name}}`;
+    li.querySelector('.bib-name')!.textContent = fileName;
+    li.querySelector('.bib-meta')!.textContent =
+      `${f.entries} ${f.entries === 1 ? 'entry' : 'entries'}`;
+    const download = li.querySelector<HTMLButtonElement>('.bib-download')!;
+    download.setAttribute('aria-label', `Download ${fileName}`);
+    download.title = 'Download';
+    download.addEventListener('click', () =>
+      workspaceActions.downloadBib(f.name)
+    );
+    const del = li.querySelector<HTMLButtonElement>('.bib-delete')!;
+    del.setAttribute('aria-label', `Delete ${fileName}`);
+    del.title = 'Delete';
+    del.addEventListener('click', () => {
+      if (confirm(`Delete ${fileName}? This cannot be undone.`))
+        void workspaceActions.deleteBib(f.name);
+    });
+    return li;
   }
 
   renderVersion(v: VersionMeta): HTMLLIElement {

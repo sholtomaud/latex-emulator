@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { editorReady } from '../support/editor.ts';
+import fs from 'node:fs';
+import { editorReady, setSource } from '../support/editor.ts';
 
 /**
  * Visual regression snapshots. Baselines live in e2e/visual/__screenshots__/
@@ -60,5 +61,26 @@ test.describe('visual', () => {
       .frameLocator('latex-preview iframe')
       .locator('.latex-page');
     await expect(sheet).toHaveScreenshot('preview-page-print.png');
+  });
+
+  test('preview page with citations and a bibliography', async ({ page }) => {
+    await openApp(page);
+    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await page
+      .getByRole('region', { name: 'Bibliography' })
+      .locator('.import-bib-input')
+      .setInputFiles('fixtures/natbib-basic/refs.bib');
+    await expect(page.getByRole('status')).toContainText('Imported refs.bib');
+    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await setSource(
+      page,
+      fs.readFileSync('fixtures/natbib-basic/input.tex', 'utf8')
+    );
+    const sheet = page
+      .frameLocator('latex-preview iframe')
+      .locator('.latex-page');
+    await expect(sheet.locator('ul.thebibliography > li')).toHaveCount(3);
+    await page.evaluate(() => document.fonts.ready);
+    await expect(sheet).toHaveScreenshot('preview-bibliography.png');
   });
 });

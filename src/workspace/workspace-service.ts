@@ -12,6 +12,9 @@ import { readPref, writePref } from '../util/browser-prefs.ts';
 import { downloadText } from '../util/download.ts';
 import { requestPrint } from '../store/print-requests.ts';
 import type { Bump } from './versions.ts';
+import { BibLibrary } from './bib-library.ts';
+import { bibStore } from '../store/bib-store.ts';
+import { SAMPLE_REFERENCES } from '../store/sample-references.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -20,6 +23,7 @@ import type { Bump } from './versions.ts';
 
 const AUTOSAVE_MS = 400;
 let workspace: Workspace | null = null;
+let library: BibLibrary | null = null;
 
 async function openRepository(): Promise<DocumentRepository> {
   try {
@@ -53,6 +57,17 @@ export async function startWorkspace(): Promise<void> {
     },
   });
   await workspace.init({ name: 'A Short Example', source: SAMPLE_DOCUMENT });
+
+  library = new BibLibrary(repo, {
+    now: () => Date.now(),
+    publish: (state) => bibStore.setState({ ...state }),
+  });
+  // The starter references.bib is added once; deleting it is respected.
+  const seeded = readPref('bib-seeded') === 'true';
+  await library.init(
+    seeded ? undefined : { name: 'references', source: SAMPLE_REFERENCES }
+  );
+  writePref('bib-seeded', 'true');
 
   const saveLater = debounce(() => void flush(), AUTOSAVE_MS);
   documentStore.addEventListener('change', ((_e: CustomEvent<DocumentState>) =>
@@ -105,6 +120,25 @@ export const workspaceActions = {
       const p = w.preprintOf(id);
       if (p) requestPrint({ source: p.source, title: p.title, stamp: p.stamp });
     }),
+  importBib: async (file: File) => {
+    if (!library) return;
+    const r = await library.importFile(file.name, await file.text());
+    const entries = `${r.entries} ${r.entries === 1 ? 'entry' : 'entries'}`;
+    const problems = r.warnings.length
+      ? `; ${r.warnings.length} problem${r.warnings.length === 1 ? '' : 's'}: ${r.warnings.join(' ')}`
+      : '';
+    bibStore.setState({
+      status: `Imported ${r.name}.bib: ${entries}${problems}. Use \\bibliography{${r.name}}.`,
+    });
+  },
+  deleteBib: async (name: string) => {
+    await library?.delete(name);
+    bibStore.setState({ status: '' });
+  },
+  downloadBib: (name: string) => {
+    const file = library?.exportFile(name);
+    if (file) downloadText(file.fileName, file.text, 'application/x-bibtex');
+  },
   toggleExplorer: () =>
     uiStore.setState({ explorerOpen: !uiStore.getState().explorerOpen }),
 };

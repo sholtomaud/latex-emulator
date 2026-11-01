@@ -16,6 +16,11 @@ export interface CommandSpec {
   kind: CommandKind;
   /** One-line hover documentation. */
   doc: string;
+  /**
+   * Mandatory arguments are keys or names (cite keys, labels, URLs), not
+   * text: characters like _ and # are literal there, not errors.
+   */
+  raw?: boolean;
 }
 
 export interface EnvironmentSpec {
@@ -169,6 +174,51 @@ cmd(
 // Notes and references
 cmd('footnote', 'o m', 'Adds a footnote.');
 cmd('label', 'm', 'Labels the current section or equation for \\ref.');
+
+// natbib (author–year and numerical citations) and BibTeX
+cmd('cite', 's o o m', 'Citation: Author [Year] with natbib, [n] without.');
+cmd(['citet', 'Citet'], 's o o m', 'Textual citation: Author [Year].');
+cmd(['citep', 'Citep'], 's o o m', 'Parenthetical citation: [Author, Year].');
+cmd(
+  ['citealt', 'Citealt'],
+  's o o m',
+  'Textual citation without brackets: Author Year.'
+);
+cmd(
+  ['citealp', 'Citealp'],
+  's o o m',
+  'Parenthetical citation without brackets: Author, Year.'
+);
+cmd(['citeauthor', 'Citeauthor'], 's o o m', 'The cited work’s authors.');
+cmd('citefullauthor', 'o o m', 'The cited work’s full author list.');
+cmd('citeyear', 's o o m', 'The cited work’s year.');
+cmd('citeyearpar', 's o o m', 'The cited work’s year in brackets.');
+cmd('citenum', 'm', 'The cited work’s number.');
+cmd(
+  'nocite',
+  'm',
+  'Add works to the bibliography without citing them; \\nocite{*} adds all.'
+);
+cmd(
+  'bibliography',
+  'm',
+  'Typeset the bibliography from the reference library (BibTeX).'
+);
+cmd(
+  'bibliographystyle',
+  'm',
+  'BibTeX style for the bibliography, e.g. plainnat.',
+  'preamble'
+);
+cmd('bibitem', 'o m', 'An entry in thebibliography: \\bibitem[label]{key}.');
+cmd('newblock', '', 'Separates the blocks of a bibliography entry.');
+cmd(
+  'natexlab',
+  'm',
+  'natbib: the letter distinguishing works by the same authors and year.'
+);
+cmd('url', 'm', 'A URL, typeset in typewriter type.');
+cmd('doi', 'm', 'A DOI, as "doi: …".');
 cmd('ref', 'm', 'Number of a labelled item.');
 cmd('eqref', 'm', 'Equation number in parentheses.');
 cmd('pageref', 'm', 'Page of a labelled item.');
@@ -278,6 +328,37 @@ env(
   { math: true }
 );
 env('tabular', 'o m', 'A table.', { alignment: true });
+env('thebibliography', 'm', 'The bibliography: \\bibitem entries.');
+
+// Keys, labels and URLs are not text.
+for (const name of [
+  'cite',
+  'citet',
+  'Citet',
+  'citep',
+  'Citep',
+  'citealt',
+  'Citealt',
+  'citealp',
+  'Citealp',
+  'citeauthor',
+  'Citeauthor',
+  'citefullauthor',
+  'citeyear',
+  'citeyearpar',
+  'citenum',
+  'nocite',
+  'bibliography',
+  'bibliographystyle',
+  'bibitem',
+  'label',
+  'ref',
+  'eqref',
+  'pageref',
+  'url',
+  'doi',
+])
+  commands.get(name)!.raw = true;
 
 export function lookupCommand(name: string): CommandSpec | undefined {
   return commands.get(name);

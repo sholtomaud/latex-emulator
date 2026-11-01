@@ -28,6 +28,8 @@ type Stop =
 
 interface Context {
   math: boolean;
+  /** Inside a key/label/URL argument: specials are literal. */
+  raw?: boolean;
   /** Innermost environment allows `&`. */
   alignment: boolean;
 }
@@ -253,6 +255,7 @@ class Parser {
   }
 
   checkSpecial(t: Token, ctx: Context) {
+    if (ctx.raw) return;
     const c = t.raw;
     const ok =
       c === '~' ||
@@ -399,7 +402,7 @@ class Parser {
       nameRange: t.range,
       range: t.range,
     };
-    if (spec) this.parseArgs(node, spec.args, ctx);
+    if (spec) this.parseArgs(node, spec.args, ctx, spec.raw);
     else this.parseAdjacentArgs(node, ctx);
     return node;
   }
@@ -407,7 +410,9 @@ class Parser {
   parseArgs(
     node: CommandNode | EnvironmentNode,
     specs: ArgSpec[],
-    ctx: Context
+    ctx: Context,
+    /** Mandatory arguments are keys/labels/URLs (see CommandSpec.raw). */
+    raw = false
   ) {
     for (const spec of specs) {
       if (spec === 's') {
@@ -434,7 +439,9 @@ class Parser {
           node.args.push(this.parseOptionalArg(ctx));
         else this.i = save;
       } else {
-        node.args.push(this.parseMandatoryArg(node, ctx));
+        node.args.push(
+          this.parseMandatoryArg(node, raw ? { ...ctx, raw: true } : ctx)
+        );
       }
     }
     if (node.kind === 'command' && node.args.length)

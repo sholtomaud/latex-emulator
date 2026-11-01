@@ -56,3 +56,24 @@ describe('MemoryRepository', () => {
     assert.strictEqual((await repo.listVersions('b')).length, 1);
   });
 });
+
+describe('MemoryRepository .bib files', () => {
+  test('put (replacing by name), list and delete', async () => {
+    const repo = new MemoryRepository();
+    await repo.putBibFile({ name: 'refs', source: 'a', updatedAt: 1 });
+    await repo.putBibFile({ name: 'more', source: 'b', updatedAt: 2 });
+    await repo.putBibFile({ name: 'refs', source: 'c', updatedAt: 3 });
+    const files = await repo.listBibFiles();
+    assert.deepStrictEqual(files.map((f) => `${f.name}:${f.source}`).sort(), [
+      'more:b',
+      'refs:c',
+    ]);
+    files[0].source = 'mutated';
+    assert.notStrictEqual((await repo.listBibFiles())[0].source, 'mutated');
+    await repo.deleteBibFile('refs');
+    assert.deepStrictEqual(
+      (await repo.listBibFiles()).map((f) => f.name),
+      ['more']
+    );
+  });
+});

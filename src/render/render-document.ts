@@ -16,10 +16,26 @@ import type { Range } from '../latex/source.ts';
 import { h } from './hnode.ts';
 import type { HChild, HElement } from './hnode.ts';
 import { applyAccent, formatToday, typesetText } from './typeset-text.ts';
+import {
+  CITE_COMMANDS,
+  buildBibliography,
+  citeKeys,
+  natbibPackageOptions,
+  scanCitations,
+  styleName,
+} from './bibliography.ts';
+import type { Bibliography } from './bibliography.ts';
+import { formatCitation, natbibOptions } from './natbib.ts';
+import type { CitationMode, NatbibOptions } from './natbib.ts';
+import { keyText, toLatex } from '../latex/ast/to-latex.ts';
 
 export interface RenderOptions {
   /** Date used for \today (defaults to now). */
   today?: Date;
+  /** The references library: .bib sources by name, read by \bibliography. */
+  bibFiles?: Record<string, string>;
+  /** Available .bst styles by name, e.g. { plainnat: '…' }. */
+  bstStyles?: Record<string, string>;
 }
 
 export interface RenderResult {
@@ -132,6 +148,7 @@ const BLOCK_COMMANDS = new Set([
   ...Object.keys(SECTIONS),
   ...RUN_IN,
   'maketitle',
+  'bibliography',
   'par',
   'newpage',
   'clearpage',
@@ -148,6 +165,9 @@ const IGNORED = new Set([
   'item',
   'thanks',
   'and',
+  'bibliographystyle',
+  'nocite',
+  'bibitem',
 ]);
 
 const ITEMIZE_LABELS = ['•', '–', '∗', '·'];
@@ -187,7 +207,19 @@ export function renderDocument(
   const geometry = articleGeometry(
     classOptions(structure.documentClass?.options ?? [])
   );
-  const renderer = new Renderer(structure, options.today ?? new Date());
+  const natbib = natbibPackageOptions(parsed.root.children);
+  const scan = scanCitations(structure.body);
+  const bibliography = buildBibliography(scan, options);
+  const punctuation = natbibOptions(natbib ?? [], styleName(scan));
+  // natbib switches the whole document to numerical citations as soon as one
+  // \bibitem has no author–year label.
+  if ([...bibliography.labels.values()].some((l) => l.numeric))
+    punctuation.numbers = true;
+  const renderer = new Renderer(structure, options.today ?? new Date(), {
+    bibliography,
+    mode: natbib ? 'natbib' : 'classic',
+    natbib: punctuation,
+  });
   const blocks = renderer.renderBlocks(structure.body, renderer.rootContext());
   if (renderer.footnotes.length)
     blocks.push(h('section', { class: 'footnotes' }, renderer.footnotes));
@@ -198,15 +230,23 @@ export function renderDocument(
     diagnostics: [
       ...parsed.diagnostics,
       ...structure.diagnostics,
+      ...bibliography.diagnostics,
       ...renderer.diagnostics,
     ],
     title: plainText(structure.metadata.title ?? []).trim(),
   };
 }
 
+interface Citations {
+  bibliography: Bibliography;
+  mode: CitationMode;
+  natbib: NatbibOptions;
+}
+
 class Renderer {
   structure: DocumentStructure;
   today: Date;
+  citations: Citations;
   diagnostics: Diagnostic[] = [];
   footnotes: HElement[] = [];
   counters = {
@@ -217,9 +257,10 @@ class Renderer {
     equation: 0,
   };
 
-  constructor(structure: DocumentStructure, today: Date) {
+  constructor(structure: DocumentStructure, today: Date, citations: Citations) {
     this.structure = structure;
     this.today = today;
+    this.citations = citations;
   }
 
   rootContext(): Context {
@@ -233,9 +274,10 @@ class Renderer {
     range: Range,
     code: string,
     message: string,
-    severity: Diagnostic['severity'] = 'warning'
+    severity: Diagnostic['severity'] = 'warning',
+    source: Diagnostic['source'] = 'syntax'
   ) {
-    this.diagnostics.push({ range, code, message, severity, source: 'syntax' });
+    this.diagnostics.push({ range, code, message, severity, source });
   }
 
   // ------------------------------------------------------------ blocks
@@ -380,6 +422,19 @@ class Renderer {
           blocks.push(this.renderTitle(c, ctx));
           after = 'par';
           break;
+        case 'bibliography': {
+          flush();
+          const env = this.citations.bibliography.environment;
+          if (env) {
+            // Nodes from the generated .bbl have ranges in another source:
+            // keep render diagnostics from them out of the editor.
+            const count = this.diagnostics.length;
+            blocks.push(...this.renderBibliography(env, ctx));
+            this.diagnostics.length = count;
+          }
+          after = 'block';
+          break;
+        }
         default:
           if (RUN_IN.has(c.name)) {
             flush();
@@ -479,6 +534,8 @@ class Renderer {
       case 'quote':
       case 'quotation':
         return [h('blockquote', { class: cls }, body())];
+      case 'thebibliography':
+        return this.renderBibliography(env, ctx);
       case 'abstract':
         return [
           h('div', { class: 'abstract' }, [
@@ -495,6 +552,81 @@ class Renderer {
           ),
         ];
     }
+  }
+
+  /**
+   * thebibliography: \section*{\refname} and a list of entries with a
+   * hanging indent (natbib: \bibhang = 1em). Author–year entries have no
+   * visible label; numbered ones print [n] like LaTeX's \@biblabel.
+   */
+  renderBibliography(env: EnvironmentNode, ctx: Context): HElement[] {
+    const { mode, natbib, bibliography } = this.citations;
+    const items: { item: CommandNode; body: Node[] }[] = [];
+    for (const n of env.children) {
+      if (n.kind === 'command' && n.name === 'bibitem')
+        items.push({ item: n, body: [] });
+      else if (items.length) items.at(-1)!.body.push(n);
+    }
+    let number = 0;
+    const lis = items.map(({ item, body }) => {
+      number++;
+      const key = citeKeys(item)[0] ?? '';
+      const label = bibliography.labels.get(key.toLowerCase());
+      const shown =
+        mode === 'classic'
+          ? (label?.text ?? String(number))
+          : natbib.numbers
+            ? label?.numeric
+              ? label.short
+              : String(number)
+            : null;
+      const blocks = this.renderBlocks(body, ctx, 'block').map((b) =>
+        b.tag === 'p' ? h('p', {}, b.children) : b
+      );
+      if (shown !== null) {
+        const labelNode = h('span', { class: 'item-label' }, [`[${shown}]`]);
+        if (blocks[0]?.tag === 'p')
+          blocks[0] = h('p', {}, [labelNode, ...blocks[0].children]);
+        else blocks.unshift(h('p', {}, [labelNode]));
+      }
+      return h('li', {}, blocks);
+    });
+    // Author–year: natbib's \bibhang. Numbered: \labelwidth is the width
+    // of \@biblabel{#1}, which the CSS computes from #1's length.
+    const widest = keyText(env.args.find((a) => !a.optional)?.children ?? []);
+    const cls =
+      mode === 'natbib' && !natbib.numbers
+        ? 'thebibliography vmode authoryear'
+        : `thebibliography vmode labels-${Math.min(Math.max(widest.trim().length, 1), 6)}`;
+    return [
+      h('h2', { class: 'section' }, ['References']),
+      h('ul', { class: cls }, lis),
+    ];
+  }
+
+  /** A citation command, built as LaTeX by the natbib formatter and rendered. */
+  renderCitation(c: CommandNode, ctx: Context): HChild[] {
+    const { mode, natbib, bibliography } = this.citations;
+    const result = formatCitation(
+      {
+        command: c.name,
+        star: c.star,
+        notes: c.args.filter((a) => a.optional).map((a) => toLatex(a.children)),
+        keys: citeKeys(c),
+      },
+      bibliography.labels,
+      mode,
+      natbib
+    );
+    for (const key of result.undefinedKeys)
+      this.warn(
+        c.range,
+        'ref/undefined-citation',
+        `Citation "${key}" is undefined: it is not in the references library.`,
+        'warning',
+        'ref'
+      );
+    return this.renderInline(parse(result.latex).root.children, ctx);
   }
 
   renderList(env: EnvironmentNode, ctx: Context, cls: string): HElement {
@@ -615,6 +747,7 @@ class Renderer {
         ),
       ];
     }
+    if (CITE_COMMANDS.has(c.name)) return this.renderCitation(c, ctx);
     const spec = lookupCommand(c.name);
     if (spec?.kind === 'accent')
       return [
@@ -633,6 +766,17 @@ class Renderer {
         return [h('br')];
       case 'today':
         return [formatToday(this.today)];
+      case 'newblock':
+        // natbib: \hskip .11em plus .33em minus .07em, after the line's space.
+        return [h('span', { class: 'newblock' })];
+      case 'url':
+        return [
+          h('span', { class: 'tt' }, [
+            keyText(lastMandatory(c)?.children ?? []),
+          ]),
+        ];
+      case 'doi':
+        return ['doi: ', ...arg()];
       case 'TeX':
         return [
           h('span', { class: 'logo-tex' }, [

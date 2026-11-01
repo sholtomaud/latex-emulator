@@ -1,4 +1,5 @@
 import type {
+  BibFile,
   DocumentRepository,
   StoredDocument,
   VersionRecord,
@@ -8,6 +9,7 @@ import type {
 export class MemoryRepository implements DocumentRepository {
   private docs = new Map<string, StoredDocument>();
   private versions: VersionRecord[] = [];
+  private bibFiles = new Map<string, BibFile>();
 
   async list(): Promise<StoredDocument[]> {
     return [...this.docs.values()].map((d) => ({ ...d }));
@@ -39,5 +41,17 @@ export class MemoryRepository implements DocumentRepository {
 
   async deleteVersions(documentId: string): Promise<void> {
     this.versions = this.versions.filter((v) => v.documentId !== documentId);
+  }
+
+  async listBibFiles(): Promise<BibFile[]> {
+    return [...this.bibFiles.values()].map((f) => ({ ...f }));
+  }
+
+  async putBibFile(file: BibFile): Promise<void> {
+    this.bibFiles.set(file.name, { ...file });
+  }
+
+  async deleteBibFile(name: string): Promise<void> {
+    this.bibFiles.delete(name);
   }
 }

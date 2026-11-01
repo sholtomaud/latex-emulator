@@ -15,6 +15,8 @@ import type { ArticleGeometry } from '../../latex/classes/article.ts';
 import { FONT_URLS } from '../../render/fonts.ts';
 import { fitScale } from '../../render/fit-scale.ts';
 import { debounce } from '../../util/debounce.ts';
+import { bibStore } from '../../store/bib-store.ts';
+import { loadBstStyles } from '../../render/bst-styles.ts';
 import documentCss from '../../styles/document/base.css?raw';
 import template from './latex-preview.html?raw';
 import style from './latex-preview.css?raw';
@@ -36,6 +38,8 @@ export class LatexPreviewComponent extends BaseComponent {
   preprintStyle: HTMLStyleElement | null = null;
   geometry: ArticleGeometry | null = null;
   title = 'document';
+  /** The .bst styles, once their chunk has loaded. */
+  bstStyles: Record<string, string> | null = null;
 
   constructor() {
     super(template, style);
@@ -61,6 +65,16 @@ export class LatexPreviewComponent extends BaseComponent {
     );
     documentStore.addEventListener('change', ((e: CustomEvent<DocumentState>) =>
       renderLater(e.detail.source)) as EventListener);
+    // A changed references library changes citations and the bibliography.
+    let files = bibStore.getState().sources;
+    bibStore.addEventListener('change', () => {
+      if (bibStore.getState().sources === files) return;
+      files = bibStore.getState().sources;
+      renderLater(documentStore.getState().source);
+    });
+    void this.ensureStyles().then(() =>
+      this.render(documentStore.getState().source)
+    );
     printRequests.addEventListener(
       'print',
       (e) => void this.print((e as CustomEvent<PrintJob>).detail)
@@ -130,9 +144,19 @@ export class LatexPreviewComponent extends BaseComponent {
     );
   }
 
+  async ensureStyles() {
+    this.bstStyles ??= await loadBstStyles();
+  }
+
   render(source: string) {
     if (!this.page) return;
-    const result = renderDocument(source);
+    // Until the styles arrive, a document with a bibliography waits rather
+    // than flashing "unknown style" warnings; the load re-renders it.
+    if (!this.bstStyles && /\\bibliography\b/.test(source)) return;
+    const result = renderDocument(source, {
+      bibFiles: bibStore.getState().sources,
+      bstStyles: this.bstStyles ?? {},
+    });
     this.geometry = result.geometry;
     const css = geometryCss(result.geometry);
     if (this.geometryStyle && this.geometryStyle.textContent !== css) {
@@ -153,6 +177,7 @@ export class LatexPreviewComponent extends BaseComponent {
     const win = this.frame.contentWindow;
     const doc = this.frame.contentDocument;
     if (!win || !doc) return;
+    await this.ensureStyles();
     const other = job.source !== undefined;
     if (other) this.render(job.source!);
     if (job.stamp && this.geometry && this.preprintStyle)

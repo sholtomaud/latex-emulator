@@ -1,0 +1,20 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{natbib}
+
+\begin{document}
+
+\section{Citations}
+Energy systems were described by \citet{odum_energy_1996}, and later
+refined \citep[see][p.~10, ch.~2]{odum_energy_1996}. Two authors are
+cited as \citet{brown_emergy_2004}; three or more as
+\citet{hall_energy_2014}. Several works can be cited at once
+\citep{brown_emergy_2004,hall_energy_2014}. The author alone is
+\citeauthor{odum_energy_1996} and the year alone is
+\citeyear{odum_energy_1996}. A plain \cite{odum_energy_1996} behaves
+like \verb|\citet|, and a page note alone gives
+\citep[p.~10]{odum_energy_1996}.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

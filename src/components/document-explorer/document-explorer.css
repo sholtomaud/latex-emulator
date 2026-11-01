@@ -207,3 +207,67 @@
 :host .version-item:focus-within .version-actions {
   opacity: 1;
 }
+
+/* Bibliography: the .bib files \bibliography{…} reads. */
+:host .bib-files {
+  border-top: 1px solid var(--boba-border);
+}
+
+:host .bib-empty,
+:host .bib-status {
+  margin: 0;
+  padding: 0 0.75rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--boba-text-muted);
+  overflow-wrap: anywhere;
+}
+
+:host .bib-status:empty {
+  display: none;
+}
+
+:host .bib-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0.5rem;
+}
+
+:host .bib-item {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+}
+
+:host .bib-item:hover,
+:host .bib-item:focus-within {
+  background: var(--boba-border);
+}
+
+:host .bib-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+:host .bib-name {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host .bib-meta {
+  font-size: 0.7rem;
+  color: var(--boba-text-muted);
+}
+
+:host .bib-actions {
+  display: flex;
+  opacity: 0;
+}
+
+:host .bib-item:hover .bib-actions,
+:host .bib-item:focus-within .bib-actions {
+  opacity: 1;
+}

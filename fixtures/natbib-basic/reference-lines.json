@@ -1,0 +1,1022 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 127.8,
+          "xMax": 125.9,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Citations",
+          "xMin": 142.04,
+          "yMin": 127.8,
+          "xMax": 206.46,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "Citations",
+              "xMin": 142.04,
+              "xMax": 206.46
+            }
+          ]
+        },
+        {
+          "text": "Energy systems were described by Odum [1996], and later refined [see Odum,",
+          "xMin": 117.83,
+          "yMin": 154.54,
+          "xMax": 476.48,
+          "yMax": 164.22,
+          "words": [
+            {
+              "text": "Energy",
+              "xMin": 117.83,
+              "xMax": 151.65
+            },
+            {
+              "text": "systems",
+              "xMin": 154.2,
+              "xMax": 191.06
+            },
+            {
+              "text": "were",
+              "xMin": 193.61,
+              "xMax": 215.15
+            },
+            {
+              "text": "described",
+              "xMin": 217.72,
+              "xMax": 262.36
+            },
+            {
+              "text": "by",
+              "xMin": 264.91,
+              "xMax": 276.42
+            },
+            {
+              "text": "Odum",
+              "xMin": 278.98,
+              "xMax": 308.68
+            },
+            {
+              "text": "[1996],",
+              "xMin": 311.24,
+              "xMax": 342.15
+            },
+            {
+              "text": "and",
+              "xMin": 344.92,
+              "xMax": 362.49
+            },
+            {
+              "text": "later",
+              "xMin": 365.06,
+              "xMax": 386.91
+            },
+            {
+              "text": "refined",
+              "xMin": 389.46,
+              "xMax": 421.61
+            },
+            {
+              "text": "[see",
+              "xMin": 424.16,
+              "xMax": 441.2
+            },
+            {
+              "text": "Odum,",
+              "xMin": 443.76,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "1996, p. 10, ch. 2]. Two authors are cited as Brown and Ulgiati [2004]; three",
+          "xMin": 117.83,
+          "yMin": 168.08,
+          "xMax": 476.48,
+          "yMax": 177.77,
+          "words": [
+            {
+              "text": "1996,",
+              "xMin": 117.83,
+              "xMax": 142.68
+            },
+            {
+              "text": "p.",
+              "xMin": 145.87,
+              "xMax": 154.96
+            },
+            {
+              "text": "10,",
+              "xMin": 158.05,
+              "xMax": 171.99
+            },
+            {
+              "text": "ch.",
+              "xMin": 175.2,
+              "xMax": 188.83
+            },
+            {
+              "text": "2].",
+              "xMin": 191.92,
+              "xMax": 203.44
+            },
+            {
+              "text": "Two",
+              "xMin": 208.11,
+              "xMax": 229.01
+            },
+            {
+              "text": "authors",
+              "xMin": 232.1,
+              "xMax": 267.95
+            },
+            {
+              "text": "are",
+              "xMin": 271.04,
+              "xMax": 285.61
+            },
+            {
+              "text": "cited",
+              "xMin": 288.7,
+              "xMax": 311.74
+            },
+            {
+              "text": "as",
+              "xMin": 314.83,
+              "xMax": 324.58
+            },
+            {
+              "text": "Brown",
+              "xMin": 327.67,
+              "xMax": 358.76
+            },
+            {
+              "text": "and",
+              "xMin": 361.85,
+              "xMax": 379.42
+            },
+            {
+              "text": "Ulgiati",
+              "xMin": 382.51,
+              "xMax": 414.94
+            },
+            {
+              "text": "[2004];",
+              "xMin": 418.03,
+              "xMax": 448.94
+            },
+            {
+              "text": "three",
+              "xMin": 452.21,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "or more as Hall et al. [2014]. Several works can be cited at once [Brown and",
+          "xMin": 117.83,
+          "yMin": 181.63,
+          "xMax": 476.48,
+          "yMax": 191.32,
+          "words": [
+            {
+              "text": "or",
+              "xMin": 117.83,
+              "xMax": 127.56
+            },
+            {
+              "text": "more",
+              "xMin": 130.77,
+              "xMax": 154.44
+            },
+            {
+              "text": "as",
+              "xMin": 157.66,
+              "xMax": 167.42
+            },
+            {
+              "text": "Hall",
+              "xMin": 170.63,
+              "xMax": 190.33
+            },
+            {
+              "text": "et",
+              "xMin": 193.55,
+              "xMax": 202.64
+            },
+            {
+              "text": "al.",
+              "xMin": 205.85,
+              "xMax": 217.36
+            },
+            {
+              "text": "[2014].",
+              "xMin": 220.58,
+              "xMax": 251.49
+            },
+            {
+              "text": "Several",
+              "xMin": 256.2,
+              "xMax": 290.17
+            },
+            {
+              "text": "works",
+              "xMin": 293.39,
+              "xMax": 320.75
+            },
+            {
+              "text": "can",
+              "xMin": 323.97,
+              "xMax": 340.33
+            },
+            {
+              "text": "be",
+              "xMin": 343.55,
+              "xMax": 354.76
+            },
+            {
+              "text": "cited",
+              "xMin": 357.98,
+              "xMax": 381.01
+            },
+            {
+              "text": "at",
+              "xMin": 384.23,
+              "xMax": 393.93
+            },
+            {
+              "text": "once",
+              "xMin": 397.14,
+              "xMax": 418.35
+            },
+            {
+              "text": "[Brown",
+              "xMin": 421.57,
+              "xMax": 455.7
+            },
+            {
+              "text": "and",
+              "xMin": 458.9,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "Ulgiati, 2004, Hall et al., 2014]. The author alone is Odum and the year",
+          "xMin": 117.83,
+          "yMin": 195.18,
+          "xMax": 476.49,
+          "yMax": 204.87,
+          "words": [
+            {
+              "text": "Ulgiati,",
+              "xMin": 117.83,
+              "xMax": 153.28
+            },
+            {
+              "text": "2004,",
+              "xMin": 157.83,
+              "xMax": 182.68
+            },
+            {
+              "text": "Hall",
+              "xMin": 187.23,
+              "xMax": 206.93
+            },
+            {
+              "text": "et",
+              "xMin": 211.48,
+              "xMax": 220.57
+            },
+            {
+              "text": "al.,",
+              "xMin": 225.12,
+              "xMax": 239.66
+            },
+            {
+              "text": "2014].",
+              "xMin": 244.21,
+              "xMax": 272.09
+            },
+            {
+              "text": "The",
+              "xMin": 279.67,
+              "xMax": 298.46
+            },
+            {
+              "text": "author",
+              "xMin": 303.01,
+              "xMax": 334.56
+            },
+            {
+              "text": "alone",
+              "xMin": 339.11,
+              "xMax": 363.95
+            },
+            {
+              "text": "is",
+              "xMin": 368.5,
+              "xMax": 375.84
+            },
+            {
+              "text": "Odum",
+              "xMin": 380.39,
+              "xMax": 410.08
+            },
+            {
+              "text": "and",
+              "xMin": 414.63,
+              "xMax": 432.21
+            },
+            {
+              "text": "the",
+              "xMin": 436.75,
+              "xMax": 451.9
+            },
+            {
+              "text": "year",
+              "xMin": 456.45,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "alone is 1996. A plain Odum [1996] behaves like \\citet, and a page note",
+          "xMin": 117.83,
+          "yMin": 208.73,
+          "xMax": 476.48,
+          "yMax": 218.72,
+          "words": [
+            {
+              "text": "alone",
+              "xMin": 117.83,
+              "xMax": 142.68
+            },
+            {
+              "text": "is",
+              "xMin": 146.8,
+              "xMax": 154.13
+            },
+            {
+              "text": "1996.",
+              "xMin": 158.27,
+              "xMax": 183.12
+            },
+            {
+              "text": "A",
+              "xMin": 189.44,
+              "xMax": 197.63
+            },
+            {
+              "text": "plain",
+              "xMin": 201.75,
+              "xMax": 225.39
+            },
+            {
+              "text": "Odum",
+              "xMin": 229.51,
+              "xMax": 259.21
+            },
+            {
+              "text": "[1996]",
+              "xMin": 263.34,
+              "xMax": 291.22
+            },
+            {
+              "text": "behaves",
+              "xMin": 295.35,
+              "xMax": 332.37
+            },
+            {
+              "text": "like",
+              "xMin": 336.51,
+              "xMax": 352.87
+            },
+            {
+              "text": "\\citet,",
+              "xMin": 357,
+              "xMax": 394.39
+            },
+            {
+              "text": "and",
+              "xMin": 398.65,
+              "xMax": 416.22
+            },
+            {
+              "text": "a",
+              "xMin": 420.35,
+              "xMax": 425.8
+            },
+            {
+              "text": "page",
+              "xMin": 429.94,
+              "xMax": 451.74
+            },
+            {
+              "text": "note",
+              "xMin": 455.88,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "alone gives [Odum, 1996, p. 10].",
+          "xMin": 117.83,
+          "yMin": 222.28,
+          "xMax": 270.62,
+          "yMax": 231.97,
+          "words": [
+            {
+              "text": "alone",
+              "xMin": 117.83,
+              "xMax": 142.68
+            },
+            {
+              "text": "gives",
+              "xMin": 146.31,
+              "xMax": 169.41
+            },
+            {
+              "text": "[Odum,",
+              "xMin": 173.04,
+              "xMax": 208.8
+            },
+            {
+              "text": "1996,",
+              "xMin": 212.43,
+              "xMax": 237.28
+            },
+            {
+              "text": "p.",
+              "xMin": 240.91,
+              "xMax": 250.01
+            },
+            {
+              "text": "10].",
+              "xMin": 253.65,
+              "xMax": 270.62
+            }
+          ]
+        },
+        {
+          "text": "References",
+          "xMin": 117.83,
+          "yMin": 254.27,
+          "xMax": 193.35,
+          "yMax": 267.01,
+          "words": [
+            {
+              "text": "References",
+              "xMin": 117.83,
+              "xMax": 193.35
+            }
+          ]
+        },
+        {
+          "text": "Mark T. Brown and Sergio Ulgiati. Energy quality, emergy, and trans-",
+          "xMin": 117.83,
+          "yMin": 281.01,
+          "xMax": 476.49,
+          "yMax": 290.69,
+          "words": [
+            {
+              "text": "Mark",
+              "xMin": 117.83,
+              "xMax": 143.31
+            },
+            {
+              "text": "T.",
+              "xMin": 148.59,
+              "xMax": 159.5
+            },
+            {
+              "text": "Brown",
+              "xMin": 164.78,
+              "xMax": 195.88
+            },
+            {
+              "text": "and",
+              "xMin": 201.16,
+              "xMax": 218.74
+            },
+            {
+              "text": "Sergio",
+              "xMin": 224.02,
+              "xMax": 253.14
+            },
+            {
+              "text": "Ulgiati.",
+              "xMin": 258.42,
+              "xMax": 293.88
+            },
+            {
+              "text": "Energy",
+              "xMin": 303.62,
+              "xMax": 337.44
+            },
+            {
+              "text": "quality,",
+              "xMin": 342.72,
+              "xMax": 377.87
+            },
+            {
+              "text": "emergy,",
+              "xMin": 383.57,
+              "xMax": 419.96
+            },
+            {
+              "text": "and",
+              "xMin": 425.66,
+              "xMax": 443.24
+            },
+            {
+              "text": "trans-",
+              "xMin": 448.52,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "formity: H.T. Odum’s contributions to quantifying and understand-",
+          "xMin": 128.74,
+          "yMin": 294.55,
+          "xMax": 476.48,
+          "yMax": 304.24,
+          "words": [
+            {
+              "text": "formity:",
+              "xMin": 128.74,
+              "xMax": 166.65
+            },
+            {
+              "text": "H.T.",
+              "xMin": 177.23,
+              "xMax": 199.35
+            },
+            {
+              "text": "Odum’s",
+              "xMin": 205.85,
+              "xMax": 242.88
+            },
+            {
+              "text": "contributions",
+              "xMin": 249.38,
+              "xMax": 312.2
+            },
+            {
+              "text": "to",
+              "xMin": 318.7,
+              "xMax": 328.4
+            },
+            {
+              "text": "quantifying",
+              "xMin": 334.9,
+              "xMax": 388.84
+            },
+            {
+              "text": "and",
+              "xMin": 395.34,
+              "xMax": 412.92
+            },
+            {
+              "text": "understand-",
+              "xMin": 419.42,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "ing systems.",
+          "xMin": 128.74,
+          "yMin": 308.1,
+          "xMax": 191.18,
+          "yMax": 317.79,
+          "words": [
+            {
+              "text": "ing",
+              "xMin": 128.74,
+              "xMax": 143.28
+            },
+            {
+              "text": "systems.",
+              "xMin": 151.3,
+              "xMax": 191.18
+            }
+          ]
+        },
+        {
+          "text": "Ecological Modelling, 178(1–2):201–213, 2004.",
+          "xMin": 209.07,
+          "yMin": 308.1,
+          "xMax": 441.02,
+          "yMax": 317.79,
+          "words": [
+            {
+              "text": "Ecological",
+              "xMin": 209.07,
+              "xMax": 255.5
+            },
+            {
+              "text": "Modelling,",
+              "xMin": 263.44,
+              "xMax": 312.49
+            },
+            {
+              "text": "178(1–2):201–213,",
+              "xMin": 321.6,
+              "xMax": 407.05
+            },
+            {
+              "text": "2004.",
+              "xMin": 416.17,
+              "xMax": 441.02
+            }
+          ]
+        },
+        {
+          "text": "doi:",
+          "xMin": 458.91,
+          "yMin": 308.1,
+          "xMax": 476.49,
+          "yMax": 317.79,
+          "words": [
+            {
+              "text": "doi:",
+              "xMin": 458.91,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "10.1016/j.ecolmodel.2003.12.032.",
+          "xMin": 128.74,
+          "yMin": 321.65,
+          "xMax": 284.5,
+          "yMax": 331.34,
+          "words": [
+            {
+              "text": "10.1016/j.ecolmodel.2003.12.032.",
+              "xMin": 128.74,
+              "xMax": 284.5
+            }
+          ]
+        },
+        {
+          "text": "Charles A. S. Hall, Jessica G. Lambert, and Stephen B. Balogh.",
+          "xMin": 117.83,
+          "yMin": 344.17,
+          "xMax": 476.49,
+          "yMax": 353.86,
+          "words": [
+            {
+              "text": "Charles",
+              "xMin": 117.83,
+              "xMax": 153.68
+            },
+            {
+              "text": "A.",
+              "xMin": 162.35,
+              "xMax": 173.56
+            },
+            {
+              "text": "S.",
+              "xMin": 182.23,
+              "xMax": 191.33
+            },
+            {
+              "text": "Hall,",
+              "xMin": 200,
+              "xMax": 222.73
+            },
+            {
+              "text": "Jessica",
+              "xMin": 232.65,
+              "xMax": 265.05
+            },
+            {
+              "text": "G.",
+              "xMin": 273.72,
+              "xMax": 285.31
+            },
+            {
+              "text": "Lambert,",
+              "xMin": 293.98,
+              "xMax": 337.8
+            },
+            {
+              "text": "and",
+              "xMin": 347.74,
+              "xMax": 365.32
+            },
+            {
+              "text": "Stephen",
+              "xMin": 373.99,
+              "xMax": 412.17
+            },
+            {
+              "text": "B.",
+              "xMin": 420.84,
+              "xMax": 431.6
+            },
+            {
+              "text": "Balogh.",
+              "xMin": 440.27,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "EROI of different fuels and the implications for society. In Pro-",
+          "xMin": 128.74,
+          "yMin": 357.72,
+          "xMax": 476.48,
+          "yMax": 367.4,
+          "words": [
+            {
+              "text": "EROI",
+              "xMin": 128.74,
+              "xMax": 156.31
+            },
+            {
+              "text": "of",
+              "xMin": 163.61,
+              "xMax": 172.4
+            },
+            {
+              "text": "different",
+              "xMin": 179.7,
+              "xMax": 219.12
+            },
+            {
+              "text": "fuels",
+              "xMin": 226.42,
+              "xMax": 247.99
+            },
+            {
+              "text": "and",
+              "xMin": 255.29,
+              "xMax": 272.87
+            },
+            {
+              "text": "the",
+              "xMin": 280.17,
+              "xMax": 295.32
+            },
+            {
+              "text": "implications",
+              "xMin": 302.61,
+              "xMax": 360.25
+            },
+            {
+              "text": "for",
+              "xMin": 367.55,
+              "xMax": 380.61
+            },
+            {
+              "text": "society.",
+              "xMin": 387.91,
+              "xMax": 422.52
+            },
+            {
+              "text": "In",
+              "xMin": 438.26,
+              "xMax": 448.26
+            },
+            {
+              "text": "Pro-",
+              "xMin": 455.56,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "ceedings of the Energy Policy Workshop, pages 141–152, 2014. URL",
+          "xMin": 128.74,
+          "yMin": 371.27,
+          "xMax": 476.48,
+          "yMax": 380.95,
+          "words": [
+            {
+              "text": "ceedings",
+              "xMin": 128.74,
+              "xMax": 166.66
+            },
+            {
+              "text": "of",
+              "xMin": 172.51,
+              "xMax": 181.44
+            },
+            {
+              "text": "the",
+              "xMin": 187.29,
+              "xMax": 201.51
+            },
+            {
+              "text": "Energy",
+              "xMin": 207.37,
+              "xMax": 240.28
+            },
+            {
+              "text": "Policy",
+              "xMin": 246.14,
+              "xMax": 275.56
+            },
+            {
+              "text": "Workshop,",
+              "xMin": 281.43,
+              "xMax": 331.74
+            },
+            {
+              "text": "pages",
+              "xMin": 338.03,
+              "xMax": 364.15
+            },
+            {
+              "text": "141–152,",
+              "xMin": 369.92,
+              "xMax": 411.14
+            },
+            {
+              "text": "2014.",
+              "xMin": 417.43,
+              "xMax": 442.28
+            },
+            {
+              "text": "URL",
+              "xMin": 453.45,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "https://example.org/eroi.",
+          "xMin": 128.74,
+          "yMin": 385.72,
+          "xMax": 269.22,
+          "yMax": 394.81,
+          "words": [
+            {
+              "text": "https://example.org/eroi.",
+              "xMin": 128.74,
+              "xMax": 269.22
+            }
+          ]
+        },
+        {
+          "text": "Howard T. Odum. Environmental Accounting: Emergy and Environmental",
+          "xMin": 117.83,
+          "yMin": 407.33,
+          "xMax": 476.48,
+          "yMax": 417.02,
+          "words": [
+            {
+              "text": "Howard",
+              "xMin": 117.83,
+              "xMax": 154.52
+            },
+            {
+              "text": "T.",
+              "xMin": 158.33,
+              "xMax": 169.24
+            },
+            {
+              "text": "Odum.",
+              "xMin": 173.03,
+              "xMax": 205.76
+            },
+            {
+              "text": "Environmental",
+              "xMin": 211.09,
+              "xMax": 280.8
+            },
+            {
+              "text": "Accounting:",
+              "xMin": 284.86,
+              "xMax": 340.36
+            },
+            {
+              "text": "Emergy",
+              "xMin": 345.68,
+              "xMax": 381.38
+            },
+            {
+              "text": "and",
+              "xMin": 385.44,
+              "xMax": 402.72
+            },
+            {
+              "text": "Environmental",
+              "xMin": 406.77,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "Decision Making. John Wiley & Sons, New York, 1996. ISBN 978-0-471-",
+          "xMin": 128.74,
+          "yMin": 420.88,
+          "xMax": 476.48,
+          "yMax": 430.57,
+          "words": [
+            {
+              "text": "Decision",
+              "xMin": 128.74,
+              "xMax": 169.31
+            },
+            {
+              "text": "Making.",
+              "xMin": 173.15,
+              "xMax": 211.05
+            },
+            {
+              "text": "John",
+              "xMin": 215.78,
+              "xMax": 238.96
+            },
+            {
+              "text": "Wiley",
+              "xMin": 242.52,
+              "xMax": 270.4
+            },
+            {
+              "text": "&",
+              "xMin": 273.96,
+              "xMax": 282.45
+            },
+            {
+              "text": "Sons,",
+              "xMin": 286.02,
+              "xMax": 310.93
+            },
+            {
+              "text": "New",
+              "xMin": 314.5,
+              "xMax": 335.41
+            },
+            {
+              "text": "York,",
+              "xMin": 338.98,
+              "xMax": 364.77
+            },
+            {
+              "text": "1996.",
+              "xMin": 368.35,
+              "xMax": 393.2
+            },
+            {
+              "text": "ISBN",
+              "xMin": 397.92,
+              "xMax": 423.83
+            },
+            {
+              "text": "978-0-471-",
+              "xMin": 427.39,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "11442-0.",
+          "xMin": 128.74,
+          "yMin": 434.43,
+          "xMax": 168.13,
+          "yMax": 444.12,
+          "words": [
+            {
+              "text": "11442-0.",
+              "xMin": 128.74,
+              "xMax": 168.13
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
