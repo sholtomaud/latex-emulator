@@ -6,7 +6,12 @@ export interface BibStoreState extends BibLibraryState {
   /** The last import's outcome, for the explorer's status line. */
   status: string;
   /** Where Zotero searches go; the API key is kept in memory elsewhere. */
-  zotero: { source: 'local' | 'web'; userId: string };
+  zotero: {
+    source: 'local' | 'web';
+    userId: string;
+    /** Suggest Zotero items while typing \\cite{…} keys. */
+    typeahead: boolean;
+  };
   /** The last Zotero search's results. */
   zoteroHits: ZoteroHit[];
 }
@@ -16,6 +21,6 @@ export const bibStore = new Store<BibStoreState>({
   files: [],
   sources: {},
   status: '',
-  zotero: { source: 'local', userId: '' },
+  zotero: { source: 'local', userId: '', typeahead: false },
   zoteroHits: [],
 });

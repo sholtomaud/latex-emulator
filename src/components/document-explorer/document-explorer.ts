@@ -124,6 +124,12 @@ export class DocumentExplorerComponent extends BaseComponent {
     this.querySelector('.zotero-settings')!.addEventListener('submit', (e) =>
       e.preventDefault()
     );
+    const typeahead = this.querySelector<HTMLInputElement>(
+      '.zotero-typeahead-input'
+    )!;
+    typeahead.addEventListener('change', () =>
+      workspaceActions.setZoteroTypeahead(typeahead.checked)
+    );
     source.addEventListener('change', () => save(false));
     user.addEventListener('change', () => save(false));
     key.addEventListener('change', () => save(true));
@@ -139,6 +145,8 @@ export class DocumentExplorerComponent extends BaseComponent {
   renderZotero({ zotero, zoteroHits }: BibStoreState) {
     const source = this.querySelector<HTMLSelectElement>('.zotero-source')!;
     if (source.value !== zotero.source) source.value = zotero.source;
+    this.querySelector<HTMLInputElement>('.zotero-typeahead-input')!.checked =
+      zotero.typeahead;
     // Preferences load after start-up; don't overwrite while it is edited.
     const user = this.querySelector<HTMLInputElement>('.zotero-user')!;
     if (document.activeElement !== user && user.value !== zotero.userId)

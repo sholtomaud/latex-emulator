@@ -362,7 +362,9 @@ on-screen pages, implement our own lightweight paginator in
 
 - A diagnostic is `{ range, severity: 'error'|'warning'|'info'|'hint', code, message, source: 'syntax'|'lint'|'spell'|'ref', fixes? }`.
   Codes are stable strings (e.g. `syntax/unclosed-env`, `lint/space-before-ref`,
-  `spell/unknown-word`). They map to Monaco markers in `src/language/` only.
+  `spell/unknown-word`). They map to Monaco markers in `src/language/` only;
+  `fixes` (text edits) become Monaco quick fixes there too (ADR 0011: e.g.
+  adding a file to `\bibliography`).
 - **Lint rules:** one file per rule in `src/latex/lint/rules/`, each with
   `meta` (code, default severity, description) and a pure `check(ast, ctx)`.
   Each rule ships with fixture-driven tests covering both positive and negative cases.
@@ -398,7 +400,8 @@ on-screen pages, implement our own lightweight paginator in
   registration agencies it redirects to), carrying just that DOI (ADR 0008),
   and Zotero searches (local API on localhost:23119 or api.zotero.org),
   carrying just the search text and, for the web library, the session-only
-  API key (ADR 0009). Documents live in
+  API key (ADR 0009); with the opt-in Zotero typeahead, the citation key
+  prefix being typed (ADR 0011). Documents live in
   OPFS/IndexedDB on the user's device.
 
 ---
@@ -605,7 +608,9 @@ chosen branch.
 7. ✅ Zotero: search the local Zotero 7 API on localhost:23119 or the
    zotero.org web library (user ID + session-only API key) and add results
    to a `.bib` file (ADR 0009). Still to verify by hand against a real
-   Zotero: its CORS headers and Chrome's local-network prompt.
+   Zotero: its CORS headers and Chrome's local-network prompt. ✅ Citation
+   typeahead from the library and (opt-in) Zotero, key hovers, and quick fixes
+   for an unlisted or missing `\bibliography` (ADR 0011).
 8. ✅ Math: TeX → MathML Core with Latin Modern Math (`equation`, `align`,
    `gather`, `multline`, fractions, roots, matrices…); numbered displays;
    `\label`/`\ref`/`\eqref` in two passes; `\tableofcontents` (ADR 0010).

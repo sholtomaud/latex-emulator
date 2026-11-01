@@ -1,6 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert';
-import { MarkerSeverity, toMarkers } from './markers.ts';
+import { MarkerSeverity, fixesAt, toMarkers } from './markers.ts';
 import type { Diagnostic } from '../latex/diagnostics.ts';
 
 const diag = (
@@ -58,6 +58,60 @@ describe('toMarkers', () => {
     assert.deepStrictEqual(
       [m.startLineNumber, m.startColumn, m.endColumn],
       [1, 1, 1]
+    );
+  });
+});
+
+describe('fixesAt', () => {
+  const text = 'line one\n\\citet{k}\n';
+  const d = (
+    start: number,
+    end: number,
+    fixes?: {
+      title: string;
+      edits: { range: { start: number; end: number }; text: string }[];
+    }[]
+  ) => ({
+    range: { start, end },
+    severity: 'warning' as const,
+    code: 'ref/undefined-citation',
+    message: 'm',
+    source: 'ref' as const,
+    fixes,
+  });
+
+  test('fixes of diagnostics overlapping the range, as line/column edits', () => {
+    const fix = {
+      title: 'Add',
+      edits: [{ range: { start: 19, end: 19 }, text: 'X\n' }],
+    };
+    assert.deepStrictEqual(fixesAt([d(9, 18, [fix]), d(0, 4)], text, 10, 10), [
+      {
+        title: 'Add',
+        edits: [
+          {
+            range: {
+              startLineNumber: 3,
+              startColumn: 1,
+              endLineNumber: 3,
+              endColumn: 1,
+            },
+            text: 'X\n',
+          },
+        ],
+      },
+    ]);
+    assert.deepStrictEqual(fixesAt([d(9, 18, [fix])], text, 0, 3), []);
+  });
+
+  test('the same fix offered by several diagnostics appears once', () => {
+    const fix = {
+      title: 'Add',
+      edits: [{ range: { start: 0, end: 0 }, text: 'x' }],
+    };
+    assert.strictEqual(
+      fixesAt([d(0, 9, [fix]), d(0, 9, [fix])], text, 0, 9).length,
+      1
     );
   });
 });

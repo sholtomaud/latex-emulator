@@ -17,6 +17,13 @@ import { bibStore } from '../store/bib-store.ts';
 import { SAMPLE_REFERENCES } from '../store/sample-references.ts';
 import { entryFromCsl, lookupReference } from '../references/lookup.ts';
 import { searchZotero } from '../references/zotero.ts';
+import type { ZoteroSource } from '../references/zotero.ts';
+import { indexLibrary } from '../references/cite-index.ts';
+import type { CiteEntry } from '../references/cite-index.ts';
+import { zoteroSuggestions } from '../references/zotero-suggest.ts';
+import type { ZoteroSuggestion } from '../references/zotero-suggest.ts';
+import { bibliographyFiles } from '../render/bibliography.ts';
+import type { CitationServices } from '../language/cite-services.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -92,6 +99,7 @@ export async function startWorkspace(): Promise<void> {
     zotero: {
       source: readPref('zotero-source') === 'web' ? 'web' : 'local',
       userId: readPref('zotero-user') ?? '',
+      typeahead: readPref('zotero-typeahead') === 'true',
     },
   });
 
@@ -192,7 +200,15 @@ export const workspaceActions = {
     if (apiKey !== undefined) zoteroKey = apiKey;
     writePref('zotero-source', source);
     writePref('zotero-user', userId.trim());
-    bibStore.setState({ zotero: { source, userId: userId.trim() } });
+    bibStore.setState({
+      zotero: { ...bibStore.getState().zotero, source, userId: userId.trim() },
+    });
+  },
+  setZoteroTypeahead: (on: boolean) => {
+    writePref('zotero-typeahead', String(on));
+    bibStore.setState({
+      zotero: { ...bibStore.getState().zotero, typeahead: on },
+    });
   },
   searchZotero: async (query: string) => {
     const { source, userId } = bibStore.getState().zotero;
@@ -239,4 +255,54 @@ export const workspaceActions = {
   },
   toggleExplorer: () =>
     uiStore.setState({ explorerOpen: !uiStore.getState().explorerOpen }),
+};
+
+function zoteroSource(): ZoteroSource {
+  const { source, userId } = bibStore.getState().zotero;
+  return source === 'web'
+    ? { kind: 'web', userId, apiKey: zoteroKey }
+    : { kind: 'local' };
+}
+
+let indexed: { sources: Record<string, string>; entries: CiteEntry[] } | null =
+  null;
+const zoteroCache = new Map<string, Promise<ZoteroSuggestion[]>>();
+
+/** Citation typeahead and hovers for the editor (src/language/cite-services.ts). */
+export const citationServices: CitationServices = {
+  entries() {
+    const { sources } = bibStore.getState();
+    if (indexed?.sources !== sources)
+      indexed = { sources, entries: indexLibrary(sources) };
+    return indexed.entries;
+  },
+  zotero(typed) {
+    const q = typed.trim();
+    if (!bibStore.getState().zotero.typeahead || q.length < 3 || !library)
+      return Promise.resolve([]);
+    const cacheKey = `${bibStore.getState().zotero.source}:${q.toLowerCase()}`;
+    if (!zoteroCache.has(cacheKey))
+      zoteroCache.set(
+        cacheKey,
+        searchZotero(zoteroSource(), q, { fetch: (...args) => fetch(...args) })
+          .then((r) => (r.ok ? r.hits : []))
+          .then((hits) => zoteroSuggestions(hits, library!.keys()))
+      );
+    return zoteroCache.get(cacheKey)!;
+  },
+  async add(suggestion) {
+    if (!library) return;
+    // Into the first library file the document's \bibliography lists.
+    const { sources } = bibStore.getState();
+    const target =
+      bibliographyFiles(documentStore.getState().source).find(
+        (f) => f in sources
+      ) ?? 'references';
+    if (library.keys().has(suggestion.key)) return;
+    await library.addEntry(target, suggestion.text);
+    zoteroCache.clear();
+    bibStore.setState({
+      status: `Added ${suggestion.key} from Zotero to ${target}.bib.`,
+    });
+  },
 };
