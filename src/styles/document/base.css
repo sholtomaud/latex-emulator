@@ -104,7 +104,8 @@ body {
   .latex-document .authors,
   .latex-document .date,
   .latex-document .math-display,
-  .latex-document .abstract-title
+  .latex-document .abstract-title,
+  .latex-document .caption
 ) {
   --bfs: var(--fs);
   --blh: var(--lh);
@@ -129,6 +130,8 @@ body {
   .latex-document .abstract,
   .latex-document .abstract-body,
   .latex-document .unknown-environment,
+  .latex-document .float,
+  .latex-document .tabular,
   .latex-document section
 ) {
   display: flow-root;
@@ -726,6 +729,212 @@ body {
 /* \eqref and other upright text inside italic contexts. */
 .latex-document .up {
   font-style: normal;
+}
+
+/* ------------------------------------------------------------ floats */
+
+/*
+ * figure and table are shown where they are written (no floating; ADR 0012),
+ * with \intextsep above and below, as for [h] placement. LaTeX adds the
+ * float box in its output routine, where no interline glue goes before it:
+ * its top is the previous line's depth (a descender, 0.194em in cmr) +
+ * \intextsep below that baseline (the line's own -b margin takes b back),
+ * as pdflatex measures (31.7pt to a caption baseline at 11pt). After it,
+ * \intextsep, then \baselineskip from the depth of the line *before* the
+ * float: LaTeX places in-text floats in its output routine, which leaves
+ * the main list's \prevdepth unchanged (latex.ltx, \@addtocurcol).
+ */
+.latex-document .float {
+  --before: calc(var(--intextsep) + 0.194em);
+}
+
+.latex-document .float + * {
+  --prev-after: calc(var(--intextsep) - 0.194em);
+}
+
+/*
+ * \@makecaption: \abovecaptionskip, then "Table 1: text", centred if it fits
+ * on one line, otherwise a justified paragraph. A shrink-to-fit box does
+ * exactly that: one line shrinks to its text, more fill the text width.
+ */
+.latex-document .caption {
+  --before: var(--abovecaptionskip);
+  /* An hbox at natural spacing when it fits on one line. */
+  word-spacing: normal;
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+  text-indent: 0;
+  text-align: justify;
+}
+
+/*
+ * The space after "Table 1:" comes after a colon, whose \sfcode is 2000
+ * (\nonfrenchspacing), so TeX adds the font's extra space (fontdimen7,
+ * 0.111em in Latin Modern) to the interword space.
+ */
+.latex-document .caption-label {
+  margin-right: 0.111em;
+}
+
+/*
+ * The first box of a float's vbox gets no interline glue: the caption's
+ * baseline is \abovecaptionskip + its line's height (an ascender, 0.694em
+ * in cmr) below the float's top.
+ */
+.latex-document :is(.float, .float > .centering) > .caption:first-child {
+  --before: calc(var(--abovecaptionskip) + 0.694em - var(--blh));
+}
+
+/* ------------------------------------------------------------ tabular */
+
+/*
+ * tabular is a box: no strut around it, centred by \centering like text.
+ * Cells: \tabcolsep each side; every row holds \@arstrut (0.7/0.3 of
+ * \baselineskip above/below the baseline), done with an inline-block strut
+ * and zero line-height text, so row baselines land where TeX puts them.
+ * Rules are rows or columns of exact thickness (CSS borders under 1px round
+ * up to a device pixel).
+ */
+.latex-document .tabular {
+  /*
+   * A tall box after a line: the line's depth (a descender, 0.194em in cmr)
+   * + \lineskip (1pt) below its baseline; the line's -b margin takes b back.
+   */
+  --before: calc(1pt + 0.194em);
+  line-height: 0;
+  text-indent: 0;
+}
+
+.latex-document .tabular table {
+  display: inline-table;
+  vertical-align: top;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.latex-document .tabular td {
+  padding: 0 var(--tabcolsep);
+  line-height: 0;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.latex-document .tabular tr:not([class]) > td::before {
+  content: '';
+  display: inline-block;
+  height: var(--lh);
+  vertical-align: calc(-0.3 * var(--lh));
+}
+
+.latex-document .tabular td.l {
+  text-align: left;
+}
+
+.latex-document .tabular td.c {
+  text-align: center;
+}
+
+.latex-document .tabular td.r {
+  text-align: right;
+}
+
+/* p{…}: a paragraph of the given width. */
+.latex-document .tabular td.p {
+  white-space: normal;
+  text-align: justify;
+  line-height: var(--lh);
+  vertical-align: top;
+}
+
+.latex-document .tabular td.p::before {
+  display: none;
+}
+
+.latex-document .tabular td.nopad-l {
+  padding-left: 0;
+}
+
+.latex-document .tabular td.nopad-r {
+  padding-right: 0;
+}
+
+.latex-document .tabular td.sep {
+  padding: 0;
+}
+
+.latex-document .tabular td.vrule {
+  width: var(--arrayrulewidth);
+  min-width: var(--arrayrulewidth);
+  padding: 0;
+  background: currentColor;
+}
+
+.latex-document .tabular td.vgap {
+  width: var(--doublerulesep);
+  padding: 0;
+}
+
+.latex-document .tabular tr[class] > td {
+  padding: 0;
+}
+
+.latex-document .tabular tr.hline > td,
+.latex-document .tabular tr.cline > td {
+  height: var(--arrayrulewidth);
+}
+
+.latex-document .tabular tr.hline > td,
+.latex-document .tabular tr.cline > td.rule {
+  background: currentColor;
+}
+
+.latex-document .tabular tr.hgap > td {
+  height: var(--doublerulesep);
+}
+
+/* booktabs: \abovetopsep (0), \heavyrulewidth .08em, \belowrulesep .65ex. */
+.latex-document .tabular tr.toprule > td {
+  height: calc(0.08em + 0.65ex);
+  background: linear-gradient(currentColor, currentColor) left top / 100% 0.08em
+    no-repeat;
+}
+
+/* \aboverulesep .4ex, \lightrulewidth .05em, \belowrulesep .65ex. */
+.latex-document .tabular tr.midrule > td {
+  height: calc(0.4ex + 0.05em + 0.65ex);
+  background: linear-gradient(currentColor, currentColor) left 0.4ex / 100%
+    0.05em no-repeat;
+}
+
+/* \aboverulesep .4ex, \heavyrulewidth .08em, \belowbottomsep 0. */
+.latex-document .tabular tr.bottomrule > td {
+  height: calc(0.4ex + 0.08em);
+  background: linear-gradient(currentColor, currentColor) left 0.4ex / 100%
+    0.08em no-repeat;
+}
+
+/* \cmidrule: .4ex, \cmidrulewidth .03em, .65ex; trims of \cmidrulekern .5em. */
+.latex-document .tabular tr.cmidrule > td {
+  height: calc(0.4ex + 0.03em + 0.65ex);
+}
+
+.latex-document .tabular tr.cmidrule > td.rule {
+  background: linear-gradient(currentColor, currentColor) left 0.4ex / 100%
+    0.03em no-repeat;
+}
+
+.latex-document .tabular tr.cmidrule > td.rule.trim-l {
+  background-position-x: 0.5em;
+  background-size: calc(100% - 0.5em) 0.03em;
+}
+
+.latex-document .tabular tr.cmidrule > td.rule.trim-r {
+  background-size: calc(100% - 0.5em) 0.03em;
+}
+
+.latex-document .tabular tr.cmidrule > td.rule.trim-l.trim-r {
+  background-size: calc(100% - 1em) 0.03em;
 }
 
 /* ------------------------------------------------------------ contents */

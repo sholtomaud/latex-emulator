@@ -67,11 +67,31 @@ test('the title starts 2em + \\baselineskip below the \\null line at \\topskip',
 });
 
 describe('fontFaceCss', () => {
+  test('a tie (U+00A0) is as wide as each face’s space, from a tie font after the face', () => {
+    const urls: Record<string, string> = Object.fromEntries(
+      FONT_FACES.map((f) => [f.file, `/x/${f.file}.woff2`])
+    );
+    for (const w of [302, 326, 333, 350, 358, 367, 375, 378, 383, 414])
+      urls[`tie-${w}`] = `/x/tie-${w}.ttf`;
+    const css = fontFaceCss(urls);
+    assert.match(
+      css,
+      /src: url\("\/x\/lmroman10-regular\.woff2"\) format\('woff2'\); \}\n@font-face \{ font-family: 'LM Roman 10'; font-weight: 400; font-style: normal; [^}]*unicode-range: U\+00A0; src: url\("\/x\/tie-333\.ttf"\) format\('truetype'\); \}/
+    );
+    assert.match(
+      css,
+      /font-family: 'LM Roman 10'; font-weight: 700; font-style: normal; [^}]*unicode-range: U\+00A0; src: url\("\/x\/tie-383\.ttf"\)/
+    );
+    // LM Mono's no-break space is already as wide as its space.
+    assert.doesNotMatch(css, /LM Mono 10[^}]*unicode-range/);
+  });
+
   test('declares every face with metric overrides and the given URLs', () => {
     const urls = Object.fromEntries(
       FONT_FACES.map((f) => [f.file, `/x/${f.file}.woff2`])
     );
     const css = fontFaceCss(urls);
+    // No tie font URLs given, so no tie faces.
     assert.strictEqual(css.match(/@font-face/g)?.length, FONT_FACES.length);
     assert.match(
       css,

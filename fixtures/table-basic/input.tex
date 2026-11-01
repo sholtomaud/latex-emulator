@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{booktabs}
+
+\begin{document}
+
+\section{Tables}
+Table~\ref{tab:simple} has vertical and horizontal rules, and
+Table~\ref{tab:booktabs} is set in the style of the \texttt{booktabs}
+package, with fewer and lighter rules.
+
+\begin{table}[h]
+\centering
+\caption{A simple table.}
+\label{tab:simple}
+\begin{tabular}{|l|c|r|}
+\hline
+Name & Count & Price \\
+\hline
+Apples & 3 & 1.20 \\
+Pears & 12 & 0.85 \\
+\hline
+\multicolumn{2}{|l|}{Total} & 2.05 \\
+\hline
+\end{tabular}
+\end{table}
+
+Text continues after the first table and runs long enough to wrap onto a
+second line, so the spacing after a float can be measured.
+
+\begin{table}[h]
+\centering
+\caption{Energy return on investment by fuel: a caption long enough to need
+two lines in the article class, which then sets it as a paragraph.}
+\label{tab:booktabs}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Fuel & EROI & Year \\
+\midrule
+Coal & 46 & 2010 \\
+Oil and gas & 16 & 2010 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+After both tables the text continues.
+
+\end{document}
