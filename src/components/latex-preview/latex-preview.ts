@@ -17,6 +17,8 @@ import { fitScale } from '../../render/fit-scale.ts';
 import { debounce } from '../../util/debounce.ts';
 import { bibStore } from '../../store/bib-store.ts';
 import { loadBstStyles } from '../../render/bst-styles.ts';
+import { imageStore } from '../../store/image-store.ts';
+import { ImageUrls } from '../../render/image-urls.ts';
 import documentCss from '../../styles/document/base.css?raw';
 import template from './latex-preview.html?raw';
 import style from './latex-preview.css?raw';
@@ -40,6 +42,7 @@ export class LatexPreviewComponent extends BaseComponent {
   title = 'document';
   /** The .bst styles, once their chunk has loaded. */
   bstStyles: Record<string, string> | null = null;
+  imageUrls = new ImageUrls();
 
   constructor() {
     super(template, style);
@@ -80,6 +83,13 @@ export class LatexPreviewComponent extends BaseComponent {
     bibStore.addEventListener('change', () => {
       if (bibStore.getState().sources === files) return;
       files = bibStore.getState().sources;
+      renderLater(documentStore.getState().source);
+    });
+    // Added, renamed or deleted images change \\includegraphics.
+    let images = imageStore.getState().files;
+    imageStore.addEventListener('change', () => {
+      if (imageStore.getState().files === images) return;
+      images = imageStore.getState().files;
       renderLater(documentStore.getState().source);
     });
     void this.ensureStyles().then(() =>
@@ -166,6 +176,7 @@ export class LatexPreviewComponent extends BaseComponent {
     const result = renderDocument(source, {
       bibFiles: bibStore.getState().sources,
       bstStyles: this.bstStyles ?? {},
+      images: this.imageUrls.update(imageStore.getState()),
     });
     this.geometry = result.geometry;
     const css = geometryCss(result.geometry);
@@ -194,6 +205,10 @@ export class LatexPreviewComponent extends BaseComponent {
       this.preprintStyle.textContent = preprintCss(job.stamp, this.geometry);
     doc.title = job.title ?? this.title;
     await doc.fonts.ready;
+    // Every figure decoded, so none prints blank.
+    await Promise.all(
+      [...doc.images].map((img) => img.decode().catch(() => undefined))
+    );
     win.focus();
     try {
       win.print(); // blocks until the print dialog closes

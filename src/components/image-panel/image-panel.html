@@ -1,0 +1,66 @@
+<section class="images" aria-label="Images">
+  <div class="explorer-header">
+    <h2 class="explorer-title">Images</h2>
+    <div class="explorer-actions">
+      <button
+        type="button"
+        class="icon-button add-image"
+        aria-label="Add images"
+        title="Add PNG, JPEG or PDF images (or drop or paste them here)"
+      >
+        <span aria-hidden="true">⇪</span>
+      </button>
+      <input
+        class="add-image-input"
+        type="file"
+        accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"
+        multiple
+        hidden
+      />
+    </div>
+  </div>
+  <p class="image-empty">
+    No images in this document. Add, drop or paste PNG, JPEG or PDF files, then
+    use <code>\includegraphics{name}</code>.
+  </p>
+  <ul class="image-list" aria-label="This document’s images"></ul>
+  <details class="image-reuse" hidden>
+    <summary>Reuse from another document</summary>
+    <ul class="reuse-list" aria-label="Images in other documents"></ul>
+  </details>
+  <p class="image-status" aria-live="polite"></p>
+</section>
+<template class="image-item-template">
+  <li class="image-item">
+    <span class="image-text">
+      <code class="image-name"></code>
+      <span class="image-meta"></span>
+    </span>
+    <span class="image-actions">
+      <button type="button" class="icon-button image-copy">
+        <span aria-hidden="true">⧉</span>
+      </button>
+      <button type="button" class="icon-button image-rename">
+        <span aria-hidden="true">✎</span>
+      </button>
+      <button type="button" class="icon-button image-download">
+        <span aria-hidden="true">⤓</span>
+      </button>
+      <button type="button" class="icon-button image-delete">
+        <span aria-hidden="true">✕</span>
+      </button>
+    </span>
+  </li>
+</template>
+<template class="reuse-item-template">
+  <li class="reuse-item">
+    <span class="image-text">
+      <code class="image-name"></code>
+      <span class="image-meta"></span>
+    </span>
+    <button type="button" class="reuse-add">Add</button>
+  </li>
+</template>
+<template class="image-rename-template">
+  <input class="image-name-input" type="text" aria-label="Image name" />
+</template>

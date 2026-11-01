@@ -114,4 +114,37 @@ test.describe('visual', () => {
     await page.evaluate(() => document.fonts.ready);
     await expect(sheet).toHaveScreenshot('preview-tables.png');
   });
+
+  test('preview page with figures', async ({ page }) => {
+    await openApp(page);
+    const toggle = page.getByRole('button', { name: 'Toggle documents' });
+    await toggle.click();
+    await page
+      .locator('image-panel .add-image-input')
+      .setInputFiles([
+        'fixtures/figure-basic/images/plot.png',
+        'fixtures/figure-basic/images/bars.jpg',
+      ]);
+    await expect(page.locator('image-panel .image-item')).toHaveCount(2);
+    await toggle.click();
+    await setSource(
+      page,
+      fs.readFileSync('fixtures/figure-basic/input.tex', 'utf8')
+    );
+    const sheet = page
+      .frameLocator('latex-preview iframe')
+      .locator('.latex-page');
+    const images = sheet.locator('img.graphic');
+    await expect(images).toHaveCount(2);
+    for (const img of await images.all())
+      await expect
+        .poll(() =>
+          img.evaluate(
+            (el: HTMLImageElement) => el.complete && el.naturalWidth > 0
+          )
+        )
+        .toBe(true);
+    await page.evaluate(() => document.fonts.ready);
+    await expect(sheet).toHaveScreenshot('preview-figures.png');
+  });
 });

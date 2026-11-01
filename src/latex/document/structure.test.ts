@@ -86,4 +86,24 @@ ignored`;
     const doc = analyze('\\title{A \\textbf{B} \\LaTeX}');
     assert.strictEqual(plainText(doc.metadata.title ?? []), 'A B ');
   });
+
+  test('\\graphicspath lists directories in order; none by default', () => {
+    assert.deepStrictEqual(
+      analyze(
+        '\\graphicspath{{figs/}{./img/}}\\begin{document}x\\end{document}'
+      ).graphicsPath,
+      ['figs/', './img/']
+    );
+    assert.deepStrictEqual(analyze('x').graphicsPath, []);
+    // Directories must each be in braces, as graphicx reads them.
+    assert.deepStrictEqual(analyze('\\graphicspath{figs/}').graphicsPath, []);
+    // Without \\begin{document}, it is still preamble, not body text.
+    const loose = analyze('\\documentclass{article}\\graphicspath{{a/}}Hello');
+    assert.deepStrictEqual(
+      loose.body
+        .filter((n) => n.kind === 'command')
+        .map((n) => n.kind === 'command' && n.name),
+      []
+    );
+  });
 });

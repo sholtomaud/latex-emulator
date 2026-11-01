@@ -1,0 +1,510 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 127.8,
+          "xMax": 125.9,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Figures",
+          "xMin": 142.04,
+          "yMin": 127.8,
+          "xMax": 194.02,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "Figures",
+              "xMin": 142.04,
+              "xMax": 194.02
+            }
+          ]
+        },
+        {
+          "text": "Figure 1 is a PNG at its natural size, two inches wide at 300 dots per inch,",
+          "xMin": 117.83,
+          "yMin": 154.54,
+          "xMax": 476.49,
+          "yMax": 164.22,
+          "words": [
+            {
+              "text": "Figure",
+              "xMin": 117.83,
+              "xMax": 148.62
+            },
+            {
+              "text": "1",
+              "xMin": 152.22,
+              "xMax": 157.67
+            },
+            {
+              "text": "is",
+              "xMin": 161.27,
+              "xMax": 168.6
+            },
+            {
+              "text": "a",
+              "xMin": 172.19,
+              "xMax": 177.65
+            },
+            {
+              "text": "PNG",
+              "xMin": 181.25,
+              "xMax": 205.41
+            },
+            {
+              "text": "at",
+              "xMin": 209.01,
+              "xMax": 218.71
+            },
+            {
+              "text": "its",
+              "xMin": 222.31,
+              "xMax": 233.89
+            },
+            {
+              "text": "natural",
+              "xMin": 237.49,
+              "xMax": 272.07
+            },
+            {
+              "text": "size,",
+              "xMin": 275.65,
+              "xMax": 295.72
+            },
+            {
+              "text": "two",
+              "xMin": 299.32,
+              "xMax": 316.3
+            },
+            {
+              "text": "inches",
+              "xMin": 319.89,
+              "xMax": 348.75
+            },
+            {
+              "text": "wide",
+              "xMin": 352.34,
+              "xMax": 374.15
+            },
+            {
+              "text": "at",
+              "xMin": 377.75,
+              "xMax": 387.45
+            },
+            {
+              "text": "300",
+              "xMin": 391.05,
+              "xMax": 407.41
+            },
+            {
+              "text": "dots",
+              "xMin": 411.01,
+              "xMax": 431.08
+            },
+            {
+              "text": "per",
+              "xMin": 434.68,
+              "xMax": 450.16
+            },
+            {
+              "text": "inch,",
+              "xMin": 453.75,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "and Figure 2 is a JPEG scaled to half the line width.",
+          "xMin": 117.83,
+          "yMin": 168.08,
+          "xMax": 371.99,
+          "yMax": 177.77,
+          "words": [
+            {
+              "text": "and",
+              "xMin": 117.83,
+              "xMax": 135.4
+            },
+            {
+              "text": "Figure",
+              "xMin": 139.04,
+              "xMax": 169.83
+            },
+            {
+              "text": "2",
+              "xMin": 173.47,
+              "xMax": 178.92
+            },
+            {
+              "text": "is",
+              "xMin": 182.56,
+              "xMax": 189.89
+            },
+            {
+              "text": "a",
+              "xMin": 193.52,
+              "xMax": 198.98
+            },
+            {
+              "text": "JPEG",
+              "xMin": 202.62,
+              "xMax": 231.63
+            },
+            {
+              "text": "scaled",
+              "xMin": 235.27,
+              "xMax": 263.81
+            },
+            {
+              "text": "to",
+              "xMin": 267.45,
+              "xMax": 277.14
+            },
+            {
+              "text": "half",
+              "xMin": 280.79,
+              "xMax": 298.66
+            },
+            {
+              "text": "the",
+              "xMin": 302.3,
+              "xMax": 317.45
+            },
+            {
+              "text": "line",
+              "xMin": 321.09,
+              "xMax": 338.06
+            },
+            {
+              "text": "width.",
+              "xMin": 341.69,
+              "xMax": 371.99
+            }
+          ]
+        },
+        {
+          "text": "Figure 1: A plot at its natural size.",
+          "xMin": 212.75,
+          "yMin": 277.67,
+          "xMax": 381.56,
+          "yMax": 287.36,
+          "words": [
+            {
+              "text": "Figure",
+              "xMin": 212.75,
+              "xMax": 243.53
+            },
+            {
+              "text": "1:",
+              "xMin": 247.17,
+              "xMax": 255.65
+            },
+            {
+              "text": "A",
+              "xMin": 260.51,
+              "xMax": 268.69
+            },
+            {
+              "text": "plot",
+              "xMin": 272.32,
+              "xMax": 291.11
+            },
+            {
+              "text": "at",
+              "xMin": 294.74,
+              "xMax": 304.44
+            },
+            {
+              "text": "its",
+              "xMin": 308.08,
+              "xMax": 319.66
+            },
+            {
+              "text": "natural",
+              "xMin": 323.29,
+              "xMax": 357.87
+            },
+            {
+              "text": "size.",
+              "xMin": 361.5,
+              "xMax": 381.56
+            }
+          ]
+        },
+        {
+          "text": "Text continues after the first figure and is long enough to wrap onto a",
+          "xMin": 134.76,
+          "yMin": 303.18,
+          "xMax": 476.48,
+          "yMax": 312.86,
+          "words": [
+            {
+              "text": "Text",
+              "xMin": 134.76,
+              "xMax": 156.59
+            },
+            {
+              "text": "continues",
+              "xMin": 160.74,
+              "xMax": 205.05
+            },
+            {
+              "text": "after",
+              "xMin": 209.22,
+              "xMax": 231.37
+            },
+            {
+              "text": "the",
+              "xMin": 235.53,
+              "xMax": 250.68
+            },
+            {
+              "text": "first",
+              "xMin": 254.85,
+              "xMax": 273.73
+            },
+            {
+              "text": "figure",
+              "xMin": 277.89,
+              "xMax": 304.59
+            },
+            {
+              "text": "and",
+              "xMin": 308.76,
+              "xMax": 326.34
+            },
+            {
+              "text": "is",
+              "xMin": 330.49,
+              "xMax": 337.82
+            },
+            {
+              "text": "long",
+              "xMin": 341.99,
+              "xMax": 361.99
+            },
+            {
+              "text": "enough",
+              "xMin": 366.16,
+              "xMax": 400.1
+            },
+            {
+              "text": "to",
+              "xMin": 404.26,
+              "xMax": 413.95
+            },
+            {
+              "text": "wrap",
+              "xMin": 418.12,
+              "xMax": 441.79
+            },
+            {
+              "text": "onto",
+              "xMin": 445.96,
+              "xMax": 466.86
+            },
+            {
+              "text": "a",
+              "xMin": 471.03,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "second line, so the spacing after a figure can be measured.",
+          "xMin": 117.83,
+          "yMin": 316.73,
+          "xMax": 395.74,
+          "yMax": 326.41,
+          "words": [
+            {
+              "text": "second",
+              "xMin": 117.83,
+              "xMax": 149.4
+            },
+            {
+              "text": "line,",
+              "xMin": 153.04,
+              "xMax": 173.04
+            },
+            {
+              "text": "so",
+              "xMin": 176.68,
+              "xMax": 186.44
+            },
+            {
+              "text": "the",
+              "xMin": 190.07,
+              "xMax": 205.22
+            },
+            {
+              "text": "spacing",
+              "xMin": 208.85,
+              "xMax": 244.07
+            },
+            {
+              "text": "after",
+              "xMin": 247.71,
+              "xMax": 269.86
+            },
+            {
+              "text": "a",
+              "xMin": 273.5,
+              "xMax": 278.95
+            },
+            {
+              "text": "figure",
+              "xMin": 282.58,
+              "xMax": 309.28
+            },
+            {
+              "text": "can",
+              "xMin": 312.92,
+              "xMax": 329.29
+            },
+            {
+              "text": "be",
+              "xMin": 332.92,
+              "xMax": 344.14
+            },
+            {
+              "text": "measured.",
+              "xMin": 347.77,
+              "xMax": 395.74
+            }
+          ]
+        },
+        {
+          "text": "Figure 2: A bar chart scaled to half the line width.",
+          "xMin": 175.19,
+          "yMin": 443.98,
+          "xMax": 419.12,
+          "yMax": 453.66,
+          "words": [
+            {
+              "text": "Figure",
+              "xMin": 175.19,
+              "xMax": 205.97
+            },
+            {
+              "text": "2:",
+              "xMin": 209.61,
+              "xMax": 218.09
+            },
+            {
+              "text": "A",
+              "xMin": 222.95,
+              "xMax": 231.13
+            },
+            {
+              "text": "bar",
+              "xMin": 234.76,
+              "xMax": 250.55
+            },
+            {
+              "text": "chart",
+              "xMin": 254.18,
+              "xMax": 278.76
+            },
+            {
+              "text": "scaled",
+              "xMin": 282.4,
+              "xMax": 310.95
+            },
+            {
+              "text": "to",
+              "xMin": 314.58,
+              "xMax": 324.28
+            },
+            {
+              "text": "half",
+              "xMin": 327.91,
+              "xMax": 345.79
+            },
+            {
+              "text": "the",
+              "xMin": 349.43,
+              "xMax": 364.58
+            },
+            {
+              "text": "line",
+              "xMin": 368.22,
+              "xMax": 385.19
+            },
+            {
+              "text": "width.",
+              "xMin": 388.82,
+              "xMax": 419.12
+            }
+          ]
+        },
+        {
+          "text": "After both figures the text continues.",
+          "xMin": 134.76,
+          "yMin": 469.48,
+          "xMax": 312.53,
+          "yMax": 479.17,
+          "words": [
+            {
+              "text": "After",
+              "xMin": 134.76,
+              "xMax": 159.64
+            },
+            {
+              "text": "both",
+              "xMin": 163.28,
+              "xMax": 185.4
+            },
+            {
+              "text": "figures",
+              "xMin": 189.03,
+              "xMax": 220.03
+            },
+            {
+              "text": "the",
+              "xMin": 223.68,
+              "xMax": 238.83
+            },
+            {
+              "text": "text",
+              "xMin": 242.46,
+              "xMax": 261.55
+            },
+            {
+              "text": "continues.",
+              "xMin": 265.19,
+              "xMax": 312.53
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
