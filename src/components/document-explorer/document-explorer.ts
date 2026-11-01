@@ -8,6 +8,7 @@ import { shortHash } from '../../workspace/versions.ts';
 import { bibStore } from '../../store/bib-store.ts';
 import type { BibStoreState } from '../../store/bib-store.ts';
 import type { BibFileMeta } from '../../workspace/bib-library.ts';
+import '../image-panel/image-panel.ts';
 import template from './document-explorer.html?raw';
 import style from './document-explorer.css?raw';
 

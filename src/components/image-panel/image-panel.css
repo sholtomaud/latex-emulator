@@ -1,0 +1,109 @@
+/* Images: the open document's folder for \includegraphics (ADR 0013). */
+:host {
+  display: block;
+  border-top: 1px solid var(--boba-border);
+}
+
+:host .images.dragging {
+  outline: 2px dashed var(--boba-accent, currentColor);
+  outline-offset: -4px;
+}
+
+:host .image-empty,
+:host .image-status {
+  margin: 0;
+  padding: 0 0.75rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--boba-text-muted);
+  overflow-wrap: anywhere;
+}
+
+:host .image-status:empty {
+  display: none;
+}
+
+:host .image-list,
+:host .reuse-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0.5rem;
+}
+
+:host .image-item,
+:host .reuse-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+}
+
+:host .image-item:hover,
+:host .image-item:focus-within {
+  background: var(--boba-border);
+}
+
+:host .image-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+:host .image-name {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host .image-meta {
+  font-size: 0.7rem;
+  color: var(--boba-text-muted);
+}
+
+:host .image-actions {
+  display: flex;
+  opacity: 0;
+}
+
+:host .image-item:hover .image-actions,
+:host .image-item:focus-within .image-actions {
+  opacity: 1;
+}
+
+:host .image-name-input {
+  font: inherit;
+  font-size: 0.85rem;
+  min-width: 0;
+  padding: 0.125rem 0.25rem;
+  border: 1px solid var(--boba-border);
+  border-radius: 0.25rem;
+  background: var(--boba-bg);
+  color: var(--boba-text);
+}
+
+:host .image-reuse {
+  padding: 0 0.5rem 0.5rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+:host .image-reuse summary {
+  cursor: pointer;
+  color: var(--boba-text-muted);
+  padding: 0.25rem 0;
+}
+
+:host .reuse-item {
+  padding-left: 0;
+}
+
+:host .reuse-add {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--boba-border);
+  border-radius: 0.25rem;
+  background: var(--boba-bg);
+  color: var(--boba-text);
+  cursor: pointer;
+}

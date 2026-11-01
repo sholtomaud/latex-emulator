@@ -21,6 +21,8 @@ export interface DocumentStructure {
   documentClass?: DocumentClass;
   packages: string[];
   metadata: DocumentMetadata;
+  /** \graphicspath{{dir/}…}: where \includegraphics also looks. */
+  graphicsPath: string[];
   /** True when the source has \begin{document}. */
   hasDocumentEnvironment: boolean;
   /** What gets typeset: the document environment's body, or everything. */
@@ -52,6 +54,7 @@ export function analyzeDocument(root: RootNode): DocumentStructure {
   const diagnostics: Diagnostic[] = [];
   const packages: string[] = [];
   const metadata: DocumentMetadata = {};
+  const graphicsPath: string[] = [];
   let documentClass: DocumentClass | undefined;
   let classNode: CommandNode | undefined;
 
@@ -83,6 +86,11 @@ export function analyzeDocument(root: RootNode): DocumentStructure {
             .map((p) => p.trim())
             .filter(Boolean)
         );
+        break;
+      case 'graphicspath':
+        for (const g of mandatory[0]?.children ?? [])
+          if (g.kind === 'group')
+            graphicsPath.push(plainText(g.children).trim());
         break;
       case 'title':
       case 'author':
@@ -128,7 +136,9 @@ export function analyzeDocument(root: RootNode): DocumentStructure {
         (n) =>
           !(
             n.kind === 'command' &&
-            ['usepackage', 'title', 'author', 'date'].includes(n.name)
+            ['usepackage', 'title', 'author', 'date', 'graphicspath'].includes(
+              n.name
+            )
           )
       );
   } else body = root.children;
@@ -137,6 +147,7 @@ export function analyzeDocument(root: RootNode): DocumentStructure {
     documentClass,
     packages,
     metadata,
+    graphicsPath,
     hasDocumentEnvironment: !!docEnv,
     body,
     diagnostics,

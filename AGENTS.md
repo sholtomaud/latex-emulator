@@ -165,9 +165,12 @@ were removed. Grow toward:
 src/
 ├── main.ts                       # routes, boot, SW registration
 ├── core/                         # Boba core (base-component, router, store)
-├── store/                        # app stores: document, diagnostics, workspace, ui, print
+├── store/                        # app stores: document, diagnostics, workspace, ui, print,
+│                                 #   bib, images
 ├── storage/                      # DocumentRepository (documents + versions):
 │                                 #   IndexedDB + in-memory
+├── images/                       # pure: image headers (pdfTeX natural size),
+│                                 #   graphicx name resolution (ADR 0013)
 ├── references/                   # pure: DOI/URL input, CSL-JSON → BibTeX, citation
 │                                 #   keys, .bib cleaning (ADR 0008)
 ├── workspace/                    # documents: pure Workspace logic, names, and the
@@ -177,6 +180,7 @@ src/
 │   ├── latex-editor/             # Monaco host element
 │   ├── latex-preview/            # iframe preview + print trigger
 │   ├── document-explorer/        # left-hand document list (Ctrl/⌘+B)
+│   ├── image-panel/              # the open document's images (in the explorer)
 │   ├── diagnostics-panel/        # problems list
 │   └── outline-panel/            # section tree
 ├── latex/                        # PURE TS — no DOM access, runs in Node tests
@@ -271,10 +275,13 @@ document (ADR 0003).
   `\hline`, `\cline`, `\multicolumn`), `booktabs` rules and `\cmidrule`,
   and the `table` float with `\caption`, `\label` and `\ref`. Floats are
   set where they are written (as `[h]`).
+- Figures (ADR 0013): the `figure` float and graphicx's `\includegraphics`
+  (PNG and JPEG drawn at pdfTeX's natural size, PDF figures as a framed box;
+  `width`, `height`, `scale`, `keepaspectratio`, `angle` in quarter turns,
+  `draft`) and `\graphicspath`, from the document's own Images folder.
 
 **Tier 2:** `\newcommand`/`\renewcommand` (with optional-arg defaults),
-`figure` + `\caption`, `\includegraphics` (local images
-from the project store), `abstract`,
+`abstract`,
 `\hyperref`/`\href`/`\url`, `twocolumn`, `geometry` package options.
 
 **Tier 3 (stretch):** `theorem`-style environments,
@@ -396,9 +403,12 @@ on-screen pages, implement our own lightweight paginator in
   `createElement`, `textContent`, `setAttribute` and `createElementNS` (MathML).
   **Never** pass user-derived strings to `innerHTML`, `outerHTML`,
   `insertAdjacentHTML`, `document.write`, `eval` or `new Function`.
-- URLs from `\href`/`\url`/`\includegraphics` are validated: allow only `http:`,
-  `https:`, `mailto:` and project-local asset references. Reject `javascript:`
-  and `data:` (except our own image blobs).
+- URLs from `\href`/`\url` are validated: allow only `http:`, `https:` and
+  `mailto:`. Reject `javascript:` and `data:`. `\includegraphics` never
+  takes a URL: it names a file in the document's Images, and the only image
+  sources in the preview are `blob:` URLs the app made for those files
+  (`to-dom.ts` drops any other `src`; CSP `img-src 'self' data: blob:`,
+  ADR 0013).
 - Keep Boba's CSP meta tag. Tighten it over time (drop `'unsafe-inline'` for
   scripts) and add `worker-src 'self' blob:` as Monaco/Vite workers require.
   Document every relaxation in an ADR.
@@ -487,7 +497,8 @@ the commit message.
   tolerance, asserted in an expected-failure test (`math-basic`: the line
   after a `\sqrt` display). Fixtures can also check equation numbers
   (`eqnos`) and skip display-math lines in the line-break check
-  (`displayLines`).
+  (`displayLines`). A fixture's `images/` folder is added to the
+  document's Images before rendering (`figure-basic`).
   Tighten these tolerances as fidelity improves; never loosen them to get
   green. `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
 
@@ -545,8 +556,8 @@ chosen branch.
   Vite plugin may emit the precache list of hashed assets at build time.
 - The app must be fully functional offline after first load, including
   diagnostics, spelling, preview and PDF.
-- Persist documents and `.bib` files in IndexedDB (`src/storage/`, ADRs
-  0005 and 0007), falling back to
+- Persist documents, `.bib` files and images in IndexedDB (`src/storage/`,
+  ADRs 0005, 0007 and 0013), falling back to
   memory when IndexedDB is unavailable. The app may be open in several tabs
   across a schema upgrade: every connection closes on `versionchange`
   (after saving), and a blocked upgrade shows a notice instead of hanging
@@ -622,10 +633,12 @@ chosen branch.
 8. ✅ Math: TeX → MathML Core with Latin Modern Math (`equation`, `align`,
    `gather`, `multline`, fractions, roots, matrices…); numbered displays;
    `\label`/`\ref`/`\eqref` in two passes; `\tableofcontents` (ADR 0010).
-9. Figures and tables. ✅ `tabular`, `booktabs`, the `table` float and
+9. ✅ Figures and tables. `tabular`, `booktabs`, the `table` float and
    `\caption`, checked against pdflatex, with ties at TeX's width
-   (ADR 0012). Still to do: `figure` and `\includegraphics` (upload, URL,
-   Zotero; stored in IndexedDB).
+   (ADR 0012). The `figure` float and `\includegraphics` from per-document
+   Images folders (upload, drag-and-drop, paste, reuse across documents
+   without copies; IndexedDB), checked against pdflatex (ADR 0013). Later:
+   Zotero attachments, `\includegraphics` typeahead.
 10. Code: `listings` (`lstlisting`, `\lstinline`) and `algorithm` +
     `algpseudocode` for pseudocode. No invented `\code` command.
 11. `elsarticle` class (Elsevier), checked against pdflatex.
