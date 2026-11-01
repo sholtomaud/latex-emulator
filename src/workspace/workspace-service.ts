@@ -15,7 +15,8 @@ import type { Bump } from './versions.ts';
 import { BibLibrary } from './bib-library.ts';
 import { bibStore } from '../store/bib-store.ts';
 import { SAMPLE_REFERENCES } from '../store/sample-references.ts';
-import { lookupReference } from '../references/lookup.ts';
+import { entryFromCsl, lookupReference } from '../references/lookup.ts';
+import { searchZotero } from '../references/zotero.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -25,6 +26,8 @@ import { lookupReference } from '../references/lookup.ts';
 const AUTOSAVE_MS = 400;
 let workspace: Workspace | null = null;
 let library: BibLibrary | null = null;
+/** The Zotero web API key: this session only, never stored (like budget-app's ADR 0020). */
+let zoteroKey = '';
 
 const BLOCKED_NOTICE =
   'Close other LaTeX Emulator tabs or windows so the app can finish updating.';
@@ -85,6 +88,12 @@ export async function startWorkspace(): Promise<void> {
     seeded ? undefined : { name: 'references', source: SAMPLE_REFERENCES }
   );
   writePref('bib-seeded', 'true');
+  bibStore.setState({
+    zotero: {
+      source: readPref('zotero-source') === 'web' ? 'web' : 'local',
+      userId: readPref('zotero-user') ?? '',
+    },
+  });
 
   const saveLater = debounce(() => void flush(), AUTOSAVE_MS);
   documentStore.addEventListener('change', ((_e: CustomEvent<DocumentState>) =>
@@ -178,6 +187,47 @@ export const workspaceActions = {
         ? `Cleaned ${name}.bib (${changes.length} ${changes.length === 1 ? 'fix' : 'fixes'}): ${changes.join('; ')}.`
         : `${name}.bib is tidy: layout only, no fixes needed.`,
     });
+  },
+  setZotero: (source: 'local' | 'web', userId: string, apiKey?: string) => {
+    if (apiKey !== undefined) zoteroKey = apiKey;
+    writePref('zotero-source', source);
+    writePref('zotero-user', userId.trim());
+    bibStore.setState({ zotero: { source, userId: userId.trim() } });
+  },
+  searchZotero: async (query: string) => {
+    const { source, userId } = bibStore.getState().zotero;
+    bibStore.setState({ status: 'Searching Zotero…', zoteroHits: [] });
+    const r = await searchZotero(
+      source === 'web'
+        ? { kind: 'web', userId, apiKey: zoteroKey }
+        : { kind: 'local' },
+      query,
+      { fetch: (...args) => fetch(...args) }
+    );
+    bibStore.setState(
+      r.ok
+        ? {
+            zoteroHits: r.hits,
+            status: r.hits.length
+              ? `${r.hits.length} ${r.hits.length === 1 ? 'item' : 'items'} in Zotero.`
+              : 'Nothing in Zotero matches.',
+          }
+        : { status: r.message }
+    );
+  },
+  /** Add the Zotero search result at `index` to `fileName`.bib. */
+  addZoteroHit: async (index: number, fileName: string) => {
+    const hit = bibStore.getState().zoteroHits[index];
+    if (!library || !hit) return;
+    try {
+      const { key, text } = entryFromCsl(hit.csl, library.keys());
+      await library.addEntry(fileName, text);
+      bibStore.setState({
+        status: `Added ${key} to ${fileName}.bib. Cite it with \\citep{${key}}.`,
+      });
+    } catch {
+      bibStore.setState({ status: 'That Zotero item could not be converted.' });
+    }
   },
   deleteBib: async (name: string) => {
     await library?.delete(name);

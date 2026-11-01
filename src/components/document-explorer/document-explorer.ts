@@ -85,6 +85,7 @@ export class DocumentExplorerComponent extends BaseComponent {
         button.disabled = false;
       }
     });
+    this.setUpZotero();
     this.renderBib(bibStore.getState());
     bibStore.addEventListener('change', ((e: CustomEvent<BibStoreState>) =>
       this.renderBib(e.detail)) as EventListener);
@@ -106,7 +107,67 @@ export class DocumentExplorerComponent extends BaseComponent {
     this.versionsEmpty.hidden = versions.length > 0;
   }
 
-  renderBib({ files, status }: BibStoreState) {
+  setUpZotero() {
+    const source = this.querySelector<HTMLSelectElement>('.zotero-source')!;
+    const user = this.querySelector<HTMLInputElement>('.zotero-user')!;
+    const key = this.querySelector<HTMLInputElement>('.zotero-key')!;
+    const { zotero } = bibStore.getState();
+    source.value = zotero.source;
+    user.value = zotero.userId;
+    const save = (withKey: boolean) =>
+      workspaceActions.setZotero(
+        source.value === 'web' ? 'web' : 'local',
+        user.value,
+        withKey ? key.value : undefined
+      );
+    source.addEventListener('change', () => save(false));
+    user.addEventListener('change', () => save(false));
+    key.addEventListener('change', () => save(true));
+    const form = this.querySelector<HTMLFormElement>('.zotero-search')!;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      void workspaceActions.searchZotero(
+        form.querySelector<HTMLInputElement>('.zotero-query')!.value
+      );
+    });
+  }
+
+  renderZotero({ zotero, zoteroHits }: BibStoreState) {
+    const source = this.querySelector<HTMLSelectElement>('.zotero-source')!;
+    if (source.value !== zotero.source) source.value = zotero.source;
+    // Preferences load after start-up; don't overwrite while it is edited.
+    const user = this.querySelector<HTMLInputElement>('.zotero-user')!;
+    if (document.activeElement !== user && user.value !== zotero.userId)
+      user.value = zotero.userId;
+    this.querySelector<HTMLElement>('.zotero-web')!.hidden =
+      zotero.source !== 'web';
+    const template = this.querySelector<HTMLTemplateElement>(
+      '.zotero-hit-template'
+    )!;
+    this.querySelector('.zotero-hits')!.replaceChildren(
+      ...zoteroHits.map((hit, index) => {
+        const li = (template.content.cloneNode(true) as DocumentFragment)
+          .firstElementChild as HTMLLIElement;
+        li.querySelector('.hit-title')!.textContent = hit.title;
+        li.querySelector('.hit-meta')!.textContent = [hit.creators, hit.year]
+          .filter(Boolean)
+          .join(', ');
+        const add = li.querySelector<HTMLButtonElement>('.hit-add')!;
+        const target = this.refFile.value || 'references';
+        add.setAttribute('aria-label', `Add “${hit.title}” to ${target}.bib`);
+        add.addEventListener('click', () =>
+          workspaceActions.addZoteroHit(
+            index,
+            this.refFile.value || 'references'
+          )
+        );
+        return li;
+      })
+    );
+  }
+
+  renderBib(state: BibStoreState) {
+    const { files, status } = state;
     this.bibList.replaceChildren(...files.map((f) => this.renderBibFile(f)));
     // Target file for new references: keep the choice when it still exists.
     const chosen = this.refFile.value;
@@ -120,6 +181,8 @@ export class DocumentExplorerComponent extends BaseComponent {
       })
     );
     if (names.includes(chosen)) this.refFile.value = chosen;
+    // After the file options, so "Add … to <file>" names the right file.
+    this.renderZotero(state);
     this.querySelector<HTMLElement>('.bib-empty')!.hidden = files.length > 0;
     this.querySelector('.bib-status')!.textContent = status;
   }

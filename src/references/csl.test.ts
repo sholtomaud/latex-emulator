@@ -175,3 +175,15 @@ describe('cslToEntry', () => {
     assert.throws(() => cslToEntry([1]), /not a CSL-JSON record/);
   });
 });
+
+describe('cslToEntry: Zotero date shapes', () => {
+  test('string date parts and raw dates', () => {
+    const year = (issued: unknown) =>
+      cslToEntry({ type: 'book', issued }).fields.find((f) => f.name === 'year')
+        ?.value;
+    assert.strictEqual(year({ 'date-parts': [['2004', '10']] }), '2004');
+    assert.strictEqual(year({ raw: '2004-05-01' }), '2004');
+    assert.strictEqual(year({ literal: 'circa 1850' }), '1850');
+    assert.strictEqual(year({ raw: 'undated' }), undefined);
+  });
+});
