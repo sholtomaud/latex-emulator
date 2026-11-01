@@ -121,8 +121,54 @@
         <button type="submit" class="add-reference-button">Add</button>
       </div>
     </form>
+    <details class="zotero">
+      <summary>Zotero</summary>
+      <div class="zotero-settings">
+        <select class="zotero-source" aria-label="Zotero library">
+          <option value="local">Zotero on this computer</option>
+          <option value="web">zotero.org web library</option>
+        </select>
+        <div class="zotero-web">
+          <input
+            class="zotero-user"
+            type="text"
+            inputmode="numeric"
+            aria-label="Zotero user ID"
+            placeholder="User ID (zotero.org/settings/keys)"
+            autocomplete="off"
+          />
+          <input
+            class="zotero-key"
+            type="password"
+            aria-label="Zotero API key"
+            placeholder="API key (kept for this session only)"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <form class="zotero-search" aria-label="Search Zotero">
+        <input
+          class="zotero-query"
+          type="search"
+          aria-label="Search Zotero"
+          placeholder="Author, title, year…"
+          required
+        />
+        <button type="submit" class="zotero-search-button">Search</button>
+      </form>
+      <ul class="zotero-hits" aria-label="Zotero results"></ul>
+    </details>
     <p class="bib-status" role="status"></p>
   </section>
+  <template class="zotero-hit-template">
+    <li class="zotero-hit">
+      <span class="hit-text">
+        <span class="hit-title"></span>
+        <span class="hit-meta"></span>
+      </span>
+      <button type="button" class="hit-add">Add</button>
+    </li>
+  </template>
   <template class="bib-item-template">
     <li class="bib-item">
       <span class="bib-text">

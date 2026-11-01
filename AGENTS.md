@@ -387,8 +387,11 @@ on-screen pages, implement our own lightweight paginator in
   scripts) and add `worker-src 'self' blob:` as Monaco/Vite workers require.
   Document every relaxation in an ADR.
 - No telemetry and no network calls with document content. The only
-  outbound requests are user-initiated DOI lookups to doi.org (and the
-  registration agencies it redirects to), carrying just that DOI (ADR 0008). Documents live in
+  outbound requests are user-initiated: DOI lookups to doi.org (and the
+  registration agencies it redirects to), carrying just that DOI (ADR 0008),
+  and Zotero searches (local API on localhost:23119 or api.zotero.org),
+  carrying just the search text and, for the web library, the session-only
+  API key (ADR 0009). Documents live in
   OPFS/IndexedDB on the user's device.
 
 ---
@@ -444,6 +447,9 @@ the commit message.
   because fonts and the Chromium build change pixels. Generate them with
   `npm run e2e:visual:update` (Docker) or the **"Update visual baselines"**
   GitHub workflow. Never commit baselines generated on a host OS.
+  Comparisons are exact (`maxDiffPixels: 0`): the pinned image renders
+  deterministically, and a ratio tolerance once let a whole new control
+  (156 changed pixels) pass silently.
 - **Fixtures and print fidelity.** `fixtures/<name>/` holds `input.tex` and
   real-`pdflatex` references: `reference.pdf`, `reference-page-N.png`, and
   `reference-lines.json` (every line's and word's box from
@@ -584,8 +590,10 @@ chosen branch.
    pdflatex (ADR 0007). ✅ Add references by DOI, doi.org/publisher/arXiv
    link or URL (doi.org content negotiation), `.bib` cleaning, and keys in
    Better BibTeX's `author_topic_year` form (ADR 0008).
-7. Zotero: web API (user ID + API key) and the local Zotero 7 API on
-   localhost:23119 (verify Chrome's private-network rules first).
+7. ✅ Zotero: search the local Zotero 7 API on localhost:23119 or the
+   zotero.org web library (user ID + session-only API key) and add results
+   to a `.bib` file (ADR 0009). Still to verify by hand against a real
+   Zotero: its CORS headers and Chrome's local-network prompt.
 8. Math: TeX → MathML (`align`, `equation`, fractions, matrices);
    `\label`/`\ref`/`\eqref`; `\tableofcontents`.
 9. Figures and tables: `figure`, `\includegraphics` (upload, URL, Zotero;

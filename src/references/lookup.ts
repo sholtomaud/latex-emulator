@@ -54,18 +54,28 @@ export async function lookupReference(
       ok: false,
       message: `doi.org answered ${response.status} for ${parsed.doi}.`,
     };
-  let entry;
   try {
-    entry = cslToEntry(JSON.parse(await response.text()));
+    return {
+      ...entryFromCsl(JSON.parse(await response.text()), taken),
+      from: 'doi',
+    };
   } catch {
     return {
       ok: false,
       message: `The answer for ${parsed.doi} is not a citation record.`,
     };
   }
+}
+
+/** A CSL-JSON record as a keyed .bib entry; throws when it isn't one. */
+export function entryFromCsl(
+  csl: unknown,
+  taken: Set<string>
+): { ok: true; key: string; text: string } {
+  const entry = cslToEntry(csl);
   const fields = new Map(entry.fields.map((f) => [f.name, f.value]));
   const key = citeKey({ fields }, taken);
-  return { ok: true, key, text: serializeEntry(key, entry), from: 'doi' };
+  return { ok: true, key, text: serializeEntry(key, entry) };
 }
 
 function fromUrl(url: string, today: Date, taken: Set<string>): LookupResult {

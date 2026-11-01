@@ -143,6 +143,10 @@ function date(record: Csl): number[] | undefined {
       record[field] as { 'date-parts'?: unknown[][] } | undefined
     )?.['date-parts']?.[0];
     if (Array.isArray(parts) && parts[0] != null) return parts.map(Number);
+    // Zotero sometimes sends an unparsed date instead of date parts.
+    const d = record[field] as { raw?: unknown; literal?: unknown } | undefined;
+    const year = /\b(\d{4})\b/.exec(String(d?.raw ?? d?.literal ?? ''));
+    if (year) return [Number(year[1])];
   }
   return undefined;
 }
