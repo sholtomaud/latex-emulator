@@ -240,3 +240,63 @@ describe('numerical natbib (expected text from real pdflatex + natbib)', () => {
     );
   });
 });
+
+describe('undefined citations say why', () => {
+  const PATTEN =
+    '@article{patten_information_1963, author = {Patten, B. C.}, title = {Information processing behavior of a natural plankton community}, journal = {Am. Zool.}, year = {1963}}';
+  const message = (src: string, bibFiles: Record<string, string>) =>
+    renderDocument(src, { bibFiles, bstStyles }).diagnostics.find(
+      (d) => d.code === 'ref/undefined-citation'
+    )?.message;
+  const doc = (bib: string) =>
+    `\\documentclass{article}\\usepackage{natbib}\\begin{document}\\citeauthor{patten_information_1963}${bib}\\end{document}`;
+
+  test('the key is in a library file that \\bibliography does not list', () => {
+    assert.strictEqual(
+      message(doc('\\bibliographystyle{plainnat}\\bibliography{references}'), {
+        references: bib,
+        mylib: PATTEN,
+      }),
+      'Citation "patten_information_1963" is in mylib.bib, which \\bibliography{references} doesn’t list. Use \\bibliography{references,mylib}.'
+    );
+  });
+
+  test('the document has no \\bibliography', () => {
+    assert.strictEqual(
+      message(doc(''), { mylib: PATTEN }),
+      'Citation "patten_information_1963" is in mylib.bib, but the document has no \\bibliography. Add \\bibliographystyle{plainnat} and \\bibliography{mylib} where the references should appear.'
+    );
+  });
+
+  test('the file is listed but BibTeX could not read that entry', () => {
+    const broken = `@article{ok_2000, title = {OK}, year = 2000}\n\n@article{patten_information_1963,\n  title = {Unclosed,\n  year = 1963\n`;
+    assert.match(
+      message(doc('\\bibliographystyle{plainnat}\\bibliography{mylib}'), {
+        mylib: broken,
+      }) ?? '',
+      /^Citation "patten_information_1963" is in mylib\.bib, but BibTeX could not read that entry: Unbalanced braces \(line \d+\)\.$/
+    );
+  });
+
+  test('matching is case-insensitive, like BibTeX', () => {
+    assert.match(
+      message(doc('\\bibliographystyle{plainnat}\\bibliography{references}'), {
+        references: bib,
+        mylib: PATTEN.replace(
+          'patten_information_1963',
+          'Patten_Information_1963'
+        ),
+      }) ?? '',
+      /is in mylib\.bib/
+    );
+  });
+
+  test('a key that is nowhere is reported as before', () => {
+    assert.strictEqual(
+      message(doc('\\bibliographystyle{plainnat}\\bibliography{references}'), {
+        references: bib,
+      }),
+      'Citation "patten_information_1963" is undefined: it is not in any .bib file in the references library.'
+    );
+  });
+});

@@ -44,9 +44,15 @@ async function openZotero(page: Page) {
 
 const answer =
   (requests: { url: string; key?: string }[]) => (route: Route) => {
+    const headers = route.request().headers();
     requests.push({
       url: route.request().url(),
-      key: route.request().headers()['zotero-api-key'],
+      key: headers['zotero-api-key'],
+      // Any custom header forces a CORS preflight, which Zotero's local
+      // server doesn't answer: the version must travel in the URL.
+      ...(headers['zotero-api-version']
+        ? { version: headers['zotero-api-version'] }
+        : {}),
     });
     return route.fulfill({
       status: 200,
@@ -77,7 +83,7 @@ test.describe('Zotero', () => {
     );
     expect(requests).toEqual([
       {
-        url: 'http://localhost:23119/api/users/0/items/top?format=csljson&limit=25&q=odum+energy',
+        url: 'http://localhost:23119/api/users/0/items/top?v=3&format=csljson&limit=25&q=odum+energy',
         key: undefined,
       },
     ]);
@@ -138,7 +144,7 @@ test.describe('Zotero', () => {
     );
     expect(requests).toEqual([
       {
-        url: 'https://api.zotero.org/users/123456/items/top?format=csljson&limit=25&q=brown',
+        url: 'https://api.zotero.org/users/123456/items/top?v=3&format=csljson&limit=25&q=brown',
         key: 's3cret',
       },
     ]);

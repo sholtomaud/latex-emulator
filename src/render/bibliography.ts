@@ -4,6 +4,7 @@
  * from a hand-written thebibliography. Pure: no DOM.
  */
 import { parse } from '../latex/parser/parser.ts';
+import { parseBib } from '../latex/bibtex/bib-parser.ts';
 import { runBibtex } from '../latex/bibtex/bibtex.ts';
 import { keyText, toLatex } from '../latex/ast/to-latex.ts';
 import { plainText } from '../latex/document/structure.ts';
@@ -156,6 +157,59 @@ export interface Bibliography {
   environment?: EnvironmentNode;
   labels: Map<string, BibLabel>;
   diagnostics: Diagnostic[];
+  /** Why `key` has no bibliography entry, for the undefined-citation warning. */
+  explain(key: string): string;
+}
+
+/** The file names \bibliography lists, without .bib. */
+function listedFiles(scan: CitationScan): string[] {
+  return scan.bibliography
+    ? plainText(scan.bibliography.args.find((a) => !a.optional)?.children ?? [])
+        .split(',')
+        .map((n) => n.trim().replace(/\.bib$/, ''))
+        .filter(Boolean)
+    : [];
+}
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Say where an undefined citation's key actually is: in a file the document
+ * doesn't list, in a document with no \bibliography, in an entry BibTeX
+ * could not read, or nowhere.
+ */
+export function explainUndefined(
+  key: string,
+  scan: CitationScan,
+  bibFiles: Record<string, string>,
+  parsed: (name: string) => ReturnType<typeof parseBib> = (name) =>
+    parseBib(bibFiles[name])
+): string {
+  const lower = key.toLowerCase();
+  const listed = listedFiles(scan);
+  for (const [name, source] of Object.entries(bibFiles)) {
+    const { entries, warnings } = parsed(name);
+    const readable = entries.some((e) => e.key.toLowerCase() === lower);
+    const written = new RegExp(
+      `@\\s*\\w+\\s*[{(]\\s*${escapeRegExp(key)}\\s*,`,
+      'i'
+    ).exec(source);
+    if (!readable && !written) continue;
+    if (!scan.bibliography)
+      return `Citation "${key}" is in ${name}.bib, but the document has no \\bibliography. Add \\bibliographystyle{plainnat} and \\bibliography{${name}} where the references should appear.`;
+    if (!listed.includes(name))
+      return `Citation "${key}" is in ${name}.bib, which \\bibliography{${listed.join(',')}} doesn’t list. Use \\bibliography{${[...listed, name].join(',')}}.`;
+    if (!readable) {
+      const line = source.slice(0, written!.index).split('\n').length;
+      const problem =
+        warnings.find((w) => {
+          const at = /\(line (\d+)\)/.exec(w);
+          return at && Number(at[1]) >= line;
+        }) ?? warnings[0];
+      return `Citation "${key}" is in ${name}.bib, but BibTeX could not read that entry${problem ? `: ${problem}` : ''}.`;
+    }
+  }
+  return `Citation "${key}" is undefined: it is not in any .bib file in the references library.`;
 }
 
 const FALLBACK_STYLE = 'plainnat';
@@ -236,5 +290,18 @@ export function buildBibliography(
     }
   }
   for (const env of scan.environments) bibitemLabels(env, labels);
-  return { environment, labels, diagnostics };
+  // Parsed once per render, only when a citation is undefined.
+  const cache = new Map<string, ReturnType<typeof parseBib>>();
+  return {
+    environment,
+    labels,
+    diagnostics,
+    explain: (key) => {
+      const files = options.bibFiles ?? {};
+      return explainUndefined(key, scan, files, (name) => {
+        if (!cache.has(name)) cache.set(name, parseBib(files[name]));
+        return cache.get(name)!;
+      });
+    },
+  };
 }

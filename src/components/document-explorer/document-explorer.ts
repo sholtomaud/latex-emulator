@@ -120,6 +120,10 @@ export class DocumentExplorerComponent extends BaseComponent {
         user.value,
         withKey ? key.value : undefined
       );
+    // A form (so the password field is in one); there is nothing to submit.
+    this.querySelector('.zotero-settings')!.addEventListener('submit', (e) =>
+      e.preventDefault()
+    );
     source.addEventListener('change', () => save(false));
     user.addEventListener('change', () => save(false));
     key.addEventListener('change', () => save(true));

@@ -31,17 +31,19 @@ const ITEMS = [
 ];
 
 describe('zoteroSearchRequest', () => {
-  test('Zotero on this computer: the local API, user 0, no key', () => {
+  test('Zotero on this computer: a simple GET with no custom headers, so no CORS preflight', () => {
+    // Zotero's local server does not answer preflight (OPTIONS) requests,
+    // so the API version goes in the query (v=3) instead of a header.
     assert.deepStrictEqual(zoteroSearchRequest(LOCAL, 'odum energy'), {
-      url: 'http://localhost:23119/api/users/0/items/top?format=csljson&limit=25&q=odum+energy',
-      headers: { 'Zotero-API-Version': '3' },
+      url: 'http://localhost:23119/api/users/0/items/top?v=3&format=csljson&limit=25&q=odum+energy',
+      headers: {},
     });
   });
 
-  test('the web library: the user’s ID and API key', () => {
+  test('the web library: the user’s ID, and the API key as a header', () => {
     assert.deepStrictEqual(zoteroSearchRequest(WEB, 'brown'), {
-      url: 'https://api.zotero.org/users/123456/items/top?format=csljson&limit=25&q=brown',
-      headers: { 'Zotero-API-Version': '3', 'Zotero-API-Key': 'k3y' },
+      url: 'https://api.zotero.org/users/123456/items/top?v=3&format=csljson&limit=25&q=brown',
+      headers: { 'Zotero-API-Key': 'k3y' },
     });
   });
 });
