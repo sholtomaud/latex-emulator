@@ -31,7 +31,11 @@ export function zoteroSearchRequest(
   query: string,
   limit = LIMIT
 ): { url: string; headers: Record<string, string> } {
+  // The version is a query parameter, not a Zotero-API-Version header: any
+  // custom header makes the browser send a CORS preflight (OPTIONS), which
+  // Zotero's local server does not answer.
   const params = new URLSearchParams({
+    v: '3',
     format: 'csljson',
     limit: String(limit),
     q: query,
@@ -40,8 +44,9 @@ export function zoteroSearchRequest(
     source.kind === 'local'
       ? `${LOCAL_API}/users/0` // the local API's name for "my library"
       : `${WEB_API}/users/${encodeURIComponent(source.userId)}`;
-  const headers: Record<string, string> = { 'Zotero-API-Version': '3' };
-  if (source.kind === 'web') headers['Zotero-API-Key'] = source.apiKey;
+  // zotero.org answers preflights, so the key can travel as a header there.
+  const headers: Record<string, string> =
+    source.kind === 'web' ? { 'Zotero-API-Key': source.apiKey } : {};
   return { url: `${base}/items/top?${params}`, headers };
 }
 
@@ -117,7 +122,7 @@ export async function searchZotero(
       ok: false,
       message:
         source.kind === 'local'
-          ? `Zotero isn’t answering on this computer. Start Zotero 7 and turn on ${SETTING}. If your browser asks whether this site may reach devices on your local network, allow it.`
+          ? `Zotero isn’t answering on this computer, or it refused this site. Start Zotero 7 and turn on ${SETTING}. If your browser asks whether this site may reach devices on your local network, allow it.`
           : 'Couldn’t reach api.zotero.org. Check your connection and try again.',
     };
   }
