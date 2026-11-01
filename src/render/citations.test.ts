@@ -300,3 +300,69 @@ describe('undefined citations say why', () => {
     );
   });
 });
+
+describe('undefined citations come with a quick fix', () => {
+  const PATTEN =
+    '@article{patten_information_1963, title = {T}, year = {1963}}';
+  const diagnostic = (src: string, bibFiles: Record<string, string>) =>
+    renderDocument(src, { bibFiles, bstStyles }).diagnostics.find(
+      (d) => d.code === 'ref/undefined-citation'
+    );
+  const apply = (src: string, d: ReturnType<typeof diagnostic>) => {
+    const [fix] = d?.fixes ?? [];
+    assert.ok(fix, 'a fix');
+    let out = src;
+    for (const e of [...fix.edits].sort(
+      (a, b) => b.range.start - a.range.start
+    ))
+      out = out.slice(0, e.range.start) + e.text + out.slice(e.range.end);
+    return { title: fix.title, out };
+  };
+
+  test('a file \\bibliography does not list: add it', () => {
+    const src =
+      '\\documentclass{article}\\usepackage{natbib}\\begin{document}\\citet{patten_information_1963}\\bibliographystyle{plainnat}\\bibliography{references}\\end{document}';
+    const { title, out } = apply(
+      src,
+      diagnostic(src, { references: bib, mylib: PATTEN })
+    );
+    assert.strictEqual(title, 'Add mylib to \\bibliography');
+    assert.match(out, /\\bibliography\{references,mylib\}\\end\{document\}$/);
+    // Applying it resolves the citation.
+    assert.strictEqual(
+      diagnostic(out, { references: bib, mylib: PATTEN }),
+      undefined
+    );
+  });
+
+  test('no \\bibliography: add one before \\end{document}', () => {
+    const src =
+      '\\documentclass{article}\\usepackage{natbib}\\begin{document}\n\\citet{patten_information_1963}\n\\end{document}\n';
+    const { title, out } = apply(src, diagnostic(src, { mylib: PATTEN }));
+    assert.strictEqual(title, 'Add \\bibliography{mylib}');
+    assert.strictEqual(
+      out,
+      '\\documentclass{article}\\usepackage{natbib}\\begin{document}\n\\citet{patten_information_1963}\n\\bibliographystyle{plainnat}\n\\bibliography{mylib}\n\\end{document}\n'
+    );
+    assert.strictEqual(diagnostic(out, { mylib: PATTEN }), undefined);
+  });
+
+  test('no fix when the key is nowhere or unreadable', () => {
+    const src =
+      '\\documentclass{article}\\usepackage{natbib}\\begin{document}\\citet{nope}\\bibliographystyle{plainnat}\\bibliography{references}\\end{document}';
+    assert.strictEqual(diagnostic(src, { references: bib })?.fixes, undefined);
+  });
+});
+
+describe('bibliographyFiles', () => {
+  test('the files a document’s \\bibliography lists', async () => {
+    const { bibliographyFiles } = await import('./bibliography.ts');
+    assert.deepStrictEqual(
+      bibliographyFiles(
+        '\\begin{document}x\\bibliography{refs, more.bib}\\end{document}'
+      ),
+      ['refs', 'more']
+    );
+    assert.deepStrictEqual(bibliographyFiles('no bibliography'), []);
+  });
+});

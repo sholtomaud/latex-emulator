@@ -3,6 +3,7 @@ import { documentStore } from '../../store/document-store.ts';
 import { diagnosticsStore } from '../../store/diagnostics-store.ts';
 import type { DiagnosticsState } from '../../store/diagnostics-store.ts';
 import type { LatexEditor } from '../../language/monaco.ts';
+import { citationServices } from '../../workspace/workspace-service.ts';
 import template from './latex-editor.html?raw';
 import style from './latex-editor.css?raw';
 
@@ -30,7 +31,8 @@ export class LatexEditorComponent extends BaseComponent {
     this.editor = createLatexEditor(
       host,
       documentStore.getState().source,
-      (source) => documentStore.setState({ source })
+      (source) => documentStore.setState({ source }),
+      citationServices
     );
     host.removeAttribute('data-loading');
 

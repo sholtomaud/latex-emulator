@@ -61,3 +61,55 @@ export function toMarkers(
     };
   });
 }
+
+/** A text edit in Monaco's coordinates. */
+export interface EditData {
+  range: {
+    startLineNumber: number;
+    startColumn: number;
+    endLineNumber: number;
+    endColumn: number;
+  };
+  text: string;
+}
+
+/**
+ * The quick-fixes of diagnostics that overlap [start, end] (offsets), with
+ * their edits in Monaco's coordinates for `text`. A fix offered by several
+ * diagnostics (e.g. the same missing file) appears once.
+ */
+export function fixesAt(
+  diagnostics: Diagnostic[],
+  text: string,
+  start: number,
+  end: number
+): { title: string; edits: EditData[] }[] {
+  const map = createPositionMap(text);
+  const seen = new Set<string>();
+  const out: { title: string; edits: EditData[] }[] = [];
+  for (const d of diagnostics) {
+    if (d.range.end < start || d.range.start > end) continue;
+    for (const fix of d.fixes ?? []) {
+      const id = JSON.stringify(fix);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      out.push({
+        title: fix.title,
+        edits: fix.edits.map((e) => {
+          const a = map.toPosition(e.range.start);
+          const b = map.toPosition(e.range.end);
+          return {
+            range: {
+              startLineNumber: a.lineNumber,
+              startColumn: a.column,
+              endLineNumber: b.lineNumber,
+              endColumn: b.column,
+            },
+            text: e.text,
+          };
+        }),
+      });
+    }
+  }
+  return out;
+}

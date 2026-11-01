@@ -335,7 +335,8 @@ env('tabular', 'o m', 'A table.', { alignment: true });
 env('thebibliography', 'm', 'The bibliography: \\bibitem entries.');
 
 // Keys, labels and URLs are not text.
-for (const name of [
+/** Commands that cite (natbib and classic \\cite), not counting \\nocite. */
+export const CITE_COMMANDS: ReadonlySet<string> = new Set([
   'cite',
   'citet',
   'Citet',
@@ -351,6 +352,10 @@ for (const name of [
   'citeyear',
   'citeyearpar',
   'citenum',
+]);
+
+for (const name of [
+  ...CITE_COMMANDS,
   'nocite',
   'bibliography',
   'bibliographystyle',

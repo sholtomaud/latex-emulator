@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setSource } from '../support/editor.ts';
 
 /**
  * GitHub Pages deployment checks. Locally these run against the Pages build
@@ -52,5 +53,18 @@ test.describe('github pages', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       '404 - Page Not Found'
     );
+  });
+
+  test('citations resolve under the sub-path (the .bst styles load)', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    await setSource(
+      page,
+      '\\documentclass{article}\n\\usepackage{natbib}\n\\begin{document}\nSee \\citep{knuth_texbook_1984}.\n\\bibliographystyle{plainnat}\n\\bibliography{references}\n\\end{document}'
+    );
+    await expect(
+      page.frameLocator('latex-preview iframe').locator('article p').first()
+    ).toHaveText('See [Knuth, 1984].');
   });
 });

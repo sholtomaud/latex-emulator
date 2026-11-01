@@ -225,7 +225,16 @@ export function renderDocument(
   );
   const natbib = natbibPackageOptions(parsed.root.children);
   const scan = scanCitations(structure.body);
-  const bibliography = buildBibliography(scan, options);
+  const docEnv = parsed.root.children.find(
+    (n) => n.kind === 'environment' && n.name === 'document'
+  );
+  const bibliography = buildBibliography(scan, {
+    ...options,
+    // \end{document} is the last 14 characters of the environment.
+    endOfDocument: docEnv
+      ? docEnv.range.end - '\\end{document}'.length
+      : undefined,
+  });
   const punctuation = natbibOptions(natbib ?? [], styleName(scan));
   // natbib switches the whole document to numerical citations as soon as one
   // \bibitem has no author–year label.
@@ -674,14 +683,11 @@ class Renderer {
       mode,
       natbib
     );
-    for (const key of result.undefinedKeys)
-      this.warn(
-        c.range,
-        'ref/undefined-citation',
-        bibliography.explain(key),
-        'warning',
-        'ref'
-      );
+    for (const key of result.undefinedKeys) {
+      const { message, fixes } = bibliography.explain(key);
+      this.warn(c.range, 'ref/undefined-citation', message, 'warning', 'ref');
+      if (fixes) this.diagnostics[this.diagnostics.length - 1].fixes = fixes;
+    }
     return this.renderInline(parse(result.latex).root.children, ctx);
   }
 
