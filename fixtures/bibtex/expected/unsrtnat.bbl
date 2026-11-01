@@ -1,0 +1,125 @@
+\providecommand{\noopsort}[1]{}
+\begin{thebibliography}{20}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Odum(1996)]{odum_energy_1996}
+Howard~T. Odum.
+\newblock \emph{Environmental Accounting: {Emergy} and Environmental Decision
+  Making}.
+\newblock John Wiley \& Sons, New York, 1996.
+\newblock ISBN 978-0-471-11442-0.
+
+\bibitem[Brown and Ulgiati(2004)]{brown_emergy_2004}
+Mark~T. Brown and Sergio Ulgiati.
+\newblock Energy quality, emergy, and transformity: {H.T.} {Odum}'s
+  contributions to quantifying and understanding systems.
+\newblock \emph{Ecological Modelling}, 178\penalty0 (1--2):\penalty0 201--213,
+  May 2004.
+\newblock \doi{10.1016/j.ecolmodel.2003.12.032}.
+
+\bibitem[Hall et~al.(2014)Hall, Lambert, and Balogh]{hall_energy_2014}
+Charles A.~S. Hall, Jessica~G. Lambert, and Stephen~B. Balogh.
+\newblock {EROI} of different fuels and the implications for society.
+\newblock In Jane Smith and John Doe, editors, \emph{Proceedings of the Energy
+  Policy Workshop}, pages 141--152, 2014.
+\newblock URL \url{https://example.org/eroi}.
+
+\bibitem[van~der Waals(1873)]{waals_continuity_1873}
+Johannes~Diderik van~der Waals.
+\newblock On the continuity of the gaseous and liquid states.
+\newblock \emph{Doctoral Dissertation, " # "Leiden}, page~7, 1873.
+
+\bibitem[de~la Fontaine(1668)]{fontaine_fables_1668}
+Jean de~la Fontaine.
+\newblock \emph{Fables Choisies}, volume~1 of \emph{Classiques}.
+\newblock Claude Barbin, Paris, first edition, 1668.
+
+\bibitem[King(1963)]{king_letter_1963}
+Martin~Luther King, Jr.
+\newblock Letter from {Birmingham} jail.
+\newblock Pamphlet, April 1963.
+\newblock Widely reprinted.
+
+\bibitem[{World Health Organization}(2020)]{who_report_2020}
+{World Health Organization}.
+\newblock Global report on energy and health.
+\newblock Technical Report WHO/123, WHO, Geneva, 2020.
+
+\bibitem[{\"O}zt{\"u}rk(2010)]{ozturk_thesis_2010}
+Ay{\c s}e {\"O}zt{\"u}rk.
+\newblock \emph{Emergy Synthesis of {Turkish} Agriculture}.
+\newblock PhD thesis, University of Florida, 2010.
+
+\bibitem[Li(2015)]{li_masters_2015}
+Wei Li.
+\newblock Short names in bibliographies.
+\newblock {MSc} thesis, MIT, 2015.
+
+\bibitem[Ng et~al.(2012)Ng, Jordan, et~al.]{ng_chapter_2012}
+A.~Y. Ng, M.~I. Jordan, et~al.
+\newblock A chapter on learning.
+\newblock In Jean-Paul Sartre, editor, \emph{Advances in Learning}, chapter~3,
+  pages 1--20. Springer, 2012.
+
+\bibitem[Aristotle(-350)]{aristotle_physics}
+Aristotle.
+\newblock Physics.
+\newblock Manuscript, -350.
+
+\bibitem[R C(2023)]{r_manual_2023}
+\emph{R: A Language and Environment for Statistical Computing}.
+\newblock R Core Team, Vienna, Austria, 2023.
+\newblock URL \url{https://www.R-project.org/}.
+
+\bibitem[Anon()]{anon_booklet_1999}
+Anon.
+\newblock An anonymous booklet.
+\newblock Distributed at the conference, 1999.
+
+\bibitem[Smith and Doe(2014)]{energy_proc_2014}
+Jane Smith and John Doe, editors.
+\newblock \emph{Proceedings of the Energy Policy Workshop}, 2014. Energy Press.
+
+\bibitem[Doe(2014)]{crossref_paper_2014}
+John Doe.
+\newblock A paper inheriting its proceedings.
+\newblock In  \citet{energy_proc_2014}, pages 5--9.
+
+\bibitem[Tufte(1983)]{tufte_inbook_1983}
+Edward~R. Tufte.
+\newblock \emph{The Visual Display of Quantitative Information}, chapter~2,
+  pages 13--52.
+\newblock Graphics Press, 1983.
+
+\bibitem[Odum and Pinkerton(1955{\natexlab{a}})]{odum_maximum_1955}
+Howard~T. Odum and Richard~C. Pinkerton.
+\newblock Time's speed regulator: the optimum efficiency for maximum power
+  output in physical and biological systems.
+\newblock \emph{American Scientist}, 43:\penalty0 331--343, 1955{\natexlab{a}}.
+\newblock ISSN 0003-0996.
+
+\bibitem[Odum and Pinkerton(1955{\natexlab{b}})]{odum_maximum_1955b}
+Howard~T. Odum and Richard~C. Pinkerton.
+\newblock A second 1955 paper.
+\newblock \emph{American Scientist}, art. e17, 1955{\natexlab{b}}.
+
+\bibitem[{\O}stergaard et~al.(2001){\O}stergaard, {\l}ukasz {\'E}mile, de~la
+  {\ss}tra{\ss}e, {\o}rsted, and {\oe}hman]{foreign_letters}
+{\AE}lfred {\O}stergaard, {\l}ukasz {\'E}mile, X.~de~la {\ss}tra{\ss}e, {\i}da
+  {\o}rsted, and A~{\oe}hman.
+\newblock {\AE}sop {\oe}uvre {\'e}cole {\ss} {\i}{\j} {\l}{\l} {\o}{\o}
+  {\aa}{\aa} {\"u}ber: {\'{E}}tude {\TeX} {\`a} la {\c c}a{\c c}a, 2001.
+
+\bibitem[{\'e}tienne {\v{S}}koda et~al.(1750){\'e}tienne {\v{S}}koda,
+  {de}~Gaulle, Beethoven, d'Alembert, Charles Louis~de Secondat, and
+  Dickens]{von_cases}
+Jean {\'e}tienne {\v{S}}koda, Charles {de}~Gaulle, Ludwig~{van} Beethoven, Jean
+  le~Rond d'Alembert, Baron de~Montesquieu Charles Louis~de Secondat, and
+  {\relax Ch}arles Dickens.
+\newblock Von cases, 1750.
+
+\end{thebibliography}

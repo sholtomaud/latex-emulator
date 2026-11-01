@@ -78,6 +78,49 @@
       </span>
     </li>
   </template>
+  <section class="bib-files" aria-label="Bibliography">
+    <div class="explorer-header">
+      <h2 class="explorer-title">Bibliography</h2>
+      <div class="explorer-actions">
+        <button
+          type="button"
+          class="icon-button import-bib"
+          aria-label="Import .bib file"
+          title="Import a .bib file (BibTeX, e.g. exported from Zotero)"
+        >
+          <span aria-hidden="true">⇪</span>
+        </button>
+        <input
+          class="import-bib-input"
+          type="file"
+          accept=".bib,application/x-bibtex,text/x-bibtex,text/plain"
+          hidden
+        />
+      </div>
+    </div>
+    <p class="bib-empty">
+      No .bib files. Import one, then cite with <code>\citep{key}</code> and
+      list it with <code>\bibliography{name}</code>.
+    </p>
+    <ul class="bib-list"></ul>
+    <p class="bib-status" role="status"></p>
+  </section>
+  <template class="bib-item-template">
+    <li class="bib-item">
+      <span class="bib-text">
+        <code class="bib-name"></code>
+        <span class="bib-meta"></span>
+      </span>
+      <span class="bib-actions">
+        <button type="button" class="icon-button bib-download">
+          <span aria-hidden="true">⤓</span>
+        </button>
+        <button type="button" class="icon-button bib-delete">
+          <span aria-hidden="true">✕</span>
+        </button>
+      </span>
+    </li>
+  </template>
   <template class="doc-rename-template">
     <input class="doc-name-input" type="text" aria-label="Document name" />
   </template>

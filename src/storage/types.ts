@@ -20,6 +20,14 @@ export interface VersionRecord {
   source: string;
 }
 
+/** A .bib file in the references library, named as \bibliography{name} reads it. */
+export interface BibFile {
+  /** File name without .bib. */
+  name: string;
+  source: string;
+  updatedAt: number;
+}
+
 /** Where documents live. IndexedDB in the browser; in memory for tests. */
 export interface DocumentRepository {
   list(): Promise<StoredDocument[]>;
@@ -30,4 +38,8 @@ export interface DocumentRepository {
   listVersions(documentId: string): Promise<VersionRecord[]>;
   addVersion(version: VersionRecord): Promise<void>;
   deleteVersions(documentId: string): Promise<void>;
+  listBibFiles(): Promise<BibFile[]>;
+  /** Adds or replaces the file with this name. */
+  putBibFile(file: BibFile): Promise<void>;
+  deleteBibFile(name: string): Promise<void>;
 }

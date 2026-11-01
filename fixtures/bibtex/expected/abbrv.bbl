@@ -1,0 +1,109 @@
+\providecommand{\noopsort}[1]{}
+\begin{thebibliography}{10}
+
+\bibitem{anon_booklet_1999}
+An anonymous booklet.
+\newblock Distributed at the conference, 1999.
+
+\bibitem{aristotle_physics}
+Aristotle.
+\newblock Physics.
+\newblock Manuscript, -350.
+
+\bibitem{brown_emergy_2004}
+M.~T. Brown and S.~Ulgiati.
+\newblock Energy quality, emergy, and transformity: {H.T.} {Odum}'s
+  contributions to quantifying and understanding systems.
+\newblock {\em Ecological Modelling}, 178(1--2):201--213, May 2004.
+
+\bibitem{fontaine_fables_1668}
+J.~de~la Fontaine.
+\newblock {\em Fables Choisies}, volume~1 of {\em Classiques}.
+\newblock Claude Barbin, Paris, first edition, 1668.
+
+\bibitem{crossref_paper_2014}
+J.~Doe.
+\newblock A paper inheriting its proceedings.
+\newblock In Smith and Doe \cite{energy_proc_2014}, pages 5--9.
+
+\bibitem{von_cases}
+J.~{\'e}tienne {\v{S}}koda, C.~{de}~Gaulle, L.~v. Beethoven, J.~l.~R.
+  d'Alembert, B.~d.~M. Charles Louis~de Secondat, and {\relax Ch}.~Dickens.
+\newblock Von cases, 1750.
+
+\bibitem{hall_energy_2014}
+C.~A.~S. Hall, J.~G. Lambert, and S.~B. Balogh.
+\newblock {EROI} of different fuels and the implications for society.
+\newblock In J.~Smith and J.~Doe, editors, {\em Proceedings of the Energy
+  Policy Workshop}, pages 141--152, 2014.
+
+\bibitem{king_letter_1963}
+M.~L. King, Jr.
+\newblock Letter from {Birmingham} jail.
+\newblock Pamphlet, Apr. 1963.
+\newblock Widely reprinted.
+
+\bibitem{li_masters_2015}
+W.~Li.
+\newblock Short names in bibliographies.
+\newblock {MSc} thesis, MIT, 2015.
+
+\bibitem{ng_chapter_2012}
+A.~Y. Ng, M.~I. Jordan, et~al.
+\newblock A chapter on learning.
+\newblock In J.-P. Sartre, editor, {\em Advances in Learning}, chapter~3, pages
+  1--20. Springer, 2012.
+
+\bibitem{odum_energy_1996}
+H.~T. Odum.
+\newblock {\em Environmental Accounting: {Emergy} and Environmental Decision
+  Making}.
+\newblock John Wiley \& Sons, New York, 1996.
+
+\bibitem{odum_maximum_1955b}
+H.~T. Odum and R.~C. Pinkerton.
+\newblock A second 1955 paper.
+\newblock {\em American Scientist}, 1955.
+
+\bibitem{odum_maximum_1955}
+H.~T. Odum and R.~C. Pinkerton.
+\newblock Time's speed regulator: the optimum efficiency for maximum power
+  output in physical and biological systems.
+\newblock {\em American Scientist}, 43:331--343, 1955.
+
+\bibitem{foreign_letters}
+{\AE}.~{\O}stergaard, {\l}ukasz {\'E}mile, X.~de~la {\ss}tra{\ss}e,
+  {\i}.~{\o}rsted, and A.~{\oe}hman.
+\newblock {\AE}sop {\oe}uvre {\'e}cole {\ss} {\i}{\j} {\l}{\l} {\o}{\o}
+  {\aa}{\aa} {\"u}ber: {\'{E}}tude {\TeX} {\`a} la {\c c}a{\c c}a, 2001.
+
+\bibitem{ozturk_thesis_2010}
+A.~{\"O}zt{\"u}rk.
+\newblock {\em Emergy Synthesis of {Turkish} Agriculture}.
+\newblock PhD thesis, University of Florida, 2010.
+
+\bibitem{r_manual_2023}
+R Core Team, Vienna, Austria.
+\newblock {\em R: A Language and Environment for Statistical Computing}, 2023.
+
+\bibitem{energy_proc_2014}
+J.~Smith and J.~Doe, editors.
+\newblock {\em Proceedings of the Energy Policy Workshop}. Energy Press, 2014.
+
+\bibitem{tufte_inbook_1983}
+E.~R. Tufte.
+\newblock {\em The Visual Display of Quantitative Information}, chapter~2,
+  pages 13--52.
+\newblock Graphics Press, 1983.
+
+\bibitem{waals_continuity_1873}
+J.~D. van~der Waals.
+\newblock On the continuity of the gaseous and liquid states.
+\newblock {\em Doctoral Dissertation, " # "Leiden}, page~7, 1873.
+
+\bibitem{who_report_2020}
+{World Health Organization}.
+\newblock Global report on energy and health.
+\newblock Technical Report WHO/123, WHO, Geneva, 2020.
+
+\end{thebibliography}

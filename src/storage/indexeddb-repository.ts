@@ -1,14 +1,16 @@
 import type {
+  BibFile,
   DocumentRepository,
   StoredDocument,
   VersionRecord,
 } from './types.ts';
 
 const DB_NAME = 'latex-emulator';
-// v2 adds the versions store (ADR 0006).
-const DB_VERSION = 2;
+// v2 adds the versions store (ADR 0006); v3 the .bib files (ADR 0007).
+const DB_VERSION = 3;
 const STORE = 'documents';
 const VERSIONS = 'versions';
+const BIB_FILES = 'bibFiles';
 
 const request = <T>(r: IDBRequest<T>) =>
   new Promise<T>((resolve, reject) => {
@@ -35,6 +37,8 @@ export class IndexedDbRepository implements DocumentRepository {
           'documentId',
           'documentId'
         );
+      if (!db.objectStoreNames.contains(BIB_FILES))
+        db.createObjectStore(BIB_FILES, { keyPath: 'name' });
     };
     return new IndexedDbRepository(await request(req));
   }
@@ -82,5 +86,19 @@ export class IndexedDbRepository implements DocumentRepository {
       store.index('documentId').getAllKeys(documentId)
     );
     await Promise.all(keys.map((k) => request(store.delete(k))));
+  }
+
+  listBibFiles(): Promise<BibFile[]> {
+    return request(
+      this.store('readonly', BIB_FILES).getAll() as IDBRequest<BibFile[]>
+    );
+  }
+
+  async putBibFile(file: BibFile): Promise<void> {
+    await request(this.store('readwrite', BIB_FILES).put(file));
+  }
+
+  async deleteBibFile(name: string): Promise<void> {
+    await request(this.store('readwrite', BIB_FILES).delete(name));
   }
 }

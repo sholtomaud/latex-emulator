@@ -8,6 +8,12 @@ const fixture = (p: string) =>
     new URL(`../../../fixtures/bibtex/${p}`, import.meta.url),
     'utf8'
   );
+/** The .bst files the app ships (unmodified copies from TeX Live). */
+const shippedStyle = (name: string) =>
+  fs.readFileSync(
+    new URL(`../../assets/bst/${name}.bst`, import.meta.url),
+    'utf8'
+  );
 const bib = fixture('test.bib');
 
 /** Line-by-line diff that names the first difference, for readable failures. */
@@ -19,10 +25,18 @@ function assertSameBbl(actual: string, expected: string) {
 }
 
 describe('runBibtex matches real bibtex (fixtures/bibtex/expected)', () => {
-  for (const style of ['plainnat', 'plain', 'unsrt']) {
+  for (const style of [
+    'plainnat',
+    'unsrtnat',
+    'abbrvnat',
+    'plain',
+    'unsrt',
+    'abbrv',
+    'alpha',
+  ]) {
     test(`${style}.bst`, () => {
       const { bbl } = runBibtex({
-        bst: fixture(`styles/${style}.bst`),
+        bst: shippedStyle(style),
         bib,
         citations: ['*'],
       });
@@ -41,7 +55,7 @@ describe('runBibtex matches real bibtex (fixtures/bibtex/expected)', () => {
 });
 
 describe('runBibtex: citations', () => {
-  const bst = fixture('styles/plainnat.bst');
+  const bst = shippedStyle('plainnat');
 
   test('only cited entries are included, in sorted order for plainnat', () => {
     const { bbl } = runBibtex({
