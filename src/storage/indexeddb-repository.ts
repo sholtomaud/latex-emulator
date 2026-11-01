@@ -18,6 +18,14 @@ const request = <T>(r: IDBRequest<T>) =>
     r.onerror = () => reject(r.error);
   });
 
+/** What the app hears about other tabs while the database changes version. */
+export interface DatabaseEvents {
+  /** Another tab holds an older version open, so the upgrade waits. */
+  blocked?: () => void;
+  /** Another tab wants a newer version; this connection closes right after. */
+  versionChange?: () => void;
+}
+
 /** Documents in IndexedDB, on the user's device (AGENTS.md §9, §11). */
 export class IndexedDbRepository implements DocumentRepository {
   private db: IDBDatabase;
@@ -26,8 +34,10 @@ export class IndexedDbRepository implements DocumentRepository {
     this.db = db;
   }
 
-  static async open(): Promise<IndexedDbRepository> {
+  static async open(events: DatabaseEvents = {}): Promise<IndexedDbRepository> {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
+    // Without this the open waits silently until the other tab closes.
+    req.onblocked = () => events.blocked?.();
     req.onupgradeneeded = () => {
       const db = req.result;
       if (!db.objectStoreNames.contains(STORE))
@@ -40,7 +50,14 @@ export class IndexedDbRepository implements DocumentRepository {
       if (!db.objectStoreNames.contains(BIB_FILES))
         db.createObjectStore(BIB_FILES, { keyPath: 'name' });
     };
-    return new IndexedDbRepository(await request(req));
+    const db = await request(req);
+    // Never block a newer version of the app: let go (pending writes still
+    // finish), after the app has had a chance to save and tell the user.
+    db.onversionchange = () => {
+      events.versionChange?.();
+      db.close();
+    };
+    return new IndexedDbRepository(db);
   }
 
   private store(mode: IDBTransactionMode, name = STORE) {

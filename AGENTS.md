@@ -514,7 +514,10 @@ chosen branch.
   diagnostics, spelling, preview and PDF.
 - Persist documents and `.bib` files in IndexedDB (`src/storage/`, ADRs
   0005 and 0007), falling back to
-  memory when IndexedDB is unavailable. `localStorage` holds only small
+  memory when IndexedDB is unavailable. The app may be open in several tabs
+  across a schema upgrade: every connection closes on `versionchange`
+  (after saving), and a blocked upgrade shows a notice instead of hanging
+  (`e2e/specs/upgrade.spec.ts`). `localStorage` holds only small
   preferences (open document, explorer state). Open and save `.tex` files
   with `<input type=file>` and a download link; the File System Access API is
   a later progressive enhancement.

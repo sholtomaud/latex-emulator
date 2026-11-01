@@ -36,9 +36,17 @@ export class AppShellComponent extends BaseComponent {
       panes.classList.toggle('with-explorer', explorerOpen);
       toggle.setAttribute('aria-expanded', String(explorerOpen));
     };
+    const notice = this.querySelector<HTMLElement>('.app-notice')!;
+    const showNotice = ({ notice: text }: UiState) => {
+      notice.textContent = text;
+      notice.hidden = !text;
+    };
     showExplorer(uiStore.getState());
-    uiStore.addEventListener('change', ((e: CustomEvent<UiState>) =>
-      showExplorer(e.detail)) as EventListener);
+    showNotice(uiStore.getState());
+    uiStore.addEventListener('change', ((e: CustomEvent<UiState>) => {
+      showExplorer(e.detail);
+      showNotice(e.detail);
+    }) as EventListener);
 
     workspaceStore.addEventListener('change', ((
       e: CustomEvent<WorkspaceStoreState>

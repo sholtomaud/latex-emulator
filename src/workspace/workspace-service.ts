@@ -25,9 +25,25 @@ const AUTOSAVE_MS = 400;
 let workspace: Workspace | null = null;
 let library: BibLibrary | null = null;
 
+const BLOCKED_NOTICE =
+  'Close other LaTeX Emulator tabs or windows so the app can finish updating.';
+
 async function openRepository(): Promise<DocumentRepository> {
   try {
-    return await IndexedDbRepository.open();
+    const repo = await IndexedDbRepository.open({
+      blocked: () => uiStore.setState({ notice: BLOCKED_NOTICE }),
+      versionChange: () => {
+        // Starts the save transaction before the connection closes.
+        void flush();
+        uiStore.setState({
+          notice:
+            'A newer version of LaTeX Emulator was opened in another tab. Reload this tab to keep working.',
+        });
+      },
+    });
+    if (uiStore.getState().notice === BLOCKED_NOTICE)
+      uiStore.setState({ notice: '' });
+    return repo;
   } catch (error) {
     console.warn('IndexedDB unavailable; documents will not persist.', error);
     return new MemoryRepository();
