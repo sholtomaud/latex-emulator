@@ -64,3 +64,33 @@ describe('parseBib', () => {
     assert.ok(warnings.length >= 1);
   });
 });
+
+describe('source positions (for tools that edit .bib files)', () => {
+  const text =
+    '% my refs\n@string{acm = "ACM"}\n@Article{k1,\n  Title = {A {B} c},\n  month = may,\n  publisher = acm # " Press",\n  year = 1999\n}\n\nbetween\n@misc(k2, note = "x")';
+
+  test('each entry has the span of its source text', () => {
+    const { entries } = parseBib(text);
+    assert.deepStrictEqual(
+      entries.map((e) => text.slice(e.span.start, e.span.end)),
+      [
+        '@Article{k1,\n  Title = {A {B} c},\n  month = may,\n  publisher = acm # " Press",\n  year = 1999\n}',
+        '@misc(k2, note = "x")',
+      ]
+    );
+  });
+
+  test('each field keeps its raw value as written (macros unexpanded)', () => {
+    const [k1, k2] = parseBib(text).entries;
+    assert.deepStrictEqual(
+      [...k1.raw],
+      [
+        ['title', '{A {B} c}'],
+        ['month', 'may'],
+        ['publisher', 'acm # " Press"'],
+        ['year', '1999'],
+      ]
+    );
+    assert.deepStrictEqual([...k2.raw], [['note', '"x"']]);
+  });
+});

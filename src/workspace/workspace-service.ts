@@ -15,6 +15,7 @@ import type { Bump } from './versions.ts';
 import { BibLibrary } from './bib-library.ts';
 import { bibStore } from '../store/bib-store.ts';
 import { SAMPLE_REFERENCES } from '../store/sample-references.ts';
+import { lookupReference } from '../references/lookup.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -145,6 +146,37 @@ export const workspaceActions = {
       : '';
     bibStore.setState({
       status: `Imported ${r.name}.bib: ${entries}${problems}. Use \\bibliography{${r.name}}.`,
+    });
+  },
+  /** Look up a DOI/arXiv ID/URL and append the entry to `fileName`.bib. */
+  addReference: async (input: string, fileName: string): Promise<boolean> => {
+    if (!library) return false;
+    bibStore.setState({ status: `Looking up ${input.trim()}…` });
+    const r = await lookupReference(input, {
+      fetch: (...args) => fetch(...args),
+      today: new Date(),
+      taken: library.keys(),
+    });
+    if (!r.ok) {
+      bibStore.setState({ status: r.message });
+      return false;
+    }
+    await library.addEntry(fileName, r.text);
+    bibStore.setState({
+      status:
+        r.from === 'doi'
+          ? `Added ${r.key} to ${fileName}.bib. Cite it with \\citep{${r.key}}.`
+          : `Added ${r.key} to ${fileName}.bib. Add its author and title: a web address alone has no citation record.`,
+    });
+    return true;
+  },
+  cleanBib: async (name: string) => {
+    if (!library) return;
+    const changes = await library.cleanFile(name);
+    bibStore.setState({
+      status: changes.length
+        ? `Cleaned ${name}.bib (${changes.length} ${changes.length === 1 ? 'fix' : 'fixes'}): ${changes.join('; ')}.`
+        : `${name}.bib is tidy: layout only, no fixes needed.`,
     });
   },
   deleteBib: async (name: string) => {

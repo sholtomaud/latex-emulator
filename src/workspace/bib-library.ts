@@ -1,5 +1,6 @@
 import type { BibFile, DocumentRepository } from '../storage/types.ts';
 import { parseBib } from '../latex/bibtex/bib-parser.ts';
+import { cleanBib } from '../references/clean.ts';
 
 export interface BibFileMeta {
   name: string;
@@ -77,6 +78,29 @@ export class BibLibrary {
     if (!this.files.delete(name)) return;
     await this.repo.deleteBibFile(name);
     this.publish();
+  }
+
+  /** Every citation key in the library (to keep new keys unique). */
+  keys(): Set<string> {
+    const keys = new Set<string>();
+    for (const f of this.files.values())
+      for (const e of parseBib(f.source).entries) keys.add(e.key);
+    return keys;
+  }
+
+  /** Append an entry to the file `name` (created when missing). */
+  async addEntry(name: string, entryText: string): Promise<void> {
+    const before = this.files.get(name)?.source.replace(/\s+$/, '');
+    await this.put(name, before ? `${before}\n\n${entryText}` : entryText);
+  }
+
+  /** Clean the file `name` (see references/clean.ts); returns what changed. */
+  async cleanFile(name: string): Promise<string[]> {
+    const file = this.files.get(name);
+    if (!file) return [];
+    const { text, changes } = cleanBib(file.source);
+    if (text !== file.source) await this.put(name, text);
+    return changes;
   }
 
   exportFile(name: string): { fileName: string; text: string } | null {

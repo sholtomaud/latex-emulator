@@ -103,6 +103,24 @@
       list it with <code>\bibliography{name}</code>.
     </p>
     <ul class="bib-list"></ul>
+    <form class="add-reference" aria-label="Add reference">
+      <input
+        class="reference-input"
+        type="text"
+        aria-label="DOI or URL"
+        placeholder="DOI, doi.org, arXiv or web link"
+        autocomplete="off"
+        spellcheck="false"
+        required
+      />
+      <div class="add-reference-row">
+        <label class="reference-target"
+          >to
+          <select class="reference-file" aria-label="Add to file"></select
+        ></label>
+        <button type="submit" class="add-reference-button">Add</button>
+      </div>
+    </form>
     <p class="bib-status" role="status"></p>
   </section>
   <template class="bib-item-template">
@@ -112,6 +130,9 @@
         <span class="bib-meta"></span>
       </span>
       <span class="bib-actions">
+        <button type="button" class="icon-button bib-clean">
+          <span aria-hidden="true">✧</span>
+        </button>
         <button type="button" class="icon-button bib-download">
           <span aria-hidden="true">⤓</span>
         </button>

@@ -21,6 +21,7 @@ export class DocumentExplorerComponent extends BaseComponent {
   versionTemplate!: HTMLTemplateElement;
   versionsEmpty!: HTMLElement;
   bibList!: HTMLUListElement;
+  refFile!: HTMLSelectElement;
   bibTemplate!: HTMLTemplateElement;
   /** Document being renamed; re-renders leave its input alone. */
   renaming: string | null = null;
@@ -65,6 +66,25 @@ export class DocumentExplorerComponent extends BaseComponent {
         await workspaceActions.importBib(file);
       bibInput.value = '';
     });
+    const form = this.querySelector<HTMLFormElement>('.add-reference')!;
+    const refInput = form.querySelector<HTMLInputElement>('.reference-input')!;
+    this.refFile = form.querySelector<HTMLSelectElement>('.reference-file')!;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const button = form.querySelector('button')!;
+      button.disabled = true;
+      try {
+        if (
+          await workspaceActions.addReference(
+            refInput.value,
+            this.refFile.value || 'references'
+          )
+        )
+          refInput.value = '';
+      } finally {
+        button.disabled = false;
+      }
+    });
     this.renderBib(bibStore.getState());
     bibStore.addEventListener('change', ((e: CustomEvent<BibStoreState>) =>
       this.renderBib(e.detail)) as EventListener);
@@ -88,6 +108,18 @@ export class DocumentExplorerComponent extends BaseComponent {
 
   renderBib({ files, status }: BibStoreState) {
     this.bibList.replaceChildren(...files.map((f) => this.renderBibFile(f)));
+    // Target file for new references: keep the choice when it still exists.
+    const chosen = this.refFile.value;
+    const names = files.length ? files.map((f) => f.name) : ['references'];
+    this.refFile.replaceChildren(
+      ...names.map((n) => {
+        const option = document.createElement('option');
+        option.value = n;
+        option.textContent = `${n}.bib`;
+        return option;
+      })
+    );
+    if (names.includes(chosen)) this.refFile.value = chosen;
     this.querySelector<HTMLElement>('.bib-empty')!.hidden = files.length > 0;
     this.querySelector('.bib-status')!.textContent = status;
   }
@@ -100,6 +132,10 @@ export class DocumentExplorerComponent extends BaseComponent {
     li.querySelector('.bib-name')!.textContent = fileName;
     li.querySelector('.bib-meta')!.textContent =
       `${f.entries} ${f.entries === 1 ? 'entry' : 'entries'}`;
+    const clean = li.querySelector<HTMLButtonElement>('.bib-clean')!;
+    clean.setAttribute('aria-label', `Clean ${fileName}`);
+    clean.title = 'Clean: tidy layout, fix DOIs, page ranges and months';
+    clean.addEventListener('click', () => workspaceActions.cleanBib(f.name));
     const download = li.querySelector<HTMLButtonElement>('.bib-download')!;
     download.setAttribute('aria-label', `Download ${fileName}`);
     download.title = 'Download';

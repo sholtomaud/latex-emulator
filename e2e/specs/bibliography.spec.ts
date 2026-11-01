@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import fs from 'node:fs';
 import { editorReady, setSource } from '../support/editor.ts';
 
 const toggle = (page: Page) =>
@@ -95,5 +96,91 @@ test.describe('bibliography', () => {
     await page.reload();
     await openExplorer(page);
     await expect(library(page).getByRole('listitem')).toHaveCount(0);
+  });
+
+  test('adding a reference by DOI looks it up at doi.org with a fresh key', async ({
+    page,
+  }) => {
+    const requests: string[] = [];
+    await page.route('https://doi.org/**', (route) => {
+      requests.push(
+        `${route.request().url()} ${route.request().headers()['accept']}`
+      );
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/vnd.citationstyles.csl+json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: fs.readFileSync(
+          'fixtures/references/brown-2004.csl.json',
+          'utf8'
+        ),
+      });
+    });
+    await openExplorer(page);
+    const form = page.getByRole('form', { name: 'Add reference' });
+    await form
+      .getByLabel('DOI or URL')
+      .fill('https://doi.org/10.1016/j.ecolmodel.2003.12.032');
+    await form.getByRole('button', { name: 'Add' }).click();
+    // references.bib already has brown_energy_2004, so the key gets an "a".
+    await expect(library(page).getByRole('status')).toHaveText(
+      'Added brown_energy_2004a to references.bib. Cite it with \\citep{brown_energy_2004a}.'
+    );
+    expect(requests).toEqual([
+      'https://doi.org/10.1016/j.ecolmodel.2003.12.032 application/vnd.citationstyles.csl+json',
+    ]);
+    await expect(form.getByLabel('DOI or URL')).toHaveValue('');
+    await expect(library(page).getByRole('listitem')).toHaveText([
+      /references\.bib\s*6 entries/,
+    ]);
+    await setSource(page, doc('\\citet{brown_energy_2004a}'));
+    await expect(
+      preview(page).locator('ul.thebibliography > li')
+    ).toContainText(['Ecological Modelling']);
+  });
+
+  test('a web address without a DOI becomes an entry to complete; failures are explained', async ({
+    page,
+  }) => {
+    await page.route('https://doi.org/**', (route) => route.abort());
+    await openExplorer(page);
+    const form = page.getByRole('form', { name: 'Add reference' });
+    const input = form.getByLabel('DOI or URL');
+    await input.fill('https://www.example.org/eroi');
+    await form.getByRole('button', { name: 'Add' }).click();
+    await expect(library(page).getByRole('status')).toContainText(
+      'Added example_eroi_'
+    );
+    await expect(library(page).getByRole('status')).toContainText(
+      'Add its author and title'
+    );
+    await input.fill('10.1016/j.offline.2024.1');
+    await form.getByRole('button', { name: 'Add' }).click();
+    await expect(library(page).getByRole('status')).toHaveText(
+      'Couldn’t reach doi.org. Check your connection and try again.'
+    );
+    // The text stays, so it can be retried.
+    await expect(input).toHaveValue('10.1016/j.offline.2024.1');
+  });
+
+  test('cleaning a .bib file fixes it in place and says what changed', async ({
+    page,
+  }) => {
+    await openExplorer(page);
+    await library(page)
+      .locator('.import-bib-input')
+      .setInputFiles({
+        name: 'messy.bib',
+        mimeType: 'application/x-bibtex',
+        buffer: Buffer.from(
+          '@ARTICLE{doe_cats_2021, author = {Jane Doe}, title = {Cats}, journal = {J}, year = 2021, pages = {1-9}, doi = {https://doi.org/10.1234/cats}}'
+        ),
+      });
+    await library(page)
+      .getByRole('button', { name: 'Clean messy.bib' })
+      .click({ force: true });
+    await expect(library(page).getByRole('status')).toHaveText(
+      'Cleaned messy.bib (2 fixes): doe_cats_2021: pages 1-9 → 1--9; doe_cats_2021: doi without its URL prefix.'
+    );
   });
 });
