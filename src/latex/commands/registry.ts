@@ -343,6 +343,17 @@ env(
   'A figure float (shown where it is written; \\caption numbers it).'
 );
 cmd('caption', 'o m', 'Numbered caption of a figure or table.');
+cmd(
+  'includegraphics',
+  'o m',
+  'An image from this document’s Images (graphicx): \\includegraphics[width=\\linewidth]{name}. PNG and JPEG are shown; PDF figures appear as a framed box.'
+);
+cmd(
+  'graphicspath',
+  'm',
+  'Folders \\includegraphics also searches: \\graphicspath{{figs/}}.',
+  'preamble'
+);
 cmd('hline', '', 'A horizontal rule across the table.');
 cmd('cline', 'm', 'A rule under columns a–b: \\cline{a-b}.');
 cmd(

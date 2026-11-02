@@ -9,6 +9,7 @@ Each folder is one LaTeX document plus what real `pdflatex` makes of it:
 | `reference-page-N.png` | Each page rasterised at 96 dpi (`pdftoppm -r 96`) |
 | `reference-lines.json` | Every text line's bounding box in PDF points (`pdftotext -bbox-layout`), from the page's top-left |
 | `reference.version` | The `pdflatex` version that produced them |
+| `images/` | Optional: figures the document includes (`\graphicspath{{images/}}`); the fidelity spec adds them to the document's Images first |
 
 Regenerate with (needs TeX Live and poppler-utils):
 

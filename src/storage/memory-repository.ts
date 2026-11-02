@@ -1,5 +1,7 @@
 import type {
   BibFile,
+  ImageBlob,
+  ImageEntry,
   DocumentRepository,
   StoredDocument,
   VersionRecord,
@@ -10,6 +12,8 @@ export class MemoryRepository implements DocumentRepository {
   private docs = new Map<string, StoredDocument>();
   private versions: VersionRecord[] = [];
   private bibFiles = new Map<string, BibFile>();
+  private images = new Map<string, ImageEntry>();
+  private blobs = new Map<string, ImageBlob>();
 
   async list(): Promise<StoredDocument[]> {
     return [...this.docs.values()].map((d) => ({ ...d }));
@@ -53,5 +57,39 @@ export class MemoryRepository implements DocumentRepository {
 
   async deleteBibFile(name: string): Promise<void> {
     this.bibFiles.delete(name);
+  }
+
+  async listImages(): Promise<ImageEntry[]> {
+    return [...this.images.values()].map((e) => ({ ...e }));
+  }
+
+  async getImageBlob(sha256: string): Promise<ImageBlob | undefined> {
+    const b = this.blobs.get(sha256);
+    return b && { ...b };
+  }
+
+  async putImage(entry: ImageEntry, blob?: ImageBlob): Promise<void> {
+    const old = this.images.get(entry.id);
+    if (blob) this.blobs.set(blob.sha256, { ...blob });
+    this.images.set(entry.id, { ...entry });
+    if (old) this.collect(old.sha256);
+  }
+
+  async deleteImage(id: string): Promise<void> {
+    const old = this.images.get(id);
+    if (!old) return;
+    this.images.delete(id);
+    this.collect(old.sha256);
+  }
+
+  async deleteImages(documentId: string): Promise<void> {
+    for (const e of this.images.values())
+      if (e.documentId === documentId) await this.deleteImage(e.id);
+  }
+
+  /** Drop the blob once no entry refers to it. */
+  private collect(sha256: string) {
+    for (const e of this.images.values()) if (e.sha256 === sha256) return;
+    this.blobs.delete(sha256);
   }
 }

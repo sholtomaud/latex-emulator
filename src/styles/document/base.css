@@ -753,6 +753,91 @@ body {
 }
 
 /*
+ * A float ending in a caption ends, in CSS, at the caption's baseline (its
+ * -b margin), but TeX's float box includes the caption's depth (a
+ * descender, 0.194em; \@endfloatbox ends with \vskip\z@skip), which cancels
+ * the \prevdepth term above: the gap is \intextsep.
+ */
+.latex-document
+  .float:is(
+    :has(> .caption:last-child),
+    :has(> .centering:last-child > .caption:last-child)
+  )
+  + * {
+  --prev-after: var(--intextsep);
+}
+
+/* Float bodies are parboxes: \@parboxrestore sets \parindent to 0. */
+.latex-document .float p {
+  text-indent: 0;
+}
+
+/* ------------------------------------------------------------ figures */
+
+/*
+ * graphicx: an image is a box standing on the baseline, with no depth.
+ * A float's vbox starts with its first line, without interline glue, so
+ * an image that opens a float has its top at the float's top. (A line box
+ * starts at its tallest content, the image, so margin 0 does that.)
+ */
+.latex-document img.graphic {
+  vertical-align: baseline;
+}
+
+.latex-document
+  :is(.float, .float > .centering)
+  > p:first-child:has(> :is(img.graphic, .graphic-box, .placeholder)) {
+  --before: calc(-1 * var(--b));
+  --prev-after: calc(-1 * var(--b));
+}
+
+/* A quarter-turned image: the box is the turned size; TeX turns anticlockwise. */
+.latex-document .graphic-box {
+  display: inline-block;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.latex-document .graphic-box > img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+}
+
+.latex-document .rot-90 > img {
+  rotate: -90deg;
+}
+
+.latex-document .rot-180 > img {
+  rotate: 180deg;
+}
+
+.latex-document .rot-270 > img {
+  rotate: 90deg;
+}
+
+/*
+ * A missing image, a PDF figure, or graphicx's draft mode: a 0.4pt frame
+ * (\fboxrule) of the image's size with its name, standing on the baseline
+ * (overflow: hidden puts an inline-block's baseline at its bottom).
+ */
+.latex-document .graphic.placeholder {
+  display: inline-block;
+  box-sizing: border-box;
+  overflow: hidden;
+  vertical-align: baseline;
+  border: 0.4pt solid currentColor;
+  align-content: center;
+  text-align: center;
+  text-indent: 0;
+  font-family: 'LM Mono 10', monospace;
+  font-size: 0.8em;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+/*
  * \@makecaption: \abovecaptionskip, then "Table 1: text", centred if it fits
  * on one line, otherwise a justified paragraph. A shrink-to-fit box does
  * exactly that: one line shrinks to its text, more fill the text width.

@@ -19,7 +19,7 @@ export function h(
   return { tag, attrs, children };
 }
 
-const VOID = new Set(['br', 'hr', 'col', 'wbr']);
+const VOID = new Set(['br', 'hr', 'col', 'wbr', 'img']);
 
 const escape = (s: string) =>
   s

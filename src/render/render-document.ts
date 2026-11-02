@@ -34,6 +34,10 @@ import { parseColumnSpec, tabularRows } from './tabular.ts';
 import type { Column } from './tabular.ts';
 import type { LengthContext } from './lengths.ts';
 import { toBp } from '../latex/classes/article.ts';
+import { graphicsBox, parseKeyval } from './graphics.ts';
+import { resolveGraphic } from '../images/resolve.ts';
+import { naturalSizeBp } from '../images/header.ts';
+import type { ImageInfo } from '../images/header.ts';
 
 export interface RenderOptions {
   /** Date used for \today (defaults to now). */
@@ -42,6 +46,11 @@ export interface RenderOptions {
   bibFiles?: Record<string, string>;
   /** Available .bst styles by name, e.g. { plainnat: '…' }. */
   bstStyles?: Record<string, string>;
+  /**
+   * The document's images by name (ADR 0013), with the blob: URL the
+   * preview made for each. Only these URLs ever become an image source.
+   */
+  images?: Record<string, { url: string; info: ImageInfo }>;
 }
 
 export interface RenderResult {
@@ -70,6 +79,12 @@ const TEXT_COMMANDS: Record<string, string> = {
 };
 
 /** Declarations → CSS class ('em' becomes an <em> element). */
+const PARAGRAPH_DECLARATIONS = new Set([
+  'centering',
+  'raggedright',
+  'raggedleft',
+]);
+
 const DECLARATIONS: Record<string, string> = {
   bfseries: 'bf',
   mdseries: 'md',
@@ -265,12 +280,14 @@ export function renderDocument(
     toc: [],
   });
   first.lengths = lengths;
+  first.images = options.images ?? {};
   first.renderBlocks(structure.body, first.rootContext());
   const renderer = new Renderer(structure, today, citations, {
     labels: first.labelsOut,
     toc: first.tocOut,
   });
   renderer.lengths = lengths;
+  renderer.images = options.images ?? {};
   const blocks = renderer.renderBlocks(structure.body, renderer.rootContext());
   if (renderer.footnotes.length)
     blocks.push(h('section', { class: 'footnotes' }, renderer.footnotes));
@@ -319,6 +336,7 @@ class Renderer {
   float: 'table' | 'figure' | null = null;
   /** Lengths for p{…} columns and \\includegraphics, in bp. */
   lengths: LengthContext = { textwidth: 345, em: 10, ex: 4.3 };
+  images: NonNullable<RenderOptions['images']> = {};
 
   constructor(
     structure: DocumentStructure,
@@ -418,6 +436,15 @@ class Renderer {
         // inline, then any following blocks wrapped in a block element.
         const cls = DECLARATIONS[n.name];
         const rest = nodes.slice(i + 1);
+        // \centering, \raggedright and \raggedleft set paragraph shape,
+        // which needs a block: when they start a paragraph, everything after
+        // them is one centred (or ragged) block.
+        if (PARAGRAPH_DECLARATIONS.has(n.name) && !tidy(inline).length) {
+          inline = [];
+          const inner = this.renderBlocks(rest, ctx, after);
+          if (inner.length) blocks.push(h('div', { class: cls }, inner));
+          break;
+        }
         const breakAt = rest.findIndex((r) => this.isBlock(r));
         const inlinePart = breakAt === -1 ? rest : rest.slice(0, breakAt);
         const blockPart = breakAt === -1 ? [] : rest.slice(breakAt);
@@ -757,6 +784,80 @@ class Renderer {
     ]);
   }
 
+  /**
+   * \includegraphics: the stored image at graphicx's size, or a framed box
+   * with its name (missing, PDF, or draft). Sizes are bp, i.e. CSS pt.
+   */
+  renderGraphic(c: CommandNode): HElement {
+    const arg = lastMandatory(c);
+    const raw = keyText(arg?.children ?? []).trim();
+    const optional = c.args.find((a) => a.optional);
+    const options = parseKeyval(optional ? toLatex(optional.children) : '');
+    const name = resolveGraphic(
+      raw,
+      Object.keys(this.images),
+      this.structure.graphicsPath
+    );
+    const image = name === null ? undefined : this.images[name];
+    const box = graphicsBox(
+      options,
+      image ? naturalSizeBp(image.info) : null,
+      this.lengths
+    );
+    const range = arg?.range ?? c.range;
+    if (box.problems.length)
+      this.warn(
+        c.range,
+        'syntax/unsupported-graphics-option',
+        `The emulator ignores these \\includegraphics options: ${box.problems.join(', ')}.`
+      );
+    const pt = (n: number) => `${Number(n.toFixed(3))}pt`;
+    const size = (w: number, h: number) => `width: ${pt(w)}; height: ${pt(h)}`;
+    const placeholder = (label: string) =>
+      h(
+        'span',
+        { class: 'graphic placeholder', style: size(box.width, box.height) },
+        [label]
+      );
+    if (!image || name === null) {
+      this.warn(
+        range,
+        'ref/missing-image',
+        `Image “${raw}” is not in this document’s Images. Add it in the explorer (Images), or check the name.`,
+        'error',
+        'ref'
+      );
+      return placeholder(raw);
+    }
+    if (image.info.type === 'pdf') {
+      this.warn(
+        range,
+        'render/pdf-image',
+        `Browsers can’t draw PDF figures, so “${name}” is shown as a box of its size. pdflatex includes it; for the preview, add a PNG of it.`,
+        'info'
+      );
+      return placeholder(name);
+    }
+    if (box.draft) return placeholder(name);
+    const turned = box.rotate % 180 !== 0;
+    const img = h('img', {
+      class: 'graphic',
+      src: image.url,
+      alt: name,
+      style: turned ? size(box.height, box.width) : size(box.width, box.height),
+    });
+    return box.rotate
+      ? h(
+          'span',
+          {
+            class: `graphic-box rot-${box.rotate}`,
+            style: size(box.width, box.height),
+          },
+          [img]
+        )
+      : img;
+  }
+
   /** tabular as an HTML table: one column per spec column (rules included). */
   renderTabular(env: EnvironmentNode, ctx: Context): HElement {
     const spec = parseColumnSpec(lastMandatoryEnv(env), this.lengths);
@@ -1037,6 +1138,8 @@ class Renderer {
             'X',
           ]),
         ];
+      case 'includegraphics':
+        return [this.renderGraphic(c)];
       case 'footnote': {
         const custom = c.args.find((a) => a.optional);
         const number = custom

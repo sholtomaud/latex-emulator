@@ -24,6 +24,9 @@ import { zoteroSuggestions } from '../references/zotero-suggest.ts';
 import type { ZoteroSuggestion } from '../references/zotero-suggest.ts';
 import { bibliographyFiles } from '../render/bibliography.ts';
 import type { CitationServices } from '../language/cite-services.ts';
+import { ImageLibrary } from './image-library.ts';
+import { imageStore } from '../store/image-store.ts';
+import { downloadBlob } from '../util/download.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -33,6 +36,7 @@ import type { CitationServices } from '../language/cite-services.ts';
 const AUTOSAVE_MS = 400;
 let workspace: Workspace | null = null;
 let library: BibLibrary | null = null;
+let images: ImageLibrary | null = null;
 /** The Zotero web API key: this session only, never stored (like budget-app's ADR 0020). */
 let zoteroKey = '';
 
@@ -103,6 +107,18 @@ export async function startWorkspace(): Promise<void> {
     },
   });
 
+  images = new ImageLibrary(repo, {
+    now: () => Date.now(),
+    publish: (state) => imageStore.setState({ ...state }),
+  });
+  await images.init();
+  const openImages = () => {
+    const id = workspaceStore.getState().activeId;
+    if (id && id !== imageStore.getState().documentId) void images?.open(id);
+  };
+  openImages();
+  workspaceStore.addEventListener('change', openImages);
+
   const saveLater = debounce(() => void flush(), AUTOSAVE_MS);
   documentStore.addEventListener('change', ((_e: CustomEvent<DocumentState>) =>
     saveLater()) as EventListener);
@@ -129,7 +145,11 @@ export const workspaceActions = {
   open: (id: string) => act((w) => w.open(id)),
   create: () => act((w) => w.create()),
   rename: (id: string, name: string) => act((w) => w.rename(id, name)),
-  delete: (id: string) => act((w) => w.delete(id)),
+  delete: (id: string) =>
+    act(async (w) => {
+      await w.delete(id);
+      await images?.deleteDocument(id);
+    }),
   importFile: (file: File) =>
     act(async (w) => w.importFile(file.name, await file.text())),
   download: (id?: string) =>
@@ -252,6 +272,51 @@ export const workspaceActions = {
   downloadBib: (name: string) => {
     const file = library?.exportFile(name);
     if (file) downloadText(file.fileName, file.text, 'application/x-bibtex');
+  },
+  /** Add image files (or a pasted image, named null) to the open document. */
+  addImages: async (files: { name: string | null; blob: Blob }[]) => {
+    if (!images) return;
+    const added: string[] = [];
+    const problems: string[] = [];
+    for (const f of files) {
+      const r = await images.add(
+        f.name,
+        new Uint8Array(await f.blob.arrayBuffer())
+      );
+      if (r.ok) added.push(r.name);
+      else problems.push(r.message);
+    }
+    const use = added.length
+      ? `Added ${added.join(', ')}. Use \\includegraphics{${added[0]}}.`
+      : '';
+    imageStore.setState({
+      status: [use, ...problems].filter(Boolean).join(' '),
+    });
+  },
+  reuseImage: async (entryId: string) => {
+    const r = await images?.reuse(entryId);
+    if (r)
+      imageStore.setState({
+        status: r.ok
+          ? `Added ${r.name}. Use \\includegraphics{${r.name}}.`
+          : r.message,
+      });
+  },
+  renameImage: async (name: string, newName: string): Promise<boolean> => {
+    const r = await images?.rename(name, newName);
+    if (!r) return false;
+    imageStore.setState({
+      status: r.ok ? `Renamed to ${r.name}.` : r.message,
+    });
+    return r.ok;
+  },
+  deleteImage: async (name: string) => {
+    await images?.delete(name);
+    imageStore.setState({ status: '' });
+  },
+  downloadImage: (name: string) => {
+    const file = images?.file(name);
+    if (file) downloadBlob(file.fileName, file.blob);
   },
   toggleExplorer: () =>
     uiStore.setState({ explorerOpen: !uiStore.getState().explorerOpen }),

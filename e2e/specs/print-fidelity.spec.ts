@@ -39,6 +39,8 @@ interface FixtureSpec {
   ready: { selector: string; text: string };
   /** .bib files to import into the references library first. */
   bibFiles?: string[];
+  /** Images to add to the document first (paths inside the fixture). */
+  images?: string[];
   /** Lines whose start we check: paragraphs, headings, title lines, items. */
   checked: string[];
   /**
@@ -195,6 +197,24 @@ const FIXTURES: FixtureSpec[] = [
       'Oil and gas',
     ],
   },
+  {
+    name: 'figure-basic',
+    ready: { selector: '.caption', text: 'Figure' },
+    images: ['images/plot.png', 'images/bars.jpg'],
+    checked: [
+      'Figures',
+      'Figure 1 is',
+      'and Figure 2',
+      'Figure 1:',
+      'Text continues',
+      'second line',
+      'Figure 2:',
+      'After both figures',
+    ],
+    centred: ['Figure 1:', 'Figure 2:'],
+    headings: ['Figures'],
+    body: [140, 700],
+  },
 ];
 
 for (const fixture of FIXTURES) {
@@ -216,6 +236,18 @@ for (const fixture of FIXTURES) {
         );
       await expect(page.getByRole('status')).toContainText('Imported');
       // Close it again: the fixture is measured at the usual layout.
+      await page.getByRole('button', { name: 'Toggle documents' }).click();
+    }
+    if (fixture.images) {
+      await page.getByRole('button', { name: 'Toggle documents' }).click();
+      await page
+        .locator('image-panel .add-image-input')
+        .setInputFiles(
+          fixture.images.map((f) => `fixtures/${fixture.name}/${f}`)
+        );
+      await expect(page.locator('image-panel .image-item')).toHaveCount(
+        fixture.images.length
+      );
       await page.getByRole('button', { name: 'Toggle documents' }).click();
     }
     await setSource(page, source);

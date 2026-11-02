@@ -1,3 +1,5 @@
+import type { ImageInfo } from '../images/header.ts';
+
 export interface StoredDocument {
   id: string;
   name: string;
@@ -28,6 +30,24 @@ export interface BibFile {
   updatedAt: number;
 }
 
+/** One stored image file's bytes, shared by every entry with its hash (ADR 0013). */
+export interface ImageBlob {
+  /** SHA-256 of the bytes, lower-case hex. */
+  sha256: string;
+  blob: Blob;
+  info: ImageInfo;
+}
+
+/** An image in a document's folder: `name` as \includegraphics reads it. */
+export interface ImageEntry {
+  /** documentId + '/' + name. */
+  id: string;
+  documentId: string;
+  name: string;
+  sha256: string;
+  updatedAt: number;
+}
+
 /** Where documents live. IndexedDB in the browser; in memory for tests. */
 export interface DocumentRepository {
   list(): Promise<StoredDocument[]>;
@@ -42,4 +62,13 @@ export interface DocumentRepository {
   /** Adds or replaces the file with this name. */
   putBibFile(file: BibFile): Promise<void>;
   deleteBibFile(name: string): Promise<void>;
+  /** Every document's image entries. */
+  listImages(): Promise<ImageEntry[]>;
+  getImageBlob(sha256: string): Promise<ImageBlob | undefined>;
+  /** Adds or replaces the entry, storing `blob` too when given. */
+  putImage(entry: ImageEntry, blob?: ImageBlob): Promise<void>;
+  /** Removes the entry, and its blob once no entry uses it. */
+  deleteImage(id: string): Promise<void>;
+  /** Removes a document's entries (and blobs no longer used). */
+  deleteImages(documentId: string): Promise<void>;
 }

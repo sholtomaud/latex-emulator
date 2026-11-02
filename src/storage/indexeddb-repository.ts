@@ -1,16 +1,21 @@
 import type {
   BibFile,
+  ImageBlob,
+  ImageEntry,
   DocumentRepository,
   StoredDocument,
   VersionRecord,
 } from './types.ts';
 
 const DB_NAME = 'latex-emulator';
-// v2 adds the versions store (ADR 0006); v3 the .bib files (ADR 0007).
-const DB_VERSION = 3;
+// v2 adds the versions store (ADR 0006); v3 the .bib files (ADR 0007);
+// v4 the images and their content-addressed blobs (ADR 0013).
+const DB_VERSION = 4;
 const STORE = 'documents';
 const VERSIONS = 'versions';
 const BIB_FILES = 'bibFiles';
+const IMAGES = 'images';
+const IMAGE_BLOBS = 'imageBlobs';
 
 const request = <T>(r: IDBRequest<T>) =>
   new Promise<T>((resolve, reject) => {
@@ -49,6 +54,13 @@ export class IndexedDbRepository implements DocumentRepository {
         );
       if (!db.objectStoreNames.contains(BIB_FILES))
         db.createObjectStore(BIB_FILES, { keyPath: 'name' });
+      if (!db.objectStoreNames.contains(IMAGES)) {
+        const images = db.createObjectStore(IMAGES, { keyPath: 'id' });
+        images.createIndex('documentId', 'documentId');
+        images.createIndex('sha256', 'sha256');
+      }
+      if (!db.objectStoreNames.contains(IMAGE_BLOBS))
+        db.createObjectStore(IMAGE_BLOBS, { keyPath: 'sha256' });
     };
     const db = await request(req);
     // Never block a newer version of the app: let go (pending writes still
@@ -118,4 +130,67 @@ export class IndexedDbRepository implements DocumentRepository {
   async deleteBibFile(name: string): Promise<void> {
     await request(this.store('readwrite', BIB_FILES).delete(name));
   }
+
+  listImages(): Promise<ImageEntry[]> {
+    return request(
+      this.store('readonly', IMAGES).getAll() as IDBRequest<ImageEntry[]>
+    );
+  }
+
+  getImageBlob(sha256: string): Promise<ImageBlob | undefined> {
+    return request(
+      this.store('readonly', IMAGE_BLOBS).get(sha256) as IDBRequest<
+        ImageBlob | undefined
+      >
+    );
+  }
+
+  /** Entry and blob in one transaction, so a blob is never orphaned. */
+  async putImage(entry: ImageEntry, blob?: ImageBlob): Promise<void> {
+    const tx = this.db.transaction([IMAGES, IMAGE_BLOBS], 'readwrite');
+    const images = tx.objectStore(IMAGES);
+    const old = (await request(images.get(entry.id))) as ImageEntry | undefined;
+    if (blob) await request(tx.objectStore(IMAGE_BLOBS).put(blob));
+    await request(images.put(entry));
+    if (old && old.sha256 !== entry.sha256) await collect(tx, old.sha256);
+    await done(tx);
+  }
+
+  async deleteImage(id: string): Promise<void> {
+    const tx = this.db.transaction([IMAGES, IMAGE_BLOBS], 'readwrite');
+    await removeEntry(tx, id);
+    await done(tx);
+  }
+
+  async deleteImages(documentId: string): Promise<void> {
+    const tx = this.db.transaction([IMAGES, IMAGE_BLOBS], 'readwrite');
+    const ids = await request(
+      tx.objectStore(IMAGES).index('documentId').getAllKeys(documentId)
+    );
+    for (const id of ids) await removeEntry(tx, String(id));
+    await done(tx);
+  }
+}
+
+const done = (tx: IDBTransaction) =>
+  new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+
+async function removeEntry(tx: IDBTransaction, id: string) {
+  const images = tx.objectStore(IMAGES);
+  const old = (await request(images.get(id))) as ImageEntry | undefined;
+  if (!old) return;
+  await request(images.delete(id));
+  await collect(tx, old.sha256);
+}
+
+/** Delete the blob once no entry refers to it. */
+async function collect(tx: IDBTransaction, sha256: string) {
+  const users = await request(
+    tx.objectStore(IMAGES).index('sha256').count(sha256)
+  );
+  if (users === 0) await request(tx.objectStore(IMAGE_BLOBS).delete(sha256));
 }
