@@ -108,7 +108,8 @@ export const DEFAULT_LST: LstSettings = {
   basicstyle: { unsupported: [] },
   // lstmisc.sty: \lst@Key{keywordstyle}{\bfseries}
   keywordstyle: [{ series: 'bf', unsupported: [] }],
-  commentstyle: { unsupported: [] },
+  // lstmisc.sty: \lst@AddToHook{EmptyStyle}{\let\lst@commentstyle\itshape}
+  commentstyle: { shape: 'it', unsupported: [] },
   stringstyle: { unsupported: [] },
   identifierstyle: { unsupported: [] },
   directivestyle: null,

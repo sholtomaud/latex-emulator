@@ -936,10 +936,16 @@ class Renderer {
 
   /** \begin{lstlisting}[options] … \end{lstlisting} (listings.sty). */
   renderListing(n: VerbatimNode, ctx: Context): HElement {
-    const s = n.options
-      ? this.lstApply(this.lst, n.options, n.range)
-      : this.lst;
-    const lang = this.lstLanguage(s, n.range);
+    // Warnings point at \begin{lstlisting}[options], not the whole code.
+    const head = {
+      start: n.range.start,
+      end:
+        n.range.start +
+        '\\begin{lstlisting}'.length +
+        (n.options === undefined ? 0 : n.options.length + 2),
+    };
+    const s = n.options ? this.lstApply(this.lst, n.options, head) : this.lst;
+    const lang = this.lstLanguage(s, head);
     const first = s.firstnumber === 'auto' ? 1 : s.firstnumber;
     const { lines, next } = listingLines(n.value, s, lang, first);
     this.lstNextLine = next;

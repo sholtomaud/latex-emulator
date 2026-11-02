@@ -7,53 +7,7 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-### Roadmap step 10a: `listings` (branch `claude/funny-faraday-ybhxy9`, ADR 0014 to write)
-
-Done so far (unit-tested, `npm test` green):
-
-- Lexer/parser: `lstlisting` captured raw with its `[options]` (rest of the
-  `\begin` line dropped); `\lstinline[opts]|…|` and `\lstinline{…}` as `verb`
-  nodes with `name: 'lstinline'` (`src/latex/lexer/lexer.ts`, AST fields
-  `options`, `name`).
-- `src/latex/listings/`: generated language data (`languages.ts`, from
-  `scripts/make-lst-languages.ts`: 18 languages), the listings lexer
-  (`lexer.ts`: listings' letter/other runs, comments, strings, directives,
-  texcs, tabs, visible spaces), options (`options.ts`: `\lstset`,
-  `\lstdefinestyle`, `style=`, fonts, numbers, frame, columns, caption…),
-  CM metrics (`cm-metrics.ts`, from `scripts/make-cm-metrics.ts`).
-- `src/render/listings.ts`: fixed columns (units n × basewidth, characters
-  spread like `\lst@FillFixed`), flexible/fullflexible lost-space model,
-  OT1 roman glyphs, numbers; wired into `render-document.ts` (captions
-  "Listing n:", labels, `\lstinline`, diagnostics); preview lazy-loads the
-  language chunk (`src/render/lst-languages.ts`); `to-dom.ts` style
-  allow-list per declaration.
-- Fixture `fixtures/listings-basic` with pdflatex references.
-
-Still to do, in order:
-
-1. Findings from the fixture to apply:
-   - default `commentstyle` is `\itshape` (lstmisc.sty `EmptyStyle` hook);
-   - basewidth's em is the basic font's **quad** (cmtt 1.05, cmbx 1.15),
-     use `CM_METRICS[...].quad`;
-   - `\lstinline` adds `flexiblecolumns` (listings.sty `\lstinline`);
-   - flexible columns in roman need natural widths from `CM_METRICS`
-     (verified: inline `x = f(y)` puts `=` at 157.36pt vs 157.34pt).
-2. CSS in `base.css`: `.lstlisting`/`.lst-code` containers, `.lst-line`
-   (no indent, `white-space: pre`, `word-spacing: normal`), `.lst-u`
-   (inline-flex, `justify-content: space-evenly`; `.l`/`.r` variants),
-   `.lst-sp`, `.lst-vs` (cmtt ␣ / cmr "suppress" stroke drawn in CSS),
-   `.lst-num` (normalfont, right edge at `--lst-numbersep` left of the
-   line), frames (`--lst-framesep`, `--lst-framerule`), captions
-   (`\abovecaptionskip`/`\belowcaptionskip` = `\smallskipamount` 3pt),
-   `aboveskip`/`belowskip` = `\medskipamount` 6pt. Measure every value with
-   the fixture.
-3. `print-fidelity.spec.ts`: a `codeLines` check (first glyph of each
-   `.lst-line` vs the reference line), skip `.lst-line` in the line-break
-   walk; add the `listings-basic` entry.
-4. e2e (lazy language load, `\lstinline`, diagnostics), visual baseline
-   `preview-listings.png` in the pinned image, Monarch grammar: no LaTeX
-   highlighting inside `lstlisting`.
-5. ADR 0014, AGENTS §6/§14, PR.
+Nothing: step 10a (`listings`) is done (ADR 0014).
 
 ## Next
 
@@ -66,9 +20,15 @@ Still to do, in order:
 
 ## Deferred follow-ups (from ADRs and PRs)
 
-- Listings: HTML/XML (tag mode), `breaklines`, `escapeinside`,
+- Fidelity measurement: switch the prose position checks in
+  `print-fidelity.spec.ts` to the baseline probe the code-line check uses
+  (glyph rects are rounded to whole pixels; ADR 0014), then tighten.
+- Monaco grammar: don't highlight the inside of `lstlisting`/`verbatim` as
+  LaTeX.
+- Listings (ADR 0014): HTML/XML (tag mode), `breaklines`, `escapeinside`,
   `\lstinputlisting`, `aboveskip`/`belowskip` keys, `upquote`, `\color`
-  styles (no xcolor yet), `\lstlistoflistings`.
+  styles (no xcolor yet), `\lstlistoflistings`, kerns inside flexible
+  units, frames other than `single` measured against pdflatex.
 - Figures (ADR 0013): `\includegraphics{` typeahead; an "Add image…" quick
   fix for a missing image (needs command-style fixes beyond ADR 0011's text
   edits); Exif resolution; Zotero attachments; project zip export with each

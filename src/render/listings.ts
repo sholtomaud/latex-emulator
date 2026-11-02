@@ -4,7 +4,10 @@
  * Fixed columns (the default, columns=[c]fixed): every output unit of n
  * characters is a box n × basewidth wide (\lst@OutputToken); its characters
  * are separated by \hss, with \hss at both ends for [c] (only after them for
- * [l], before for [r]) (\lst@FillFixed). Runs of spaces are whole columns.
+ * [l], before for [r]) (\lst@FillFixed). Each character is placed from the
+ * Computer Modern widths (Latin Modern's are the same), so overflowing
+ * units squeeze exactly as TeX's negative \hss does. Runs of spaces are
+ * whole columns.
  *
  * Flexible columns: units take their natural width. The first space after
  * a unit is a font space (\lst@outputspace); further spaces add basewidth to
@@ -23,9 +26,47 @@ import { lstLines, VISIBLE_SPACE } from '../latex/listings/lexer.ts';
 import type { LstToken } from '../latex/listings/lexer.ts';
 import type { LstLanguage } from '../latex/listings/language-types.ts';
 import type { LstFont, LstSettings } from '../latex/listings/options.ts';
+import { CM_METRICS } from '../latex/listings/cm-metrics.ts';
+import type { CmMetrics } from '../latex/listings/cm-metrics.ts';
 
-/** cmtt's characters are all 0.525em wide (cmtt10.tfm). */
-const TT_WIDTH = 0.525;
+/** The Computer Modern font a style selects (OT1: cmtt has no bold). */
+function metricsOf(font: LstFont, base?: LstFont): CmMetrics {
+  const family = font.family ?? base?.family ?? 'rm';
+  if (family === 'tt') return CM_METRICS.tt;
+  if (family === 'sf') return CM_METRICS.sf;
+  const bf = (font.series ?? base?.series) === 'bf';
+  const shape = font.shape ?? base?.shape;
+  const slanted = shape === 'it' || shape === 'sl';
+  if (bf) return CM_METRICS[slanted ? 'bfit' : 'bf'];
+  return CM_METRICS[shape === 'it' ? 'it' : shape === 'sl' ? 'sl' : 'rm'];
+}
+
+/** Widths of what listings prints for these ASCII characters in roman type. */
+const ROMAN_WIDTHS: Record<string, number> = {
+  '-': 0.7778, // \textminus
+  '*': 0.5, // \textasteriskcentered
+  '<': 0.7778, // \textless (math)
+  '>': 0.7778,
+  '\\': 0.5, // \textbackslash
+  '{': 0.5,
+  '}': 0.5,
+  '|': 0.2778,
+};
+
+/** A unit's natural width in em (TFM widths, no kerns), as TeX boxes it. */
+function naturalWidth(text: string, m: CmMetrics): number {
+  let w = 0;
+  for (const c of text) {
+    const code = c === VISIBLE_SPACE ? 32 : c.charCodeAt(0);
+    w +=
+      m !== CM_METRICS.tt && ROMAN_WIDTHS[c] !== undefined
+        ? ROMAN_WIDTHS[c]
+        : code >= 32 && code <= 126
+          ? m.widths[code - 32]
+          : 0.5;
+  }
+  return w;
+}
 
 /** OT1 cmr glyphs for ASCII listings prints with \char or text commands. */
 const OT1_ROMAN: Record<string, string> = {
@@ -57,7 +98,7 @@ export function fontClasses(font: LstFont, base?: LstFont): string[] {
   return classes;
 }
 
-const em = (n: number) => `${Number(n.toFixed(4))}em`;
+const em = (n: number) => `${Number(n.toFixed(4)) || 0}em`;
 
 function styleFont(t: LstToken, s: LstSettings): LstFont {
   switch (t.style) {
@@ -133,20 +174,24 @@ export function inlineListing(
     tabsize: s.tabsize,
     showstringspaces: s.showstringspaces,
   });
+  // listings.sty: \lstinline does \lstset{flexiblecolumns,…}.
+  const inline: LstSettings =
+    s.columns === 'fixed' ? { ...s, columns: 'flexible' } : s;
   return h(
     'span',
     { class: ['lstinline', ...fontClasses(s.basicstyle)].join(' ') },
-    lineUnits(tokens, s)
+    lineUnits(tokens, inline)
   );
 }
 
 function lineUnits(tokens: LstToken[], s: LstSettings): (HElement | string)[] {
-  const tt = s.basicstyle.family === 'tt';
   const out: (HElement | string)[] = [];
+  // basewidth is in TeX's em, the basic font's quad (\fontdimen6).
+  const basic = metricsOf(s.basicstyle);
   if (s.columns === 'fixed') {
-    const align = s.align === 'c' ? [] : [s.align];
+    const column = s.basewidth * basic.quad;
     for (const t of tokens) {
-      const width = em(t.text.length * s.basewidth);
+      const width = em(t.text.length * column);
       if (t.kind === 'space') {
         out.push(h('span', { class: 'lst-sp', style: `width: ${width}` }));
         continue;
@@ -154,18 +199,30 @@ function lineUnits(tokens: LstToken[], s: LstSettings): (HElement | string)[] {
       const font = styleFont(t, s);
       const chars = [...t.text];
       const tokenTt = (font.family ?? s.basicstyle.family) === 'tt';
+      // \lst@FillFixed: \hss between the characters, and before and after
+      // them for [c] (after for [l], before for [r]); all \hss share the
+      // box's spare width equally, negative when the characters overflow.
+      const n = chars.length;
+      const spare =
+        n * column - naturalWidth(t.text, metricsOf(font, s.basicstyle));
+      const gap = spare / (s.align === 'c' ? n + 1 : n);
       out.push(
         h(
           'span',
           {
-            class: ['lst-u', ...align, ...fontClasses(font, s.basicstyle)].join(
-              ' '
-            ),
-            style: `width: ${em(chars.length * s.basewidth)}`,
+            class: ['lst-u', ...fontClasses(font, s.basicstyle)].join(' '),
+            style: `width: ${width}`,
           },
-          chars.length === 1
-            ? [glyph(chars[0], tokenTt)]
-            : chars.map((c) => h('span', {}, [glyph(c, tokenTt)]))
+          chars.map((c, i) => {
+            const before = i === 0 && s.align === 'l' ? 0 : gap;
+            return h(
+              'span',
+              Math.abs(before) < 5e-5
+                ? {}
+                : { style: `margin-left: ${em(before)}` },
+              [glyph(c, tokenTt)]
+            );
+          })
         )
       );
     }
@@ -173,7 +230,7 @@ function lineUnits(tokens: LstToken[], s: LstSettings): (HElement | string)[] {
   }
 
   // Flexible columns: \lst@lostspace bookkeeping, in em.
-  const bw = s.basewidthFlexible;
+  const bw = s.basewidthFlexible * basic.quad;
   let lost = 0;
   let atStart = true;
   let spaceUnitDone = false;
@@ -190,7 +247,7 @@ function lineUnits(tokens: LstToken[], s: LstSettings): (HElement | string)[] {
           // The first space after a unit: \lst@outputspace, a font space.
           kern();
           out.push(' ');
-          lost += bw - (tt ? TT_WIDTH : bw);
+          lost += bw - basic.space;
           spaceUnitDone = true;
         } else lost += bw;
       }
@@ -212,8 +269,7 @@ function lineUnits(tokens: LstToken[], s: LstSettings): (HElement | string)[] {
       )
     );
     lost +=
-      chars.length * bw -
-      (tokenTt ? chars.length * TT_WIDTH : chars.length * bw);
+      chars.length * bw - naturalWidth(t.text, metricsOf(font, s.basicstyle));
   }
   return out;
 }

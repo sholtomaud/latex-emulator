@@ -44,6 +44,11 @@ describe('applyLstOptions', () => {
     assert.deepEqual(DEFAULT_LST.keywordstyle, [
       { series: 'bf', unsupported: [] },
     ]);
+    // lstmisc.sty: \lst@AddToHook{EmptyStyle}{\let\lst@commentstyle\itshape}
+    assert.deepEqual(DEFAULT_LST.commentstyle, {
+      shape: 'it',
+      unsupported: [],
+    });
   });
 
   test('keys apply in order; style= inserts a named style there', () => {
@@ -111,5 +116,23 @@ describe('applyLstOptions', () => {
       'frame=shadowbox',
       'commentstyle: \\color',
     ]);
+  });
+});
+
+describe('applyLstOptions: more keys', () => {
+  test('bare keys, directivestyle, flexiblecolumns, and silently accepted keys', () => {
+    const s = applyLstOptions(
+      DEFAULT_LST,
+      'showstringspaces, directivestyle=\\itshape, flexiblecolumns, float, name=x',
+      new Map()
+    );
+    assert.equal(s.showstringspaces, true);
+    assert.deepEqual(s.directivestyle, { shape: 'it', unsupported: [] });
+    assert.equal(s.columns, 'flexible');
+    assert.deepEqual(s.problems, []);
+    assert.equal(
+      applyLstOptions(s, 'flexiblecolumns=false', new Map()).columns,
+      'fixed'
+    );
   });
 });

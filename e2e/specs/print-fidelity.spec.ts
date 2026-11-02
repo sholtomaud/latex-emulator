@@ -32,6 +32,8 @@ function locate(
 
 /** Computer Modern FontDescriptor ascent/descent (694/−194): poppler's box → baseline. */
 const refBaseline = (l: RefLine) => l.yMin + ((l.yMax - l.yMin) * 694) / 888;
+/** The same for cmtt (611/−222). */
+const refBaselineTt = (l: RefLine) => l.yMin + ((l.yMax - l.yMin) * 611) / 833;
 
 interface FixtureSpec {
   name: string;
@@ -41,6 +43,20 @@ interface FixtureSpec {
   bibFiles?: string[];
   /** Images to add to the document first (paths inside the fixture). */
   images?: string[];
+  /**
+   * Listing lines, in order: the reference line's text starts with `start`;
+   * `tt` for typewriter lines (cmtt's FontDescriptor, 611/−222). Each is
+   * compared with the first glyph of the matching .lst-line.
+   */
+  codeLines?: {
+    start: string;
+    tt?: boolean;
+    /**
+     * When poppler's box is no use (a line mixing in cmsy's ∗ is taller),
+     * the baseline is `by` pt below the line starting with `line`.
+     */
+    below?: { line: string; by: number };
+  }[];
   /** Lines whose start we check: paragraphs, headings, title lines, items. */
   checked: string[];
   /**
@@ -215,6 +231,34 @@ const FIXTURES: FixtureSpec[] = [
     headings: ['Figures'],
     body: [140, 700],
   },
+  {
+    name: 'listings-basic',
+    ready: { selector: '.lst-line', text: 'squares' },
+    checked: [
+      'Code',
+      'Listing',
+      'inline',
+      'Listing 1:',
+      'The text continues',
+      'of this paragraph',
+      'After both listings',
+    ],
+    centred: ['Listing 1:'],
+    headings: ['Code'],
+    body: [140, 700],
+    // Line numbers of the framed listing.
+    displayLines: ['1', '2', '3', '4'],
+    codeLines: [
+      { start: 'def' },
+      { start: '# the' },
+      // Contains cmsy's ∗: one \baselineskip (13.6pt) below the comment.
+      { start: 'return [', below: { line: '# the', by: (13.6 * 72) / 72.27 } },
+      { start: 'int main', tt: true },
+      { start: 'printf', tt: true },
+      { start: 'return 0', tt: true },
+      { start: '}', tt: true },
+    ],
+  },
 ];
 
 for (const fixture of FIXTURES) {
@@ -274,7 +318,10 @@ for (const fixture of FIXTURES) {
       const ours = await frame.evaluate(async () => {
         await document.fonts.ready;
         const starts: string[] = [];
-        for (const para of document.querySelectorAll('article p')) {
+        // Listing lines are code, checked by codeLines.
+        for (const para of document.querySelectorAll(
+          'article p:not(.lst-line)'
+        )) {
           const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT, {
             // Labels aren't text; inline math is one box (its fraction
             // denominators are not new lines).
@@ -320,8 +367,9 @@ for (const fixture of FIXTURES) {
       // poppler splits a line at font changes: merge fragments on one baseline.
       const merged: RefLine[] = [];
       const display = new Set(fixture.displayLines ?? []);
+      const code = (fixture.codeLines ?? []).map((c) => c.start);
       for (const l of reference.pages[0].lines.filter(
-        (x) => !display.has(x.text)
+        (x) => !display.has(x.text) && !code.some((c) => x.text.startsWith(c))
       )) {
         const same = merged.find((m) => Math.abs(m.yMin - l.yMin) < 2);
         if (same) {
@@ -430,6 +478,87 @@ for (const fixture of FIXTURES) {
             .toBeLessThanOrEqual(centred.has(r.needle) ? 1 : 0.5);
           expect
             .soft(Math.abs(r.dy), `baseline of "${r.needle}" (pt)`)
+            .toBeLessThanOrEqual(1);
+        }
+      });
+
+    if (fixture.codeLines)
+      test('listing lines start where pdflatex puts them', async ({ page }) => {
+        const frame = await load(page);
+        const ours = await frame.evaluate(async () => {
+          await document.fonts.ready;
+          const box = document
+            .querySelector('.latex-page')!
+            .getBoundingClientRect();
+          const PX_TO_PT = 0.75;
+          return [...document.querySelectorAll('.lst-line')].flatMap((line) => {
+            const walker = document.createTreeWalker(
+              line,
+              NodeFilter.SHOW_TEXT,
+              {
+                acceptNode: (n) =>
+                  n.parentElement!.closest('.lst-num') || !n.textContent!.trim()
+                    ? NodeFilter.FILTER_REJECT
+                    : NodeFilter.FILTER_ACCEPT,
+              }
+            );
+            const n = walker.nextNode();
+            if (!n) return [];
+            const at = n.textContent!.search(/\S/);
+            const r = document.createRange();
+            r.setStart(n, at);
+            r.setEnd(n, at + 1);
+            const rect = r.getClientRects()[0];
+            // The baseline exactly: an empty inline-block's bottom edge sits on
+            // it. (A glyph rect is rounded to whole pixels, which biases
+            // "top + 0.806em" by up to 1pt, more at small sizes.)
+            const probe = document.createElement('span');
+            probe.style.cssText = 'display:inline-block;width:0;height:0';
+            r.insertNode(probe);
+            const baseline = probe.getBoundingClientRect().bottom;
+            probe.remove();
+            return [
+              {
+                x: (rect.left - box.left) * PX_TO_PT,
+                baseline: (baseline - box.top) * PX_TO_PT,
+              },
+            ];
+          });
+        });
+        const lines = reference.pages[0].lines;
+        const rows = fixture.codeLines!.map((c, i) => {
+          const find = (start: string) => {
+            const l = lines.find((x) => x.text.startsWith(start));
+            if (!l) throw new Error(`"${start}" is not in the reference`);
+            return l;
+          };
+          const line = find(c.start);
+          const base = c.below
+            ? refBaseline(find(c.below.line)) + c.below.by
+            : c.tt
+              ? refBaselineTt(line)
+              : refBaseline(line);
+          return {
+            start: c.start,
+            dx: ours[i].x - line.xMin,
+            dy: ours[i].baseline - base,
+          };
+        });
+        console.log(
+          rows
+            .map(
+              (r) =>
+                `${r.start.padEnd(32)} dx=${r.dx.toFixed(2)}pt dy=${r.dy.toFixed(2)}pt`
+            )
+            .join('\n')
+        );
+        expect(ours).toHaveLength(fixture.codeLines!.length);
+        for (const r of rows) {
+          expect
+            .soft(Math.abs(r.dx), `x of "${r.start}" (pt)`)
+            .toBeLessThanOrEqual(0.5);
+          expect
+            .soft(Math.abs(r.dy), `baseline of "${r.start}" (pt)`)
             .toBeLessThanOrEqual(1);
         }
       });

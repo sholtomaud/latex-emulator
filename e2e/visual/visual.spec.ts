@@ -115,6 +115,20 @@ test.describe('visual', () => {
     await expect(sheet).toHaveScreenshot('preview-tables.png');
   });
 
+  test('preview page with listings', async ({ page }) => {
+    await openApp(page);
+    await setSource(
+      page,
+      fs.readFileSync('fixtures/listings-basic/input.tex', 'utf8')
+    );
+    const sheet = page
+      .frameLocator('latex-preview iframe')
+      .locator('.latex-page');
+    await expect(sheet.locator('.lst-line')).toHaveCount(7);
+    await page.evaluate(() => document.fonts.ready);
+    await expect(sheet).toHaveScreenshot('preview-listings.png');
+  });
+
   test('preview page with figures', async ({ page }) => {
     await openApp(page);
     const toggle = page.getByRole('button', { name: 'Toggle documents' });

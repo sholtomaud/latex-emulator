@@ -31,10 +31,10 @@ const ALLOWED_ATTRS = new Set(['class', 'data-env', 'colspan', 'alt']);
 /**
  * The only inline styles the renderer generates: p{…} widths, image boxes,
  * listings' unit widths, margins and rule settings. Each declaration must be
- * one of these properties with a plain number in pt or em.
+ * one of these properties with a plain (possibly negative) number in pt or em.
  */
 const SAFE_DECL =
-  /^(width|height|margin-left|margin-right|--lst-numbersep|--lst-framesep|--lst-framerule): \d+(\.\d+)?(pt|em)$/;
+  /^(width|height|margin-left|margin-right|--lst-numbersep|--lst-framesep|--lst-framerule): -?\d+(\.\d+)?(pt|em)$/;
 const safeStyle = (style: string) =>
   style.split('; ').every((d) => SAFE_DECL.test(d));
 /**

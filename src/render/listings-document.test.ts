@@ -20,7 +20,7 @@ describe('lstlisting in a document', () => {
     );
     assert.match(
       out,
-      /^<p>Before\.<\/p><div class="lstlisting"><div class="lst-code"><p class="lst-line"><span class="lst-u" style="width: 0\.6em">x<\/span><\/p><\/div><\/div><p class="noindent">After\.<\/p>$/
+      /^<p>Before\.<\/p><div class="lstlisting"><div class="lst-code"><p class="lst-line"><span class="lst-u" style="width: 0\.6em"><span style="margin-left: 0\.0361em">x<\/span><\/span><\/p><\/div><\/div><p class="noindent">After\.<\/p>$/
     );
     assert.deepEqual(codes('\\begin{lstlisting}\nx\n\\end{lstlisting}'), []);
   });
@@ -32,7 +32,7 @@ describe('lstlisting in a document', () => {
     );
     assert.match(
       out,
-      /<div class="lst-code tt"><p class="lst-line"><span class="lst-u" style="width: 1\.8em">/
+      /<div class="lst-code tt"><p class="lst-line"><span class="lst-u" style="width: 1\.89em">/
     );
     assert.match(out, /<div class="lst-code size-small">/);
   });
@@ -65,7 +65,7 @@ describe('lstlisting in a document', () => {
   test('\\lstinline is inline, in the current settings', () => {
     assert.match(
       html('Call \\lstinline[language=Python]|print(x)| now.'),
-      /^<p>Call <span class="lstinline"><span class="lst-u bf" style="width: 3em">/
+      /^<p>Call <span class="lstinline"><span class="lst-f bf">print<\/span>/
     );
   });
 
@@ -83,5 +83,14 @@ describe('lstlisting in a document', () => {
       '\\begin{lstlisting}[language=Cobol2]\nx\n\\end{lstlisting}'
     );
     assert.match(r.diagnostics[0].message, /language=Cobol2/);
+    // At the \\begin line and its options, not the whole listing.
+    const src = doc(
+      '\\begin{lstlisting}[language=Cobol2]\nx\n\\end{lstlisting}'
+    );
+    const d = renderDocument(src, { lstLanguages: LANGUAGES }).diagnostics[0];
+    assert.equal(
+      src.slice(d.range.start, d.range.end),
+      '\\begin{lstlisting}[language=Cobol2]'
+    );
   });
 });
