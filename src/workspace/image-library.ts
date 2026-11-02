@@ -221,6 +221,25 @@ export class ImageLibrary {
     return blob ? { fileName: name.split('/').pop()!, blob: blob.blob } : null;
   }
 
+  /** A document's images and their bytes, by name (for a project export, ADR 0015). */
+  async filesOf(
+    documentId: string
+  ): Promise<{ name: string; bytes: Uint8Array }[]> {
+    const entries = [...this.entries.values()]
+      .filter((e) => e.documentId === documentId)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const files: { name: string; bytes: Uint8Array }[] = [];
+    for (const e of entries) {
+      const blob = await this.load(e.sha256);
+      if (blob)
+        files.push({
+          name: e.name,
+          bytes: new Uint8Array(await blob.blob.arrayBuffer()),
+        });
+    }
+    return files;
+  }
+
   private mine(): ImageEntry[] {
     return [...this.entries.values()].filter(
       (e) => e.documentId === this.documentId

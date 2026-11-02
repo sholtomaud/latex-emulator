@@ -59,6 +59,9 @@ export class AppShellComponent extends BaseComponent {
     this.querySelector('.tex-button')!.addEventListener('click', () =>
       workspaceActions.download()
     );
+    this.querySelector('.zip-button')!.addEventListener('click', () =>
+      workspaceActions.downloadProject()
+    );
     this.querySelector('.preprint-button')!.addEventListener('click', () =>
       workspaceActions.preprint()
     );

@@ -38,6 +38,16 @@ test.describe('visual', () => {
       page.getByRole('navigation', { name: 'Documents' })
     ).toBeVisible();
     await page.mouse.move(0, 0); // no hover state
+    // Opening the explorer resizes the editor, and Monaco shows its
+    // vertical scrollbar for about 500ms afterwards. Wait for it to hide, so
+    // the snapshot doesn't depend on how fast the machine takes it.
+    await expect(
+      page
+        .locator(
+          'latex-editor .monaco-scrollable-element > .scrollbar.vertical'
+        )
+        .first()
+    ).toHaveClass(/\binvisible\b/);
     await expect(page).toHaveScreenshot('app-shell-explorer.png');
   });
 

@@ -27,6 +27,8 @@ import type { CitationServices } from '../language/cite-services.ts';
 import { ImageLibrary } from './image-library.ts';
 import { imageStore } from '../store/image-store.ts';
 import { downloadBlob } from '../util/download.ts';
+import { buildProject } from './project.ts';
+import { zip } from '../util/zip.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -156,6 +158,28 @@ export const workspaceActions = {
     act((w) => {
       const file = id ? w.exportDocument(id) : w.exportActive();
       if (file) downloadText(file.fileName, file.text, 'application/x-tex');
+    }),
+  /**
+   * The open document as a pdflatex project folder in a .zip (ADR 0015).
+   * A \bibliography file missing from the library is left out; the editor
+   * already flags it (ref/missing-bib-file).
+   */
+  downloadProject: () =>
+    act(async () => {
+      const { activeId: id, documents } = workspaceStore.getState();
+      const doc = documents.find((d) => d.id === id);
+      if (!id || !doc || !images) return;
+      const project = buildProject({
+        name: doc.name,
+        source: documentStore.getState().source,
+        bibFiles: bibStore.getState().sources,
+        images: await images.filesOf(id),
+      });
+      const bytes = await zip(project.files, new Date());
+      downloadBlob(
+        project.fileName,
+        new Blob([bytes], { type: 'application/zip' })
+      );
     }),
   saveVersion: (bump: Bump = 'patch') =>
     act((w) => w.saveVersion(bump).then(() => {})),

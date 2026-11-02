@@ -15,12 +15,10 @@ Nothing: step 10a (`listings`) is done (ADR 0014).
   `\If`/`\ElsIf`/`\Else`, `\For`, `\While`, `\Procedure`, `\Function`,
   `\Require`/`\Ensure`, `\Comment`, line numbers), the `algorithm` float
   (float.sty `ruled` style), measured against pdflatex.
-- **Project folders and cloud drives (ADR 0015, proposed).** Each phase is
-  its own PR:
-  - A. The project folder (`src/workspace/project.ts`: the `.tex`, the
-    `.bib` files its `\bibliography` lists, its Images next to the `.tex`)
-    as a zip download, plus a CI job that compiles it with real pdflatex
-    and bibtex.
+- **Project folders and cloud drives (ADR 0015).** Each phase is its own
+  PR. Phase A is done: the project folder (`src/workspace/project.ts`) as
+  a zip download, and `npm run check:projects` compiling it with real
+  pdflatex and bibtex in CI.
   - B. Save to a folder on this computer with the File System Access API
     (Chromium; zip elsewhere). A folder synced by the OneDrive or Google
     Drive desktop app puts the project in the cloud with no sign-in.
@@ -29,7 +27,8 @@ Nothing: step 10a (`listings`) is done (ADR 0014).
     Microsoft Entra ID app registration.
   - D. Google Drive on the same `CloudDrive` interface, scope `drive.file`.
     Needs a Google Cloud OAuth client.
-  - Later: automatic saving to the drive (off by default), versions in the
+  - Later: export a document other than the open one (from the explorer);
+    automatic saving to the drive (off by default), versions in the
     drive.
 - Steps 11–13 of AGENTS §14 (elsarticle, the starter-document tour, the
   language worker and the rest).
