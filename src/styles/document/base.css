@@ -132,6 +132,8 @@ body {
   .latex-document .unknown-environment,
   .latex-document .float,
   .latex-document .tabular,
+  .latex-document .lstlisting,
+  .latex-document .lst-code,
   .latex-document section
 ) {
   display: flow-root;
@@ -1151,4 +1153,189 @@ body {
 /* natbib's \newblock: \hskip .11em on top of the interword space. */
 .latex-document .newblock {
   margin-left: 0.11em;
+}
+
+/* ------------------------------------------------------------ listings */
+
+/*
+ * listings (listings.sty, lstmisc.sty). \lst@aboveskip and \lst@belowskip
+ * are \medskipamount; a caption adds \abovecaptionskip and
+ * \belowcaptionskip, both \smallskipamount in listings. Lines follow each
+ * other at \baselineskip, like any paragraph.
+ */
+.latex-document .lstlisting > .lst-code:first-child > .lst-line:first-child {
+  --before: var(--medskip);
+}
+
+.latex-document .lstlisting > .lst-caption:first-child {
+  --before: calc(var(--medskip) + var(--smallskip));
+}
+
+.latex-document .lst-caption + .lst-code > .lst-line:first-child,
+.latex-document .lst-code + .lst-caption {
+  --before: var(--smallskip);
+}
+
+.latex-document .lstlisting + * {
+  --prev-after: var(--medskip);
+}
+
+.latex-document .lstlisting:has(> .lst-caption.below) + * {
+  --prev-after: calc(var(--medskip) + var(--smallskip));
+}
+
+/* Each line is an \hbox: no indent, spaces as written, never broken. */
+.latex-document .lst-line {
+  position: relative;
+  text-indent: 0;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  hyphens: none;
+}
+
+/*
+ * Fixed columns: a unit of n characters is a box n × basewidth wide; the
+ * renderer places each character inside it as \lst@FillFixed's \hss
+ * would (inline widths and margins, from the CM metrics).
+ */
+.latex-document .lst-u {
+  display: inline-block;
+  font-kerning: none;
+  font-variant-ligatures: none;
+}
+
+.latex-document .lst-sp {
+  display: inline-block;
+}
+
+/*
+ * A visible space (showstringspaces): pdfTeX prints \char32. In cmtt that
+ * is ␣ (drawn here: LM Mono's subset has no U+2423); in cmr it is the short
+ * "suppress" stroke.
+ */
+.latex-document .lst-vs {
+  display: inline-block;
+  width: 0.2778em;
+  height: 0.04em;
+  vertical-align: 0.22em;
+  background: currentColor;
+  rotate: -20deg;
+}
+
+.latex-document .tt .lst-vs,
+.latex-document .lst-vs:is(.tt *) {
+  box-sizing: border-box;
+  width: 0.4em;
+  height: 0.22em;
+  margin: 0 0.0625em;
+  vertical-align: -0.1em;
+  background: none;
+  rotate: none;
+  border: 0.045em solid currentColor;
+  border-top: 0;
+}
+
+/*
+ * Line numbers: \llap{\normalfont numberstyle{n}\kern numbersep} at the
+ * line's start (numbers=left), or after \linewidth + numbersep (right).
+ * A zero-width box whose content hangs out; line-height 0 so a smaller
+ * numberstyle never grows the line.
+ */
+.latex-document .lst-num {
+  display: inline-flex;
+  width: 0;
+  justify-content: flex-end;
+  margin: 0 var(--lst-numbersep) 0 calc(-1 * var(--lst-numbersep));
+  line-height: 0;
+  vertical-align: baseline;
+  font-family: var(--rm-family), serif;
+  font-weight: normal;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.latex-document .lst-num.right {
+  justify-content: flex-start;
+  margin: 0;
+  left: calc(100% + var(--lst-numbersep));
+  position: relative;
+}
+
+/*
+ * Framed listings, measured against pdflatex (fixtures/listings-basic):
+ * the first baseline is \lineskip + framerule + framesep + 0.7 \baselineskip
+ * below \lst@aboveskip; after the frame, the next baseline is \lst@belowskip
+ * + its \baselineskip below the last line's strut depth (0.3 \baselineskip),
+ * the frame's own rule and sep not counting.
+ */
+.latex-document
+  .lstlisting
+  > .lst-code[class*='frame-']:first-child
+  > .lst-line:first-child {
+  --before: calc(
+    var(--medskip) + 1pt + var(--lst-framerule) + var(--lst-framesep) - 0.3 *
+      var(--blh)
+  );
+}
+
+.latex-document .lst-code[class*='frame-'] {
+  padding-bottom: calc(0.3 * var(--lh));
+}
+
+/*
+ * Frames: listings draws the side rules per line, each over the line's
+ * strut box (0.7/0.3 \baselineskip around the baseline), with framesep
+ * and framerule outside \linewidth; the top and bottom rules close the
+ * box framesep beyond the first and last lines. Rules are gradients of
+ * exact thickness (borders under 1px round up).
+ */
+.latex-document .lst-code[class*='frame-'] > .lst-line::before {
+  --out: calc(var(--lst-framesep) + var(--lst-framerule));
+  content: '';
+  position: absolute;
+  top: calc(0.3 * var(--blh) - var(--b));
+  height: var(--blh);
+  left: calc(-1 * var(--out));
+  right: calc(-1 * var(--out));
+  pointer-events: none;
+}
+
+.latex-document .lst-code.frame-single > .lst-line::before,
+.latex-document .lst-code.frame-leftline > .lst-line::before {
+  background: linear-gradient(currentColor, currentColor) left /
+    var(--lst-framerule) 100% no-repeat;
+}
+
+.latex-document .lst-code.frame-single > .lst-line::before {
+  background:
+    linear-gradient(currentColor, currentColor) left / var(--lst-framerule) 100%
+      no-repeat,
+    linear-gradient(currentColor, currentColor) right / var(--lst-framerule)
+      100% no-repeat;
+}
+
+.latex-document
+  .lst-code:is(.frame-single, .frame-lines, .frame-topline)
+  > .lst-line:first-child::before {
+  top: calc(0.3 * var(--blh) - var(--b) - var(--out));
+  height: calc(var(--blh) + var(--out));
+  border-top: 0 solid;
+  box-shadow: inset 0 var(--lst-framerule) currentColor;
+}
+
+.latex-document
+  .lst-code:is(.frame-single, .frame-lines, .frame-bottomline)
+  > .lst-line:last-child::before {
+  height: calc(var(--blh) + var(--out));
+  box-shadow: inset 0 calc(-1 * var(--lst-framerule)) currentColor;
+}
+
+.latex-document
+  .lst-code:is(.frame-single, .frame-lines)
+  > .lst-line:only-child::before {
+  height: calc(var(--blh) + 2 * var(--out));
+  box-shadow:
+    inset 0 var(--lst-framerule) currentColor,
+    inset 0 calc(-1 * var(--lst-framerule)) currentColor;
 }

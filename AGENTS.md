@@ -279,6 +279,9 @@ document (ADR 0003).
   (PNG and JPEG drawn at pdfTeX's natural size, PDF figures as a framed box;
   `width`, `height`, `scale`, `keepaspectratio`, `angle` in quarter turns,
   `draft`) and `\graphicspath`, from the document's own Images folder.
+- Code (ADR 0014): `listings`' `lstlisting`, `\lstinline`, `\lstset`,
+  `\lstdefinestyle`/`style=`; 18 languages generated from TeX Live's
+  definitions; fixed and flexible columns, numbers, frames, captions.
 
 **Tier 2:** `\newcommand`/`\renewcommand` (with optional-arg defaults),
 `abstract`,
@@ -498,7 +501,8 @@ the commit message.
   after a `\sqrt` display). Fixtures can also check equation numbers
   (`eqnos`) and skip display-math lines in the line-break check
   (`displayLines`). A fixture's `images/` folder is added to the
-  document's Images before rendering (`figure-basic`).
+  document's Images before rendering (`figure-basic`). `codeLines` checks
+  each listing line's first glyph and baseline (`listings-basic`).
   Tighten these tolerances as fidelity improves; never loosen them to get
   green. `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
 
@@ -594,6 +598,9 @@ chosen branch.
   suites they belong to.
 - Keep this file current. If a change makes any statement here false, update
   AGENTS.md in the same PR.
+- `docs/backlog.md` is the open-work list: what is in progress (with where
+  it stands), what is next, and deferred follow-ups. Read it when picking
+  work up; update it in the PR that starts, finishes or defers an item.
 
 ---
 
@@ -639,8 +646,9 @@ chosen branch.
    Images folders (upload, drag-and-drop, paste, reuse across documents
    without copies; IndexedDB), checked against pdflatex (ADR 0013). Later:
    Zotero attachments, `\includegraphics` typeahead.
-10. Code: `listings` (`lstlisting`, `\lstinline`) and `algorithm` +
-    `algpseudocode` for pseudocode. No invented `\code` command.
+10. Code. ✅ `listings` (`lstlisting`, `\lstinline`), checked against
+    pdflatex (ADR 0014). Still to do: `algorithm` + `algpseudocode` for
+    pseudocode. No invented `\code` command.
 11. `elsarticle` class (Elsevier), checked against pdflatex.
 12. The starter document becomes a tour of every supported feature (updated
     alongside each step above).

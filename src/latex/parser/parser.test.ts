@@ -221,6 +221,26 @@ describe('parse: environments', () => {
     assert.strictEqual(diagnostics[0].severity, 'warning');
   });
 
+  test('lstlisting and \\lstinline keep their options', () => {
+    const [env] = parse(
+      '\\begin{lstlisting}[language=C]\nint x;\n\\end{lstlisting}'
+    ).root.children;
+    assert.ok(env.kind === 'verbatim');
+    assert.deepStrictEqual(
+      [env.env, env.options, env.value],
+      ['lstlisting', 'language=C', 'int x;\n']
+    );
+    const [inline] = parse('\\lstinline[style=x]|a|').root.children;
+    assert.ok(inline.kind === 'verb');
+    assert.deepStrictEqual(
+      [inline.name, inline.options, inline.value],
+      ['lstinline', 'style=x', 'a']
+    );
+    assert.deepStrictEqual(codes('\\lstinline{a'), [
+      'syntax/unterminated-verb',
+    ]);
+  });
+
   test('verbatim environments', () => {
     assert.deepStrictEqual(
       shape(parse('\\begin{verbatim}$x$\\end{verbatim}').root.children),

@@ -17,6 +17,8 @@ import { fitScale } from '../../render/fit-scale.ts';
 import { debounce } from '../../util/debounce.ts';
 import { bibStore } from '../../store/bib-store.ts';
 import { loadBstStyles } from '../../render/bst-styles.ts';
+import { loadLstLanguages, usesListings } from '../../render/lst-languages.ts';
+import type { LstLanguage } from '../../latex/listings/language-types.ts';
 import { imageStore } from '../../store/image-store.ts';
 import { ImageUrls } from '../../render/image-urls.ts';
 import documentCss from '../../styles/document/base.css?raw';
@@ -42,6 +44,7 @@ export class LatexPreviewComponent extends BaseComponent {
   title = 'document';
   /** The .bst styles, once their chunk has loaded. */
   bstStyles: Record<string, string> | null = null;
+  lstLanguages: Record<string, LstLanguage> | null = null;
   imageUrls = new ImageUrls();
 
   constructor() {
@@ -173,10 +176,19 @@ export class LatexPreviewComponent extends BaseComponent {
     // Until the styles arrive, a document with a bibliography waits rather
     // than flashing "unknown style" warnings; the load re-renders it.
     if (!this.bstStyles && /\\bibliography\b/.test(source)) return;
+    // Listings' language data is its own chunk: load it, then render.
+    if (!this.lstLanguages && usesListings(source)) {
+      void loadLstLanguages().then((languages) => {
+        this.lstLanguages = languages;
+        this.render(documentStore.getState().source);
+      });
+      return;
+    }
     const result = renderDocument(source, {
       bibFiles: bibStore.getState().sources,
       bstStyles: this.bstStyles ?? {},
       images: this.imageUrls.update(imageStore.getState()),
+      lstLanguages: this.lstLanguages ?? {},
     });
     this.geometry = result.geometry;
     const css = geometryCss(result.geometry);
@@ -199,6 +211,8 @@ export class LatexPreviewComponent extends BaseComponent {
     const doc = this.frame.contentDocument;
     if (!win || !doc) return;
     await this.ensureStyles();
+    if (usesListings(job.source ?? documentStore.getState().source))
+      this.lstLanguages ??= await loadLstLanguages();
     const other = job.source !== undefined;
     if (other) this.render(job.source!);
     if (job.stamp && this.geometry && this.preprintStyle)

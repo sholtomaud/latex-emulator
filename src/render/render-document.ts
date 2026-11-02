@@ -38,6 +38,12 @@ import { graphicsBox, parseKeyval } from './graphics.ts';
 import { resolveGraphic } from '../images/resolve.ts';
 import { naturalSizeBp } from '../images/header.ts';
 import type { ImageInfo } from '../images/header.ts';
+import { DEFAULT_LST, applyLstOptions } from '../latex/listings/options.ts';
+import type { LstSettings } from '../latex/listings/options.ts';
+import type { LstLanguage } from '../latex/listings/language-types.ts';
+import { fontClasses, inlineListing, listingLines } from './listings.ts';
+import { parseLength } from './lengths.ts';
+import type { VerbNode, VerbatimNode } from '../latex/ast/nodes.ts';
 
 export interface RenderOptions {
   /** Date used for \today (defaults to now). */
@@ -51,6 +57,11 @@ export interface RenderOptions {
    * preview made for each. Only these URLs ever become an image source.
    */
   images?: Record<string, { url: string; info: ImageInfo }>;
+  /**
+   * listings' language definitions (src/latex/listings/languages.ts),
+   * loaded lazily by the preview for documents that use listings.
+   */
+  lstLanguages?: Record<string, LstLanguage>;
 }
 
 export interface RenderResult {
@@ -281,6 +292,8 @@ export function renderDocument(
   });
   first.lengths = lengths;
   first.images = options.images ?? {};
+  first.lstLanguages = options.lstLanguages ?? {};
+  first.listingsPreamble(parsed.root.children);
   first.renderBlocks(structure.body, first.rootContext());
   const renderer = new Renderer(structure, today, citations, {
     labels: first.labelsOut,
@@ -288,6 +301,8 @@ export function renderDocument(
   });
   renderer.lengths = lengths;
   renderer.images = options.images ?? {};
+  renderer.lstLanguages = options.lstLanguages ?? {};
+  renderer.listingsPreamble(parsed.root.children);
   const blocks = renderer.renderBlocks(structure.body, renderer.rootContext());
   if (renderer.footnotes.length)
     blocks.push(h('section', { class: 'footnotes' }, renderer.footnotes));
@@ -331,12 +346,19 @@ class Renderer {
     equation: 0,
     table: 0,
     figure: 0,
+    lstlisting: 0,
   };
   /** The float being rendered (\\caption numbers within it). */
   float: 'table' | 'figure' | null = null;
   /** Lengths for p{…} columns and \\includegraphics, in bp. */
   lengths: LengthContext = { textwidth: 345, em: 10, ex: 4.3 };
   images: NonNullable<RenderOptions['images']> = {};
+  lstLanguages: Record<string, LstLanguage> = {};
+  /** listings' settings so far (\lstset), and its named styles. */
+  lst: LstSettings = DEFAULT_LST;
+  lstStyles = new Map<string, string>();
+  /** The line number after the last listing (firstnumber=last). */
+  lstNextLine = 1;
 
   constructor(
     structure: DocumentStructure,
@@ -486,7 +508,11 @@ class Renderer {
           continue;
         case 'verbatim':
           flush();
-          blocks.push(h('pre', { class: 'verbatim' }, [n.value]));
+          blocks.push(
+            n.env === 'lstlisting'
+              ? this.renderListing(n, ctx)
+              : h('pre', { class: 'verbatim' }, [n.value])
+          );
           after = 'block';
           continue;
         case 'math':
@@ -858,6 +884,139 @@ class Renderer {
       : img;
   }
 
+  /** \lstset and \lstdefinestyle in the preamble, in order. */
+  listingsPreamble(nodes: Node[]) {
+    for (const n of nodes) {
+      if (n.kind === 'environment' && n.name === 'document') break;
+      if (n.kind === 'command') this.listingsCommand(n);
+    }
+  }
+
+  listingsCommand(c: CommandNode) {
+    const args = c.args.filter((a) => !a.optional);
+    if (c.name === 'lstset') {
+      this.lst = this.lstApply(
+        this.lst,
+        toLatex(args[0]?.children ?? []),
+        c.range
+      );
+      // \lstset's changes are the new base, without the problems list.
+      this.lst = { ...this.lst, problems: [] };
+    } else if (c.name === 'lstdefinestyle')
+      this.lstStyles.set(
+        keyText(args[0]?.children ?? []).trim(),
+        toLatex(args[1]?.children ?? [])
+      );
+  }
+
+  /** Apply options, warning about what the emulator ignores. */
+  lstApply(base: LstSettings, options: string, range: Range): LstSettings {
+    const s = applyLstOptions(base, options, this.lstStyles);
+    if (s.problems.length)
+      this.warn(
+        range,
+        'syntax/unsupported-listings-option',
+        `The emulator ignores these listings options: ${s.problems.join(', ')}.`
+      );
+    return s;
+  }
+
+  /** The language's definition, warning when we have none. */
+  lstLanguage(s: LstSettings, range: Range): LstLanguage | null {
+    if (s.language === null) return null;
+    const lang = this.lstLanguages[s.language];
+    if (!lang && Object.keys(this.lstLanguages).length)
+      this.warn(
+        range,
+        'syntax/unknown-listings-language',
+        `The emulator has no listings definition for language=${s.languageName ?? s.language}; the code is shown without highlighting.`
+      );
+    return lang ?? null;
+  }
+
+  /** \begin{lstlisting}[options] … \end{lstlisting} (listings.sty). */
+  renderListing(n: VerbatimNode, ctx: Context): HElement {
+    // Warnings point at \begin{lstlisting}[options], not the whole code.
+    const head = {
+      start: n.range.start,
+      end:
+        n.range.start +
+        '\\begin{lstlisting}'.length +
+        (n.options === undefined ? 0 : n.options.length + 2),
+    };
+    const s = n.options ? this.lstApply(this.lst, n.options, head) : this.lst;
+    const lang = this.lstLanguage(s, head);
+    const first = s.firstnumber === 'auto' ? 1 : s.firstnumber;
+    const { lines, next } = listingLines(n.value, s, lang, first);
+    this.lstNextLine = next;
+    let caption: HElement | null = null;
+    if (s.caption !== undefined || s.title !== undefined) {
+      const text = tidy(
+        this.renderInline(parse(s.caption ?? s.title ?? '').root.children, ctx)
+      );
+      const cls = `caption lst-caption${s.captionpos === 'b' ? ' below' : ''}`;
+      if (s.caption !== undefined) {
+        const number = ++this.counters.lstlisting;
+        const outer = this.currentRef;
+        this.currentRef = String(number);
+        if (s.label) this.defineLabel(s.label, n.range);
+        this.currentRef = outer;
+        // \lstlistingname; \@makecaption as for floats.
+        caption = h('p', { class: cls }, [
+          h('span', { class: 'caption-label' }, [`Listing\u00a0${number}: `]),
+          ...text,
+        ]);
+      } else caption = h('p', { class: cls }, text);
+    }
+    const code = h(
+      'div',
+      {
+        class: [
+          'lst-code',
+          ...fontClasses(s.basicstyle),
+          ...(s.frame === 'none' ? [] : [`frame-${s.frame}`]),
+        ].join(' '),
+      },
+      lines
+    );
+    const pt = (len: string) => {
+      const v = parseLength(len, this.lengths);
+      return v === null ? null : `${Number(v.toFixed(4))}pt`;
+    };
+    const decls: [string, string | null][] = [
+      ['margin-left', pt(s.xleftmargin)],
+      ['margin-right', pt(s.xrightmargin)],
+    ];
+    if (s.numbers !== 'none') decls.push(['--lst-numbersep', pt(s.numbersep)]);
+    if (s.frame !== 'none')
+      decls.push(
+        ['--lst-framesep', pt(s.framesep)],
+        ['--lst-framerule', pt(s.framerule)]
+      );
+    const style = decls
+      .filter(
+        ([k, v]) => v !== null && !(v === '0pt' && k.startsWith('margin'))
+      )
+      .map(([k, v]) => `${k}: ${v}`)
+      .join('; ');
+    return h(
+      'div',
+      { class: 'lstlisting', ...(style ? { style } : {}) },
+      caption === null
+        ? [code]
+        : s.captionpos === 'b'
+          ? [code, caption]
+          : [caption, code]
+    );
+  }
+
+  renderLstinline(n: VerbNode): HElement {
+    const s = n.options
+      ? this.lstApply(this.lst, n.options, n.range)
+      : this.lst;
+    return inlineListing(n.value, s, this.lstLanguage(s, n.range));
+  }
+
   /** tabular as an HTML table: one column per spec column (rules included). */
   renderTabular(env: EnvironmentNode, ctx: Context): HElement {
     const spec = parseColumnSpec(lastMandatoryEnv(env), this.lengths);
@@ -1040,7 +1199,11 @@ class Renderer {
           out.push(n.char === '~' ? ' ' : n.char);
           break;
         case 'verb':
-          out.push(h('code', { class: 'verb' }, [n.value]));
+          out.push(
+            n.name === 'lstinline'
+              ? this.renderLstinline(n)
+              : h('code', { class: 'verb' }, [n.value])
+          );
           break;
         case 'verbatim':
           out.push(h('code', { class: 'verb' }, [n.value]));
@@ -1140,6 +1303,10 @@ class Renderer {
         ];
       case 'includegraphics':
         return [this.renderGraphic(c)];
+      case 'lstset':
+      case 'lstdefinestyle':
+        this.listingsCommand(c);
+        return [];
       case 'footnote': {
         const custom = c.args.find((a) => a.optional);
         const number = custom

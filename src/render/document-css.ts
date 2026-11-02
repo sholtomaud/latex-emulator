@@ -217,6 +217,10 @@ export function geometryCss(g: ArticleGeometry): string {
     // Floats and tables (size1x.clo \intextsep; article.cls).
     `  --intextsep: ${pt(g.options.size === 12 ? 14 : 12)};`,
     `  --abovecaptionskip: ${pt(10)};`,
+    // latex.ltx \smallskipamount / \medskipamount (listings' caption skips
+    // and aboveskip/belowskip).
+    `  --smallskip: ${pt(3)};`,
+    `  --medskip: ${pt(6)};`,
     `  --tabcolsep: ${pt(6)};`,
     `  --arrayrulewidth: ${pt(0.4)};`,
     `  --doublerulesep: ${pt(2)};`,
