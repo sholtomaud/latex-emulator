@@ -76,15 +76,22 @@ export interface MathNode {
 
 export interface VerbNode {
   kind: 'verb';
+  /** 'verb' or 'lstinline'. */
+  name: string;
   value: string;
   star: boolean;
+  /** \lstinline[options]: the raw key=value text. */
+  options?: string;
   range: Range;
 }
 
 export interface VerbatimNode {
   kind: 'verbatim';
   value: string;
+  /** 'verbatim', 'verbatim*' or 'lstlisting'. */
   env: string;
+  /** lstlisting[options]: the raw key=value text. */
+  options?: string;
   range: Range;
 }
 

@@ -213,9 +213,16 @@ class Parser {
           this.report(
             t.range,
             'syntax/unterminated-verb',
-            '\\verb is missing its closing delimiter.'
+            `\\${t.name ?? 'verb'} is missing its closing delimiter.`
           );
-        return { kind: 'verb', value: t.value, star: !!t.star, range: t.range };
+        return {
+          kind: 'verb',
+          name: t.name ?? 'verb',
+          value: t.value,
+          star: !!t.star,
+          ...(t.options !== undefined ? { options: t.options } : {}),
+          range: t.range,
+        };
       case 'verbatim':
         this.i++;
         if (t.unterminated)
@@ -231,6 +238,7 @@ class Parser {
           kind: 'verbatim',
           value: t.value,
           env: t.env!,
+          ...(t.options !== undefined ? { options: t.options } : {}),
           range: t.range,
         };
       case 'begin-group':

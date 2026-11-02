@@ -594,6 +594,9 @@ chosen branch.
   suites they belong to.
 - Keep this file current. If a change makes any statement here false, update
   AGENTS.md in the same PR.
+- `docs/backlog.md` is the open-work list: what is in progress (with where
+  it stands), what is next, and deferred follow-ups. Read it when picking
+  work up; update it in the PR that starts, finishes or defers an item.
 
 ---
 

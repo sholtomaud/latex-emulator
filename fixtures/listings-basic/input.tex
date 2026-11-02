@@ -1,0 +1,25 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{listings}
+\lstdefinestyle{framed}{basicstyle=\ttfamily\small, columns=fullflexible,
+  numbers=left, numberstyle=\tiny, frame=single}
+\begin{document}
+\section{Code}
+Listing~\ref{lst:py} is set with the package's defaults, in fixed columns,
+and so is the inline \lstinline|x = f(y)| in this paragraph.
+\begin{lstlisting}[language=Python, caption={Squares in Python.}, label=lst:py]
+def squares(n):
+    # the first n squares
+    return [i * i for i in range(n)]
+\end{lstlisting}
+The text continues after the first listing, long enough to reach a second
+line of this paragraph.
+
+\begin{lstlisting}[language=C, style=framed]
+int main(void) {
+    printf("hello, world\n");
+    return 0;
+}
+\end{lstlisting}
+
+After both listings the text continues.
+\end{document}

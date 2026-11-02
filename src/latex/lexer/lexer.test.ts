@@ -127,6 +127,38 @@ describe('tokenize', () => {
     ]);
   });
 
+  test('lstlisting is captured raw with its options; the rest of the \\begin line is dropped', () => {
+    const [tok, next] = tokenize(
+      '\\begin{lstlisting}[language=Python, caption={A [b] c}] ignored\nx = {1}  % no comment\n\\end{lstlisting}!'
+    );
+    assert.strictEqual(tok.type, 'verbatim');
+    assert.strictEqual(tok.env, 'lstlisting');
+    assert.strictEqual(tok.options, 'language=Python, caption={A [b] c}');
+    assert.strictEqual(tok.value, 'x = {1}  % no comment\n');
+    assert.deepStrictEqual([next.type, next.value], ['text', '!']);
+    const [plain] = tokenize('\\begin{lstlisting}\na\n\\end{lstlisting}');
+    assert.strictEqual(plain.options, undefined);
+    assert.strictEqual(plain.value, 'a\n');
+  });
+
+  test('\\lstinline takes a delimiter or braces, and options', () => {
+    const [a] = tokenize('\\lstinline|x[0] = {}|');
+    assert.deepStrictEqual(
+      [a.type, a.name, a.value],
+      ['verb', 'lstinline', 'x[0] = {}']
+    );
+    const [b] = tokenize('\\lstinline[language=C]{int x;}!');
+    assert.deepStrictEqual(
+      [b.name, b.options, b.value],
+      ['lstinline', 'language=C', 'int x;']
+    );
+    assert.strictEqual(b.raw, '\\lstinline[language=C]{int x;}');
+    const [c] = tokenize('\\lstinline{open');
+    assert.strictEqual(c.unterminated, true);
+    // \\lstinlinex is another command.
+    assert.strictEqual(tokenize('\\lstinlinex')[0].type, 'command');
+  });
+
   test('unterminated verbatim runs to end of input and is flagged', () => {
     const [tok] = tokenize('\\begin{verbatim}abc');
     assert.strictEqual(tok.type, 'verbatim');

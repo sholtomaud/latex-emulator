@@ -27,8 +27,12 @@ export interface Token {
   star?: boolean;
   /** \verb or verbatim with no closing delimiter. */
   unterminated?: boolean;
-  /** verbatim: the environment name ('verbatim' or 'verbatim*'). */
+  /** verbatim: the environment name ('verbatim', 'verbatim*', 'lstlisting'). */
   env?: string;
+  /** verb: the command ('verb' or 'lstinline'). */
+  name?: string;
+  /** lstlisting / \lstinline: the raw [key=value] options. */
+  options?: string;
 }
 
 const LETTER = /[A-Za-z@]/;
@@ -36,7 +40,7 @@ const WHITESPACE = /[ \t\r\n]/;
 /** Characters that end a run of plain text (TeX catcodes other than letter/other). */
 const TEXT_STOP = /[\\{}$&#^_~% \t\r\n[\]]/;
 const SPECIALS = new Set(['&', '#', '^', '_', '~']);
-const VERBATIM_ENVS = ['verbatim*', 'verbatim'];
+const VERBATIM_ENVS = ['verbatim*', 'verbatim', 'lstlisting'];
 
 /**
  * Split LaTeX source into tokens. Lossless: concatenating every token's `raw`
@@ -68,7 +72,12 @@ export function tokenize(src: string): Token[] {
     const ch = src[pos];
 
     if (ch === '\\') {
-      if (lexVerbatim(src, start, push) || lexVerb(src, start, push)) continue;
+      if (
+        lexVerbatim(src, start, push) ||
+        lexVerb(src, start, push) ||
+        lexLstinline(src, start, push)
+      )
+        continue;
       let end = start + 1;
       if (end < src.length && LETTER.test(src[end])) {
         while (end < src.length && LETTER.test(src[end])) end++;
@@ -142,8 +151,62 @@ function lexVerb(src: string, start: number, push: Push): boolean {
   const end = terminated ? close + 1 : close;
   push('verb', start, end, src.slice(contentStart, close), {
     star,
+    name: 'verb',
     unterminated: !terminated,
   });
+  return true;
+}
+
+/**
+ * `[options]` at `p` (balanced braces, so `caption={a [b] c}` works), as
+ * listings reads them: returns the text and the position after `]`.
+ */
+function bracketOptions(
+  src: string,
+  p: number
+): { text: string; end: number } | null {
+  if (src[p] !== '[') return null;
+  let depth = 0;
+  for (let q = p + 1; q < src.length; q++) {
+    const c = src[q];
+    if (c === '{') depth++;
+    else if (c === '}') depth--;
+    else if (c === ']' && depth <= 0)
+      return { text: src.slice(p + 1, q), end: q + 1 };
+    else if (c === '\n' && src[q + 1] === '\n') return null;
+  }
+  return null;
+}
+
+/**
+ * \lstinline[opts]<d>…<d> or \lstinline[opts]{…} (listings reads a
+ * braced argument up to the next `}`). Returns true if it consumed a token.
+ */
+function lexLstinline(src: string, start: number, push: Push): boolean {
+  if (!src.startsWith('\\lstinline', start)) return false;
+  let p = start + 10;
+  if (p < src.length && LETTER.test(src[p])) return false;
+  const opts = bracketOptions(src, p);
+  if (opts) p = opts.end;
+  const delim = src[p];
+  if (delim === undefined || delim === '\n') return false;
+  const closer = delim === '{' ? '}' : delim;
+  const contentStart = p + 1;
+  let close = contentStart;
+  while (close < src.length && src[close] !== closer && src[close] !== '\n')
+    close++;
+  const terminated = src[close] === closer;
+  push(
+    'verb',
+    start,
+    terminated ? close + 1 : close,
+    src.slice(contentStart, close),
+    {
+      name: 'lstinline',
+      ...(opts ? { options: opts.text } : {}),
+      unterminated: !terminated,
+    }
+  );
   return true;
 }
 
@@ -152,7 +215,16 @@ function lexVerbatim(src: string, start: number, push: Push): boolean {
   for (const env of VERBATIM_ENVS) {
     const open = `\\begin{${env}}`;
     if (!src.startsWith(open, start)) continue;
-    const contentStart = start + open.length;
+    let contentStart = start + open.length;
+    // listings: [options], then the rest of the \begin line is dropped.
+    const opts =
+      env === 'lstlisting' ? bracketOptions(src, contentStart) : null;
+    if (opts) contentStart = opts.end;
+    if (env === 'lstlisting') {
+      const eol = src.indexOf('\n', contentStart);
+      const closing = src.indexOf(`\\end{${env}}`, contentStart);
+      if (eol !== -1 && (closing === -1 || eol < closing)) contentStart = eol;
+    }
     const closeTag = `\\end{${env}}`;
     const close = src.indexOf(closeTag, contentStart);
     const terminated = close !== -1;
@@ -165,7 +237,12 @@ function lexVerbatim(src: string, start: number, push: Push): boolean {
       start,
       terminated ? close + closeTag.length : src.length,
       src.slice(Math.min(bodyStart, contentEnd), contentEnd),
-      { env, star: env.endsWith('*'), unterminated: !terminated }
+      {
+        env,
+        star: env.endsWith('*'),
+        unterminated: !terminated,
+        ...(opts ? { options: opts.text } : {}),
+      }
     );
     return true;
   }

@@ -28,8 +28,15 @@ const ALLOWED_TAGS = new Set([
   'img',
 ]);
 const ALLOWED_ATTRS = new Set(['class', 'data-env', 'colspan', 'alt']);
-/** The only inline styles the renderer generates: p{…} widths, image boxes. */
-const SAFE_STYLE = /^width: \d+(\.\d+)?pt(; height: \d+(\.\d+)?pt)?$/;
+/**
+ * The only inline styles the renderer generates: p{…} widths, image boxes,
+ * listings' unit widths, margins and rule settings. Each declaration must be
+ * one of these properties with a plain number in pt or em.
+ */
+const SAFE_DECL =
+  /^(width|height|margin-left|margin-right|--lst-numbersep|--lst-framesep|--lst-framerule): \d+(\.\d+)?(pt|em)$/;
+const safeStyle = (style: string) =>
+  style.split('; ').every((d) => SAFE_DECL.test(d));
 /**
  * Image sources are the blob: URLs the preview made for stored images
  * (ADR 0013). Nothing else — no http:, data: or javascript: — gets through.
@@ -97,7 +104,7 @@ export function toDom(node: HChild, doc: Document): Node {
   for (const [name, value] of Object.entries(node.attrs))
     if (
       ALLOWED_ATTRS.has(name) ||
-      (name === 'style' && SAFE_STYLE.test(value)) ||
+      (name === 'style' && safeStyle(value)) ||
       (name === 'src' && node.tag === 'img' && SAFE_SRC.test(value))
     )
       el.setAttribute(name, value);

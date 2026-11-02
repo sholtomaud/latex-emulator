@@ -343,6 +343,26 @@ env(
   'A figure float (shown where it is written; \\caption numbers it).'
 );
 cmd('caption', 'o m', 'Numbered caption of a figure or table.');
+env(
+  'lstlisting',
+  'o',
+  'Program code (listings): \\begin{lstlisting}[language=Python, caption=…] … \\end{lstlisting}.'
+);
+cmd(
+  'lstinline',
+  'o m',
+  'Inline code (listings): \\lstinline|x = 1| or \\lstinline[language=C]{int x;}.'
+);
+cmd(
+  'lstset',
+  'm',
+  'Sets listings options for the code that follows: \\lstset{language=Python, basicstyle=\\ttfamily}.'
+);
+cmd(
+  'lstdefinestyle',
+  'm m',
+  'Names a set of listings options, used with style=name.'
+);
 cmd(
   'includegraphics',
   'o m',

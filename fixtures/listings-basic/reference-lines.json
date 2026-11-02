@@ -1,0 +1,690 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 127.8,
+          "xMax": 125.9,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Code",
+          "xMin": 142.04,
+          "yMin": 127.8,
+          "xMax": 178.54,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "Code",
+              "xMin": 142.04,
+              "xMax": 178.54
+            }
+          ]
+        },
+        {
+          "text": "Listing 1 is set with the package’s defaults, in fixed columns, and so is the",
+          "xMin": 117.83,
+          "yMin": 154.54,
+          "xMax": 476.48,
+          "yMax": 164.22,
+          "words": [
+            {
+              "text": "Listing",
+              "xMin": 117.83,
+              "xMax": 150.77
+            },
+            {
+              "text": "1",
+              "xMin": 154.68,
+              "xMax": 160.14
+            },
+            {
+              "text": "is",
+              "xMin": 164.06,
+              "xMax": 171.39
+            },
+            {
+              "text": "set",
+              "xMin": 175.3,
+              "xMax": 188.7
+            },
+            {
+              "text": "with",
+              "xMin": 192.63,
+              "xMax": 213.84
+            },
+            {
+              "text": "the",
+              "xMin": 217.75,
+              "xMax": 232.91
+            },
+            {
+              "text": "package’s",
+              "xMin": 236.82,
+              "xMax": 281.12
+            },
+            {
+              "text": "defaults,",
+              "xMin": 285.04,
+              "xMax": 325.4
+            },
+            {
+              "text": "in",
+              "xMin": 329.39,
+              "xMax": 338.48
+            },
+            {
+              "text": "fixed",
+              "xMin": 342.4,
+              "xMax": 365.13
+            },
+            {
+              "text": "columns,",
+              "xMin": 369.04,
+              "xMax": 410.92
+            },
+            {
+              "text": "and",
+              "xMin": 414.92,
+              "xMax": 432.49
+            },
+            {
+              "text": "so",
+              "xMin": 436.41,
+              "xMax": 446.17
+            },
+            {
+              "text": "is",
+              "xMin": 450.08,
+              "xMax": 457.42
+            },
+            {
+              "text": "the",
+              "xMin": 461.33,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "inline x = f(y) in this paragraph.",
+          "xMin": 117.83,
+          "yMin": 168.08,
+          "xMax": 276.25,
+          "yMax": 177.77,
+          "words": [
+            {
+              "text": "inline",
+              "xMin": 117.83,
+              "xMax": 143.89
+            },
+            {
+              "text": "x",
+              "xMin": 147.52,
+              "xMax": 153.28
+            },
+            {
+              "text": "=",
+              "xMin": 157.34,
+              "xMax": 165.82
+            },
+            {
+              "text": "f(y)",
+              "xMin": 169.47,
+              "xMax": 187.04
+            },
+            {
+              "text": "in",
+              "xMin": 190.68,
+              "xMax": 199.77
+            },
+            {
+              "text": "this",
+              "xMin": 203.4,
+              "xMax": 221.04
+            },
+            {
+              "text": "paragraph.",
+              "xMin": 224.68,
+              "xMax": 276.25
+            }
+          ]
+        },
+        {
+          "text": "Listing 1: Squares in Python.",
+          "xMin": 226.63,
+          "yMin": 190.6,
+          "xMax": 367.69,
+          "yMax": 200.29,
+          "words": [
+            {
+              "text": "Listing",
+              "xMin": 226.63,
+              "xMax": 259.57
+            },
+            {
+              "text": "1:",
+              "xMin": 263.2,
+              "xMax": 271.68
+            },
+            {
+              "text": "Squares",
+              "xMin": 276.54,
+              "xMax": 313.3
+            },
+            {
+              "text": "in",
+              "xMin": 316.93,
+              "xMax": 326.02
+            },
+            {
+              "text": "Python.",
+              "xMin": 329.65,
+              "xMax": 367.69
+            }
+          ]
+        },
+        {
+          "text": "def s q u a r e s ( n ) :",
+          "xMin": 118.6,
+          "yMin": 207.14,
+          "xMax": 214.07,
+          "yMax": 216.83,
+          "words": [
+            {
+              "text": "def",
+              "xMin": 118.6,
+              "xMax": 136.69
+            },
+            {
+              "text": "s",
+              "xMin": 145.36,
+              "xMax": 149.67
+            },
+            {
+              "text": "q",
+              "xMin": 151.02,
+              "xMax": 156.78
+            },
+            {
+              "text": "u",
+              "xMin": 158.13,
+              "xMax": 164.19
+            },
+            {
+              "text": "a",
+              "xMin": 165.54,
+              "xMax": 171
+            },
+            {
+              "text": "r",
+              "xMin": 172.35,
+              "xMax": 176.62
+            },
+            {
+              "text": "e",
+              "xMin": 177.98,
+              "xMax": 182.82
+            },
+            {
+              "text": "s",
+              "xMin": 184.18,
+              "xMax": 188.48
+            },
+            {
+              "text": "(",
+              "xMin": 190.98,
+              "xMax": 195.22
+            },
+            {
+              "text": "n",
+              "xMin": 196.62,
+              "xMax": 202.68
+            },
+            {
+              "text": ")",
+              "xMin": 204.86,
+              "xMax": 209.1
+            },
+            {
+              "text": ":",
+              "xMin": 211.04,
+              "xMax": 214.07
+            }
+          ]
+        },
+        {
+          "text": "# the f i r s t n squares",
+          "xMin": 142.82,
+          "yMin": 220.69,
+          "xMax": 280.11,
+          "yMax": 230.37,
+          "words": [
+            {
+              "text": "#",
+              "xMin": 142.82,
+              "xMax": 151.74
+            },
+            {
+              "text": "the",
+              "xMin": 158.45,
+              "xMax": 175.39
+            },
+            {
+              "text": "f",
+              "xMin": 185.51,
+              "xMax": 188.86
+            },
+            {
+              "text": "i",
+              "xMin": 191.08,
+              "xMax": 194.43
+            },
+            {
+              "text": "r",
+              "xMin": 196.65,
+              "xMax": 201.25
+            },
+            {
+              "text": "s",
+              "xMin": 203.48,
+              "xMax": 207.94
+            },
+            {
+              "text": "t",
+              "xMin": 210.16,
+              "xMax": 213.79
+            },
+            {
+              "text": "n",
+              "xMin": 222.77,
+              "xMax": 228.9
+            },
+            {
+              "text": "squares",
+              "xMin": 237.01,
+              "xMax": 280.11
+            }
+          ]
+        },
+        {
+          "text": "return [ i * i f o r i in range ( n ) ]",
+          "xMin": 144.64,
+          "yMin": 231.5,
+          "xMax": 351.53,
+          "yMax": 245.6,
+          "words": [
+            {
+              "text": "return",
+              "xMin": 144.64,
+              "xMax": 182.66
+            },
+            {
+              "text": "[",
+              "xMin": 191.59,
+              "xMax": 194.62
+            },
+            {
+              "text": "i",
+              "xMin": 198.13,
+              "xMax": 201.16
+            },
+            {
+              "text": "*",
+              "xMin": 210.03,
+              "xMax": 215.45
+            },
+            {
+              "text": "i",
+              "xMin": 224.31,
+              "xMax": 227.34
+            },
+            {
+              "text": "f",
+              "xMin": 236.74,
+              "xMax": 240.57
+            },
+            {
+              "text": "o",
+              "xMin": 241.66,
+              "xMax": 247.94
+            },
+            {
+              "text": "r",
+              "xMin": 249.03,
+              "xMax": 254.19
+            },
+            {
+              "text": "i",
+              "xMin": 263.59,
+              "xMax": 266.62
+            },
+            {
+              "text": "in",
+              "xMin": 275.8,
+              "xMax": 287.14
+            },
+            {
+              "text": "range",
+              "xMin": 294.97,
+              "xMax": 326.87
+            },
+            {
+              "text": "(",
+              "xMin": 328.44,
+              "xMax": 332.68
+            },
+            {
+              "text": "n",
+              "xMin": 334.07,
+              "xMax": 340.14
+            },
+            {
+              "text": ")",
+              "xMin": 342.32,
+              "xMax": 346.56
+            },
+            {
+              "text": "]",
+              "xMin": 348.5,
+              "xMax": 351.53
+            }
+          ]
+        },
+        {
+          "text": "The text continues after the first listing, long enough to reach a second line",
+          "xMin": 117.83,
+          "yMin": 253.76,
+          "xMax": 476.48,
+          "yMax": 263.45,
+          "words": [
+            {
+              "text": "The",
+              "xMin": 117.83,
+              "xMax": 136.62
+            },
+            {
+              "text": "text",
+              "xMin": 140.1,
+              "xMax": 159.19
+            },
+            {
+              "text": "continues",
+              "xMin": 162.67,
+              "xMax": 206.98
+            },
+            {
+              "text": "after",
+              "xMin": 210.46,
+              "xMax": 232.61
+            },
+            {
+              "text": "the",
+              "xMin": 236.09,
+              "xMax": 251.24
+            },
+            {
+              "text": "first",
+              "xMin": 254.72,
+              "xMax": 273.6
+            },
+            {
+              "text": "listing,",
+              "xMin": 277.08,
+              "xMax": 309.26
+            },
+            {
+              "text": "long",
+              "xMin": 312.77,
+              "xMax": 332.78
+            },
+            {
+              "text": "enough",
+              "xMin": 336.26,
+              "xMax": 370.2
+            },
+            {
+              "text": "to",
+              "xMin": 373.68,
+              "xMax": 383.37
+            },
+            {
+              "text": "reach",
+              "xMin": 386.85,
+              "xMax": 412.04
+            },
+            {
+              "text": "a",
+              "xMin": 415.52,
+              "xMax": 420.98
+            },
+            {
+              "text": "second",
+              "xMin": 424.46,
+              "xMax": 456.03
+            },
+            {
+              "text": "line",
+              "xMin": 459.51,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "of this paragraph.",
+          "xMin": 117.83,
+          "yMin": 267.31,
+          "xMax": 203.1,
+          "yMax": 277,
+          "words": [
+            {
+              "text": "of",
+              "xMin": 117.83,
+              "xMax": 126.62
+            },
+            {
+              "text": "this",
+              "xMin": 130.25,
+              "xMax": 147.89
+            },
+            {
+              "text": "paragraph.",
+              "xMin": 151.53,
+              "xMax": 203.1
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 104.21,
+          "yMin": 289.46,
+          "xMax": 107.87,
+          "yMax": 294.77,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 104.21,
+              "xMax": 107.87
+            }
+          ]
+        },
+        {
+          "text": "2",
+          "xMin": 104.21,
+          "yMin": 301.42,
+          "xMax": 107.87,
+          "yMax": 306.73,
+          "words": [
+            {
+              "text": "2",
+              "xMin": 104.21,
+              "xMax": 107.87
+            }
+          ]
+        },
+        {
+          "text": "3",
+          "xMin": 104.21,
+          "yMin": 313.37,
+          "xMax": 107.87,
+          "yMax": 318.68,
+          "words": [
+            {
+              "text": "3",
+              "xMin": 104.21,
+              "xMax": 107.87
+            }
+          ]
+        },
+        {
+          "text": "4",
+          "xMin": 104.21,
+          "yMin": 325.33,
+          "xMax": 107.87,
+          "yMax": 330.64,
+          "words": [
+            {
+              "text": "4",
+              "xMin": 104.21,
+              "xMax": 107.87
+            }
+          ]
+        },
+        {
+          "text": "int main(void) {",
+          "xMin": 117.83,
+          "yMin": 287.53,
+          "xMax": 201.51,
+          "yMax": 295.82,
+          "words": [
+            {
+              "text": "int",
+              "xMin": 117.83,
+              "xMax": 133.52
+            },
+            {
+              "text": "main(void)",
+              "xMin": 138.75,
+              "xMax": 191.05
+            },
+            {
+              "text": "{",
+              "xMin": 196.28,
+              "xMax": 201.51
+            }
+          ]
+        },
+        {
+          "text": "printf(\"hello,␣world\\n\");",
+          "xMin": 136.66,
+          "yMin": 299.48,
+          "xMax": 267.42,
+          "yMax": 307.78,
+          "words": [
+            {
+              "text": "printf(\"hello,␣world\\n\");",
+              "xMin": 136.66,
+              "xMax": 267.42
+            }
+          ]
+        },
+        {
+          "text": "return 0;",
+          "xMin": 136.66,
+          "yMin": 311.44,
+          "xMax": 183.73,
+          "yMax": 319.73,
+          "words": [
+            {
+              "text": "return",
+              "xMin": 136.66,
+              "xMax": 168.04
+            },
+            {
+              "text": "0;",
+              "xMin": 173.27,
+              "xMax": 183.73
+            }
+          ]
+        },
+        {
+          "text": "}",
+          "xMin": 117.83,
+          "yMin": 323.39,
+          "xMax": 123.06,
+          "yMax": 331.69,
+          "words": [
+            {
+              "text": "}",
+              "xMin": 117.83,
+              "xMax": 123.06
+            }
+          ]
+        },
+        {
+          "text": "After both listings the text continues.",
+          "xMin": 134.76,
+          "yMin": 345.02,
+          "xMax": 314.98,
+          "yMax": 354.71,
+          "words": [
+            {
+              "text": "After",
+              "xMin": 134.76,
+              "xMax": 159.64
+            },
+            {
+              "text": "both",
+              "xMin": 163.28,
+              "xMax": 185.4
+            },
+            {
+              "text": "listings",
+              "xMin": 189.03,
+              "xMax": 222.49
+            },
+            {
+              "text": "the",
+              "xMin": 226.13,
+              "xMax": 241.28
+            },
+            {
+              "text": "text",
+              "xMin": 244.92,
+              "xMax": 264.01
+            },
+            {
+              "text": "continues.",
+              "xMin": 267.64,
+              "xMax": 314.98
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
