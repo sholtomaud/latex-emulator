@@ -522,6 +522,7 @@ npm run e2e:smoke            # smoke
 npm run e2e                  # functional e2e, dev + prod
 npm run e2e:visual           # visual snapshots (Docker, pinned image)
 npm run e2e:pages            # Pages build served under /latex-emulator/
+npm run check:projects       # project folders compile in pdflatex (needs TeX Live)
 # when crates/ exists:
 cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 npm run build:wasm           # wasm-bindgen → src/wasm/ (also regenerates ts-rs bindings)
@@ -537,6 +538,10 @@ run `npx playwright install --with-deps chromium`.
 `main`. Its jobs run in parallel, and all must pass:
 
 - **Unit:** typecheck, lint, runtime dependency audit, `test:coverage`, build (Node 25).
+- **LaTeX projects:** installs TeX Live and runs `npm run check:projects`:
+  the starter document and every fixture, exported as the app's project
+  folder, compile with pdflatex + bibtex with no undefined citations or
+  references (ADR 0015).
 - **Playwright (smoke)**, **(e2e)**, **(visual)**, **(pages)**: each runs in the
   pinned Playwright container and uploads its report and diffs as an artifact.
 
@@ -658,8 +663,8 @@ chosen branch.
     alongside each step above).
 13. Language worker (parsing and diagnostics off the main thread), lint rules,
     completion/hover, spell checking, PWA offline install, pagination-accurate
-    preview, project zip export with a CI check that the sample compiles in
-    real pdflatex.
+    preview. ✅ Project zip export with a CI check that the sample compiles
+    in real pdflatex (ADR 0015, phase A).
 
 **Rule for every feature above:** the document stays standard LaTeX that
 compiles with pdflatex and the named CTAN packages. Browser conveniences

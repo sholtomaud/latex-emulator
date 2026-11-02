@@ -101,6 +101,7 @@ test.describe('app shell', () => {
     for (const name of [
       'Toggle documents',
       'Download .tex',
+      'Download project (.zip)',
       'Download Preprint',
       'Download PDF',
     ]) {

@@ -1,7 +1,8 @@
 # 0015: Project folders, and saving them to OneDrive and Google Drive
 
-Status: proposed. Nothing here is built yet. The maintainer agreed the
-direction and the order of the phases. The points marked **verify** are
+Status: accepted; phase A (the zip download and its pdflatex check) is
+built, phases B–D are not. The maintainer agreed the direction and the
+order of the phases. The points marked **verify** are
 what is believed about the providers today, to be confirmed against them
 in the phase that needs them.
 
@@ -53,14 +54,34 @@ a-short-example/
 - A CI job (the "sample compiles in real pdflatex" check from §14 step 13)
   builds the folder for the fixtures and the starter document and runs
   `pdflatex`, `bibtex`, `pdflatex`, `pdflatex` on it. That is the test that
-  "ordinary LaTeX project" stays true.
+  "ordinary LaTeX project" stays true. It is `npm run check:projects`:
+  `scripts/export-projects.ts` writes the folders with the app's own
+  `buildProject()` (a fixture's `.bib` files become the library and its
+  `images/` files its Images, at their base names, as importing them does),
+  and `scripts/check-projects.sh` compiles each one. A folder fails on a
+  LaTeX or BibTeX error, a missing file, or an undefined citation or
+  reference. `figure-basic` shows the layout works even when the source
+  says `\graphicspath{{images/}}`: graphicx tries the document's own folder
+  first.
 
 ### 2. Destinations, in this order
 
-**A. Zip download.** The folder as a `.zip`, with a small zip writer of our
+**A. Zip download (built).** The folder as a `.zip`, with a small zip writer of our
 own and the browser's `CompressionStream('deflate-raw')`. This works in
 every browser, fills the "project zip export" item from ADR 0013, and
 gives the folder logic and the CI check something to run on.
+
+- The toolbar's "Download .zip" button (aria-label "Download project
+  (.zip)") saves the open document as `<folder>.zip`, holding
+  `<folder>/<folder>.tex` and the rest.
+- `src/util/zip.ts` writes plain ZIP (APPNOTE 2.0 features, UTF-8 names, no
+  ZIP64). Each file is deflated, or stored when deflating doesn't shrink it
+  (PNG, JPEG). Every file gets the download's time. It refuses absolute
+  paths, `..` and duplicates. Checked with Python's `zipfile` and `unzip -t`.
+- A `\bibliography` file the library doesn't have is left out, and the
+  download still happens: the editor already flags it
+  (`ref/missing-bib-file`), and `buildProject()` returns it in
+  `missingBibs` for later destinations that want to say so.
 
 **B. Save to a folder on this computer (File System Access API).**
 `showDirectoryPicker()`, then write the project folder into it. The folder

@@ -22,6 +22,7 @@
     "e2e:visual": "scripts/playwright-docker.sh test --project=visual",
     "e2e:visual:update": "scripts/playwright-docker.sh test --project=visual --update-snapshots",
     "build:pages": "scripts/build-pages.sh",
+    "check:projects": "rm -rf .projects && node scripts/export-projects.ts .projects && scripts/check-projects.sh .projects",
     "e2e:pages": "playwright test --project=pages",
     "audit": "npm audit --omit=dev --audit-level=high"
   },

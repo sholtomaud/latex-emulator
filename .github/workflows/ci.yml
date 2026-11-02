@@ -27,6 +27,23 @@ jobs:
       - run: npm run test:coverage
       - run: npm run build
 
+  latex-projects:
+    name: LaTeX projects (pdflatex + bibtex)
+    runs-on: ubuntu-latest
+    # The folders "Download project (.zip)" makes must compile in real
+    # pdflatex (ADR 0015). Only src/ TypeScript runs, so no npm ci.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25.x
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-bibtex-extra lmodern
+      - run: npm run check:projects
+
   playwright-version:
     runs-on: ubuntu-latest
     outputs:

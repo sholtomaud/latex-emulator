@@ -243,4 +243,24 @@ describe('ImageLibrary', () => {
     assert.equal(second.library.file('a.png')?.fileName, 'a.png');
     assert.equal(second.library.file('nope'), null);
   });
+
+  test('filesOf gives any document’s images with their bytes, for a project export', async () => {
+    const { repo, library } = setup();
+    await library.init();
+    await library.open('d1');
+    await library.add('a.png', png(1, 1, 1));
+    await library.add('b.png', png(2, 2, 2));
+    await library.open('d2');
+    await library.add('c.png', png(3, 3, 3));
+    // A fresh library that never opened d1 still reads its bytes.
+    const other = setup(repo);
+    await other.library.init();
+    const files = await other.library.filesOf('d1');
+    assert.deepEqual(
+      files.map((f) => f.name),
+      ['a.png', 'b.png']
+    );
+    assert.deepEqual(files[1].bytes, png(2, 2, 2));
+    assert.deepEqual(await other.library.filesOf('none'), []);
+  });
 });
