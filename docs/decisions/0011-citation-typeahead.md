@@ -24,13 +24,15 @@ asked for typeahead from the library and from Zotero.
 - **Zotero in the typeahead is opt-in.** The setting is "Suggest from Zotero
   while typing citations" in the Zotero panel.
   - When it is on, prefixes of 3+ characters are searched in the chosen
-    Zotero (local or web), and results are cached per prefix.
+    Zotero (local or web), and results are cached per prefix. Zotero on
+    this computer refuses requests from web pages (ADR 0009), so in
+    practice suggestions come from the web library.
   - Choosing a Zotero item inserts its new `author_topic_year` key and adds
     the entry to the first library file the document's `\bibliography` lists
     (else `references.bib`).
   - Off by default, so typing never makes network requests unless the user
     asked for that.
-- **Hovers** on a key show "Authors (Year). Title. *file.bib*".
+- **Hovers** on a key show "Authors (Year). Title. _file.bib_".
 - **Quick fixes.** A diagnostic may carry `fixes` (text edits, as in
   AGENTS.md §8); `src/language/markers.ts` maps them to Monaco code actions
   (Ctrl/⌘ + .).

@@ -5,7 +5,9 @@ import { editorReady } from '../support/editor.ts';
 /**
  * Zotero search, with Zotero mocked: the local API on this computer
  * (localhost:23119) and the zotero.org web API. Zotero's answers are
- * CSL-JSON, as requested with format=csljson.
+ * CSL-JSON, as requested with format=csljson. A real Zotero refuses the
+ * local search from a web page (ADR 0009); the mock answers it so the
+ * request shape and the add flow stay covered in case Zotero opens it up.
  */
 
 const ITEMS = {
@@ -107,9 +109,29 @@ test.describe('Zotero', () => {
     );
   });
 
-  test('when Zotero is not running, the app says what to check', async ({
+  test('Zotero on this computer explains that Zotero refuses websites', async ({
     page,
   }) => {
+    await openZotero(page);
+    const picker = library(page).getByLabel('Zotero library');
+    await expect(picker).toHaveValue('local');
+    await expect(picker).toHaveAccessibleDescription(
+      /Zotero drops requests from web browsers.*zotero\.org web library.*\.bib/
+    );
+    const note = library(page).getByText(
+      /Zotero drops requests from web browsers/
+    );
+    await expect(note).toBeVisible();
+    await picker.selectOption('web');
+    await expect(note).toBeHidden();
+    await expect(picker).not.toHaveAccessibleDescription(/drops requests/);
+  });
+
+  test('when Zotero on this computer does not answer, the app says why and what to use instead', async ({
+    page,
+  }) => {
+    // What a browser sees: Zotero closes the connection (or Chrome's Local
+    // Network Access check stops the request first).
     await page.route('http://localhost:23119/**', (route) => route.abort());
     await openZotero(page);
     await library(page)
@@ -117,10 +139,10 @@ test.describe('Zotero', () => {
       .fill('odum');
     await library(page).getByRole('button', { name: 'Search' }).click();
     await expect(library(page).getByRole('status')).toContainText(
-      'Start Zotero 7'
+      'Zotero drops requests from web browsers'
     );
     await expect(library(page).getByRole('status')).toContainText(
-      'Allow other applications on this computer to communicate with Zotero'
+      'zotero.org web library'
     );
   });
 

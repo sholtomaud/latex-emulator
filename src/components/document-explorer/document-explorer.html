@@ -125,10 +125,19 @@
     <details class="zotero">
       <summary>Zotero</summary>
       <form class="zotero-settings" aria-label="Zotero settings">
-        <select class="zotero-source" aria-label="Zotero library">
+        <select
+          class="zotero-source"
+          aria-label="Zotero library"
+          aria-describedby="zotero-local-note"
+        >
           <option value="local">Zotero on this computer</option>
           <option value="web">zotero.org web library</option>
         </select>
+        <p class="zotero-local-note" id="zotero-local-note">
+          Zotero drops requests from web browsers, so this site can’t search the
+          Zotero on this computer. Use your zotero.org web library, or export a
+          .bib file from Zotero and import it above.
+        </p>
         <div class="zotero-web">
           <input
             class="zotero-user"

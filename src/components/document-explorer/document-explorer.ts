@@ -154,6 +154,12 @@ export class DocumentExplorerComponent extends BaseComponent {
       user.value = zotero.userId;
     this.querySelector<HTMLElement>('.zotero-web')!.hidden =
       zotero.source !== 'web';
+    // Zotero refuses requests from web pages (ADR 0009): say so while the
+    // local library is chosen, and describe the picker with it.
+    const local = zotero.source === 'local';
+    this.querySelector<HTMLElement>('.zotero-local-note')!.hidden = !local;
+    if (local) source.setAttribute('aria-describedby', 'zotero-local-note');
+    else source.removeAttribute('aria-describedby');
     const template = this.querySelector<HTMLTemplateElement>(
       '.zotero-hit-template'
     )!;

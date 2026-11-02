@@ -88,6 +88,21 @@ export function parseZoteroItems(json: unknown): ZoteroHit[] {
 const SETTING =
   'Settings → Advanced → “Allow other applications on this computer to communicate with Zotero”';
 
+/**
+ * Zotero's server drops every request that looks like it came from a web
+ * browser (a `Mozilla/` user agent or an `Origin` header) unless it carries
+ * a connector header, and it sends CORS headers only for its own bookmarklet
+ * origin, so a web page can't send that header either (zotero/zotero,
+ * chrome/content/zotero/xpcom/server/server.js: `_processEndpoint` →
+ * `_cancelResponse`, which closes the connection "so web content can't get
+ * any information about whether Zotero is running"). Chrome's Local Network
+ * Access check may stop the request first. Either way fetch() throws exactly
+ * as if Zotero weren't running, so the message can't tell the cases apart.
+ * Read in Zotero's main branch and seen with Zotero 11.0-beta.3 and Chrome
+ * from the Pages site in November 2026 (ADR 0009).
+ */
+const LOCAL_UNREACHABLE = `Zotero on this computer can’t be reached from this site: Zotero drops requests from web browsers, so websites can’t read your library. Search your zotero.org web library instead, or export a .bib file from Zotero and import it. (Also check that Zotero is running with ${SETTING}.)`;
+
 export async function searchZotero(
   source: ZoteroSource,
   query: string,
@@ -122,7 +137,7 @@ export async function searchZotero(
       ok: false,
       message:
         source.kind === 'local'
-          ? `Zotero isn’t answering on this computer, or it refused this site. Start Zotero 7 and turn on ${SETTING}. If your browser asks whether this site may reach devices on your local network, allow it.`
+          ? LOCAL_UNREACHABLE
           : 'Couldn’t reach api.zotero.org. Check your connection and try again.',
     };
   }

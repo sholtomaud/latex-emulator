@@ -35,15 +35,15 @@ A **Progressive Web App** that lets a user write LaTeX in a **Monaco editor** an
 
 ## 2. Technology constraints (hard rules)
 
-| Area | Rule |
-|---|---|
-| App framework | **Boba** (`github:sholtomaud/boba`): light-DOM Custom Elements, `BaseComponent`, the Boba `Router`, the `EventTarget` `Store`. No React, Lit, Vue, Svelte, etc. |
-| Languages | **TypeScript** (Node ≥ 25 native type stripping) and, where justified, **Rust compiled to WASM**. Nothing else. |
-| Shared types | Rust types that cross the WASM boundary generate their TS definitions with the **`ts-rs`** crate. Never hand-write a TS mirror of a Rust struct. |
-| Runtime deps | **`monaco-editor` is the only runtime npm dependency.** Everything else uses native browser APIs. |
-| Browser APIs | Custom Elements, ES modules, Web Workers, MathML Core, CSS Paged Media (`@page`), CSS `hyphens`, `text-wrap`, `@font-face`, Service Worker, Cache API, OPFS/IndexedDB, File System Access (progressive enhancement), `Intl.Segmenter`, `window.print()`. |
-| Dev tooling | Inherit Boba's template: Vite (dev server and bundling only), `node --test`, Playwright, oxlint, Prettier, `tsc` for typechecking. Rust: `cargo`, `wasm-bindgen`/`wasm-pack`, `clippy`, `rustfmt`. |
-| Adding a dependency | Not allowed without an explicit justification in the PR description: why a native API or ~200 lines of our own code won't do. Dev-only deps get the same scrutiny. |
+| Area                | Rule                                                                                                                                                                                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App framework       | **Boba** (`github:sholtomaud/boba`): light-DOM Custom Elements, `BaseComponent`, the Boba `Router`, the `EventTarget` `Store`. No React, Lit, Vue, Svelte, etc.                                                                                          |
+| Languages           | **TypeScript** (Node ≥ 25 native type stripping) and, where justified, **Rust compiled to WASM**. Nothing else.                                                                                                                                          |
+| Shared types        | Rust types that cross the WASM boundary generate their TS definitions with the **`ts-rs`** crate. Never hand-write a TS mirror of a Rust struct.                                                                                                         |
+| Runtime deps        | **`monaco-editor` is the only runtime npm dependency.** Everything else uses native browser APIs.                                                                                                                                                        |
+| Browser APIs        | Custom Elements, ES modules, Web Workers, MathML Core, CSS Paged Media (`@page`), CSS `hyphens`, `text-wrap`, `@font-face`, Service Worker, Cache API, OPFS/IndexedDB, File System Access (progressive enhancement), `Intl.Segmenter`, `window.print()`. |
+| Dev tooling         | Inherit Boba's template: Vite (dev server and bundling only), `node --test`, Playwright, oxlint, Prettier, `tsc` for typechecking. Rust: `cargo`, `wasm-bindgen`/`wasm-pack`, `clippy`, `rustfmt`.                                                       |
+| Adding a dependency | Not allowed without an explicit justification in the PR description: why a native API or ~200 lines of our own code won't do. Dev-only deps get the same scrutiny.                                                                                       |
 
 ### Where Rust/WASM is allowed
 
@@ -135,10 +135,10 @@ Key design decisions:
    must not blank the preview.
 3. **Off-main-thread language work.** Lexing, parsing, linting and spell
    checking run in a module Web Worker (`new Worker(new URL(..., import.meta.url),
-   { type: 'module' })`). Messages are versioned: drop any result whose
+{ type: 'module' })`). Messages are versioned: drop any result whose
    `version` is older than the model's current version.
 4. **Preview is the print target.** The preview is a same-origin `<iframe>`
-   containing *only* the rendered document and its stylesheets, with no app
+   containing _only_ the rendered document and its stylesheets, with no app
    chrome and no Tailwind. "Download PDF" calls `print()` on that iframe, so
    the preview and the PDF use the same CSS. Before printing, set the iframe
    document's `<title>` to the intended filename, because Chromium uses it as
@@ -247,6 +247,7 @@ lint ("unknown command") and rendering all read the same registry.
 `\pageref` and the page numbers in `\tableofcontents` print `??` (page numbers
 are only known in the printed PDF). Footnotes are collected at the end of the
 document (ADR 0003).
+
 - Preamble: `\documentclass[opts]{article}` (`10pt|11pt|12pt`, `a4paper|letterpaper`,
   `twocolumn` later), `\usepackage` (recognised and validated; known packages
   toggle features, unknown ones warn), `\title`, `\author`, `\date`, `\maketitle`.
@@ -332,6 +333,7 @@ distance between consecutive baselines becomes the next block's
 take the maximum, like `\addvspace`. Containers are `flow-root`.
 
 **Paragraph and typography rules (CSS):**
+
 - `text-align: justify; hyphens: auto;` with the document's `lang` set on the
   root, so the browser's hyphenation dictionary for that language is used.
 - First paragraph after a heading has no indent; later paragraphs indent by
@@ -348,12 +350,13 @@ take the maximum, like `\addvspace`. Containers are `flow-root`.
 
 **Paged media** (`@page` generated by `document-css.ts`, other rules in
 `base.css`):
+
 - `@page { size: A4 | letter; margin: … }` computed from the class geometry.
 - Page numbers in `@page { @bottom-center { content: counter(page); } }` margin boxes.
 - `break-before/after/inside` on headings, figures, equations, list items;
   `orphans`/`widows` ≥ 2; headings never stranded at a page bottom.
 - Footnotes: CSS footnote floats are not reliably supported. Render footnotes
-  at the end of the containing page *section* or as end-of-document notes,
+  at the end of the containing page _section_ or as end-of-document notes,
   and record which choice was made in an ADR.
 - `\pageref` and TOC page numbers: browsers don't expose layout page numbers
   to script. Either use `target-counter()` where it is supported or paginate
@@ -361,7 +364,7 @@ take the maximum, like `\addvspace`. Containers are `flow-root`.
 
 **Browser support policy.** Chromium (Chrome/Edge) is the **reference print
 engine** and the one the "Download PDF" fidelity guarantee applies to. Firefox
-and Safari must remain *usable* (editing, preview, a reasonable PDF). Before
+and Safari must remain _usable_ (editing, preview, a reasonable PDF). Before
 relying on a paged-media feature, check its current support and say which
 browsers it was verified in.
 
@@ -432,8 +435,8 @@ on-screen pages, implement our own lightweight paginator in
 
 Every change, whether a feature or a bug fix, follows **red → green → refactor**:
 
-1. **Red.** Write the test that describes the behaviour, run it, and *see it
-   fail for the right reason*. Pick the lowest layer that can express it:
+1. **Red.** Write the test that describes the behaviour, run it, and _see it
+   fail for the right reason_. Pick the lowest layer that can express it:
    a unit test for pure logic, a functional e2e spec for a user-visible
    behaviour, a visual snapshot for appearance.
 2. **Green.** Write the minimum code that makes it pass.
@@ -447,13 +450,13 @@ the commit message.
 
 ### Test suites
 
-| Suite | Location | Runner | Command | Runs against |
-|---|---|---|---|---|
-| **Unit** | `src/**/*.test.ts` (colocated) | `node --test` | `npm test` / `npm run test:coverage` | TS source directly, no browser |
-| **E2E (functional)** | `e2e/specs/` | Playwright | `npm run e2e` | Vite dev server **and** production build |
-| **Smoke** | `e2e/smoke/` | Playwright | `npm run e2e:smoke` | production build |
-| **Visual snapshots** | `e2e/visual/` | Playwright `toHaveScreenshot` | `npm run e2e:visual` | production build, in the pinned container |
-| **Pages** | `e2e/pages/` | Playwright | `npm run e2e:pages` | GitHub Pages build under `/latex-emulator/`; the live site after deploy |
+| Suite                | Location                       | Runner                        | Command                              | Runs against                                                            |
+| -------------------- | ------------------------------ | ----------------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| **Unit**             | `src/**/*.test.ts` (colocated) | `node --test`                 | `npm test` / `npm run test:coverage` | TS source directly, no browser                                          |
+| **E2E (functional)** | `e2e/specs/`                   | Playwright                    | `npm run e2e`                        | Vite dev server **and** production build                                |
+| **Smoke**            | `e2e/smoke/`                   | Playwright                    | `npm run e2e:smoke`                  | production build                                                        |
+| **Visual snapshots** | `e2e/visual/`                  | Playwright `toHaveScreenshot` | `npm run e2e:visual`                 | production build, in the pinned container                               |
+| **Pages**            | `e2e/pages/`                   | Playwright                    | `npm run e2e:pages`                  | GitHub Pages build under `/latex-emulator/`; the live site after deploy |
 
 - **Unit.** Pure modules (`src/latex/**`, `src/render/` helpers, `src/util/`)
   have **≥ 90 % line, branch and function coverage**, enforced by
@@ -588,7 +591,7 @@ chosen branch.
 ## 13. Workflow
 
 - Branch from `main`; one focused change per PR; conventional, descriptive
-  commit messages explaining *why*.
+  commit messages explaining _why_.
 - Architectural choices (new dependency, Rust migration, CSP change, a
   rendering trade-off like footnote placement) get a short ADR in
   `docs/decisions/NNNN-kebab-title.md`: Context, Decision, Consequences.
@@ -633,8 +636,9 @@ chosen branch.
    Better BibTeX's `author_topic_year` form (ADR 0008).
 7. ✅ Zotero: search the local Zotero 7 API on localhost:23119 or the
    zotero.org web library (user ID + session-only API key) and add results
-   to a `.bib` file (ADR 0009). Still to verify by hand against a real
-   Zotero: its CORS headers and Chrome's local-network prompt. ✅ Citation
+   to a `.bib` file (ADR 0009). Checked against a real Zotero: it refuses
+   requests from web pages, so the local option explains that and points to
+   the web library or a `.bib` export. ✅ Citation
    typeahead from the library and (opt-in) Zotero, key hovers, and quick fixes
    for an unlisted or missing `\bibliography` (ADR 0011).
 8. ✅ Math: TeX → MathML Core with Latin Modern Math (`equation`, `align`,
