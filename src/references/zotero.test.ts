@@ -106,13 +106,20 @@ describe('searchZotero', () => {
     assert.strictEqual(r.hits.length, 2);
   });
 
-  test('explains what to check when Zotero on this computer does not answer', async () => {
-    assert.match(
-      await failure(LOCAL, () =>
-        Promise.reject(new TypeError('Failed to fetch'))
-      ),
-      /Start Zotero 7.*Allow other applications on this computer to communicate with Zotero.*local network/s
+  test('when Zotero on this computer does not answer, says Zotero refuses websites and what to use instead', async () => {
+    // Zotero's server closes the connection on any request from a browser
+    // (server.js, _processEndpoint → _cancelResponse), and Chrome's Local
+    // Network Access check can stop it first: fetch() just throws.
+    const message = await failure(LOCAL, () =>
+      Promise.reject(new TypeError('Failed to fetch'))
     );
+    assert.match(
+      message,
+      /drops requests from web browsers.*zotero\.org web library.*\.bib/s
+    );
+    // Allowing the browser's local-network prompt can't help, so the
+    // message no longer suggests it.
+    assert.doesNotMatch(message, /local network/);
     assert.match(
       await failure(LOCAL, () => new Response('', { status: 403 })),
       /local API is turned off/

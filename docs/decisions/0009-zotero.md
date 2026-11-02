@@ -21,6 +21,7 @@ approach is to allow `http://localhost:*` in `connect-src` and use plain
   CSL-JSON, so results go through the same converter and `author_topic_year`
   keys as DOI lookups (ADR 0008), and the user's `.bib` files stay plain
   BibTeX.
+
 - **API key: this session only.** The zotero.org key is held in memory and
   never stored, matching budget-app's ADR 0020; the user re-enters it after a
   reload. The library choice and user ID are small preferences in
@@ -41,15 +42,46 @@ approach is to allow `http://localhost:*` in `connect-src` and use plain
 
 ## Consequences
 
-- **Not yet verified against a real Zotero.** The development sandbox had
-  neither Zotero nor network access. Two things must be checked by hand:
-  - whether Zotero's local API sends CORS headers for a web page's origin;
-  - Chrome's Local Network Access permission prompt when the Pages site
-    calls `localhost`.
+- **Zotero on this computer does not work from a web page, by Zotero's
+  design** (checked against a real Zotero, November 2026). There are two
+  blockers, and either one is enough:
+  - **Zotero refuses browser requests.** Its HTTP server
+    (`chrome/content/zotero/xpcom/server/server.js`, `_processEndpoint`)
+    treats a request as coming from a browser if its User-Agent starts with
+    `Mozilla/` or it has an `Origin` header. It drops such a request unless
+    it carries `X-Zotero-Connector-API-Version` or `Zotero-Allowed-Request`,
+    or the endpoint opts in with `allowRequestsFromUnsafeWebContent`, and
+    no endpoint does, the local API included. `_cancelResponse()` closes the
+    connection without a reply, "so web content can't get any information
+    about whether Zotero is running". A page can't add those headers either:
+    a custom header needs a CORS preflight, and Zotero sends
+    `Access-Control-Allow-Origin` only for its own bookmarklet origin.
+  - **Chrome's Local Network Access check.** Called from
+    `https://sholtomaud.github.io` with Zotero 11.0-beta.3 running, Chrome
+    stopped the request before it left the browser: "blocked by CORS
+    policy: Permission was denied for this request to access the
+    `loopback` address space". Zotero's debug log showed no request at
+    all. Granting the permission would only reach the first blocker.
 
-  E2E tests mock both endpoints with `page.route`. If Zotero rejects
-  browser origins, the local option needs a different route; the web
-  library is unaffected.
+  To check that the local API itself works, run
+  `curl -i "http://localhost:23119/api/users/0/items/top?format=csljson&limit=1&q=a"`.
+  curl isn't a browser, so Zotero answers it with 200 and CSL-JSON (seen
+  with the same Zotero). In Zotero, Help → Debug Output Logging shows
+  `Preventing request from browser` for a refused request that got through.
+
+- **The local option stays, with an explanation.** While it is selected,
+  a note under the picker (also its accessible description) says Zotero
+  drops requests from web browsers and points to the zotero.org web
+  library or a `.bib` exported from Zotero (the explorer's Import .bib
+  button). A failed local search says the same. `fetch()` fails the same
+  way whether Zotero refused the request or isn't running, so the message
+  can't tell which happened. The opt-in typeahead (ADR 0011) has the same
+  limit with the local library. The request code and its mocked e2e tests
+  stay, so the option works as written if Zotero ever lets web pages in.
+  Removing it would also be reasonable; we keep it because the explanation
+  is useful to anyone who expects it to work.
+- E2E tests mock both endpoints with `page.route`. The web library is
+  unaffected by any of the above.
 - Zotero's own citation keys (or Better BibTeX's) are not reused: entries get
   this app's `author_topic_year` keys, unique across the library.
 - Collections, pagination beyond 25 results and two-way sync are left for

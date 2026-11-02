@@ -42,5 +42,6 @@ Nothing: step 10a (`listings`) is done (ADR 0014).
   browser until export/sync exists.
 - Versions (ADR 0006): pruning or export of versions.
 - Zotero (ADR 0009): collections, more than 25 results, two-way sync; still
-  to verify by hand against a real Zotero (local API CORS, Chrome's
-  local-network prompt) and the live doi.org lookup.
+  to verify by hand: the live doi.org lookup. Zotero on this computer was
+  checked against a real Zotero: Zotero refuses requests from web pages, and
+  the app now says so. Revisit if Zotero adds a way for web pages to opt in.
