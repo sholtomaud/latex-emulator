@@ -1,0 +1,1569 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 127.8,
+          "xMax": 125.9,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9
+            }
+          ]
+        },
+        {
+          "text": "Pseudocode",
+          "xMin": 142.04,
+          "yMin": 127.8,
+          "xMax": 225.26,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "Pseudocode",
+              "xMin": 142.04,
+              "xMax": 225.26
+            }
+          ]
+        },
+        {
+          "text": "Algorithm 1 is Euclid’s method, set with line numbers in the ruled float",
+          "xMin": 117.83,
+          "yMin": 154.54,
+          "xMax": 476.48,
+          "yMax": 164.53,
+          "words": [
+            {
+              "text": "Algorithm",
+              "xMin": 117.83,
+              "xMax": 166.65
+            },
+            {
+              "text": "1",
+              "xMin": 171.14,
+              "xMax": 176.6
+            },
+            {
+              "text": "is",
+              "xMin": 181.08,
+              "xMax": 188.41
+            },
+            {
+              "text": "Euclid’s",
+              "xMin": 192.91,
+              "xMax": 230.7
+            },
+            {
+              "text": "method,",
+              "xMin": 235.19,
+              "xMax": 274.27
+            },
+            {
+              "text": "set",
+              "xMin": 278.99,
+              "xMax": 292.38
+            },
+            {
+              "text": "with",
+              "xMin": 296.86,
+              "xMax": 318.08
+            },
+            {
+              "text": "line",
+              "xMin": 322.57,
+              "xMax": 339.54
+            },
+            {
+              "text": "numbers",
+              "xMin": 344.04,
+              "xMax": 384.43
+            },
+            {
+              "text": "in",
+              "xMin": 388.92,
+              "xMax": 398.01
+            },
+            {
+              "text": "the",
+              "xMin": 402.5,
+              "xMax": 417.65
+            },
+            {
+              "text": "ruled",
+              "xMin": 422.14,
+              "xMax": 450.78
+            },
+            {
+              "text": "float",
+              "xMin": 455.27,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "that the algorithm package declares.",
+          "xMin": 117.83,
+          "yMin": 168.08,
+          "xMax": 296.74,
+          "yMax": 178.08,
+          "words": [
+            {
+              "text": "that",
+              "xMin": 117.83,
+              "xMax": 137.83
+            },
+            {
+              "text": "the",
+              "xMin": 141.46,
+              "xMax": 156.61
+            },
+            {
+              "text": "algorithm",
+              "xMin": 160.25,
+              "xMax": 211.8
+            },
+            {
+              "text": "package",
+              "xMin": 215.43,
+              "xMax": 252.41
+            },
+            {
+              "text": "declares.",
+              "xMin": 256.04,
+              "xMax": 296.74
+            }
+          ]
+        },
+        {
+          "text": "Algorithm 1 Euclid’s algorithm",
+          "xMin": 117.83,
+          "yMin": 192.83,
+          "xMax": 275.9,
+          "yMax": 202.52,
+          "words": [
+            {
+              "text": "Algorithm",
+              "xMin": 117.83,
+              "xMax": 174.3
+            },
+            {
+              "text": "1",
+              "xMin": 178.47,
+              "xMax": 184.75
+            },
+            {
+              "text": "Euclid’s",
+              "xMin": 188.39,
+              "xMax": 226.18
+            },
+            {
+              "text": "algorithm",
+              "xMin": 229.81,
+              "xMax": 275.9
+            }
+          ]
+        },
+        {
+          "text": "Require: integers a ≥ 0 and b ≥ 0",
+          "xMin": 117.83,
+          "yMin": 206.3,
+          "xMax": 285.61,
+          "yMax": 216.6,
+          "words": [
+            {
+              "text": "Require:",
+              "xMin": 117.83,
+              "xMax": 164.46
+            },
+            {
+              "text": "integers",
+              "xMin": 169.92,
+              "xMax": 206.67
+            },
+            {
+              "text": "a",
+              "xMin": 210.31,
+              "xMax": 216.08
+            },
+            {
+              "text": "≥",
+              "xMin": 219.11,
+              "xMax": 227.59
+            },
+            {
+              "text": "0",
+              "xMin": 230.63,
+              "xMax": 236.08
+            },
+            {
+              "text": "and",
+              "xMin": 239.71,
+              "xMax": 257.29
+            },
+            {
+              "text": "b",
+              "xMin": 260.93,
+              "xMax": 265.61
+            },
+            {
+              "text": "≥",
+              "xMin": 268.64,
+              "xMax": 277.13
+            },
+            {
+              "text": "0",
+              "xMin": 280.15,
+              "xMax": 285.61
+            }
+          ]
+        },
+        {
+          "text": "Ensure: the greatest common divisor of a and b",
+          "xMin": 117.83,
+          "yMin": 220.46,
+          "xMax": 351.81,
+          "yMax": 230.15,
+          "words": [
+            {
+              "text": "Ensure:",
+              "xMin": 117.83,
+              "xMax": 159.36
+            },
+            {
+              "text": "the",
+              "xMin": 164.81,
+              "xMax": 179.97
+            },
+            {
+              "text": "greatest",
+              "xMin": 183.6,
+              "xMax": 221.26
+            },
+            {
+              "text": "common",
+              "xMin": 224.91,
+              "xMax": 264.91
+            },
+            {
+              "text": "divisor",
+              "xMin": 268.54,
+              "xMax": 300.45
+            },
+            {
+              "text": "of",
+              "xMin": 304.08,
+              "xMax": 312.87
+            },
+            {
+              "text": "a",
+              "xMin": 316.51,
+              "xMax": 322.28
+            },
+            {
+              "text": "and",
+              "xMin": 325.91,
+              "xMax": 343.49
+            },
+            {
+              "text": "b",
+              "xMin": 347.13,
+              "xMax": 351.81
+            }
+          ]
+        },
+        {
+          "text": "1: procedure Euclid(a, b)",
+          "xMin": 123.75,
+          "yMin": 234.01,
+          "xMax": 255.67,
+          "yMax": 245.4,
+          "words": [
+            {
+              "text": "1:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            },
+            {
+              "text": "procedure",
+              "xMin": 136.37,
+              "xMax": 191.31
+            },
+            {
+              "text": "Euclid(a,",
+              "xMin": 194.95,
+              "xMax": 244.93
+            },
+            {
+              "text": "b)",
+              "xMin": 246.75,
+              "xMax": 255.67
+            }
+          ]
+        },
+        {
+          "text": "▷ The g.c.d. of a and b",
+          "xMin": 367.09,
+          "yMin": 234.01,
+          "xMax": 476.49,
+          "yMax": 243.7,
+          "words": [
+            {
+              "text": "▷",
+              "xMin": 367.09,
+              "xMax": 372.54
+            },
+            {
+              "text": "The",
+              "xMin": 376.18,
+              "xMax": 394.97
+            },
+            {
+              "text": "g.c.d.",
+              "xMin": 398.6,
+              "xMax": 424.06
+            },
+            {
+              "text": "of",
+              "xMin": 427.7,
+              "xMax": 436.49
+            },
+            {
+              "text": "a",
+              "xMin": 440.12,
+              "xMax": 445.57
+            },
+            {
+              "text": "and",
+              "xMin": 449.21,
+              "xMax": 466.78
+            },
+            {
+              "text": "b",
+              "xMin": 470.43,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "2:",
+          "xMin": 123.75,
+          "yMin": 248.91,
+          "xMax": 130.92,
+          "yMax": 256.87,
+          "words": [
+            {
+              "text": "2:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            }
+          ]
+        },
+        {
+          "text": "r ← a mod b",
+          "xMin": 152.74,
+          "yMin": 246.95,
+          "xMax": 212.35,
+          "yMax": 257.24,
+          "words": [
+            {
+              "text": "r",
+              "xMin": 152.74,
+              "xMax": 157.66
+            },
+            {
+              "text": "←",
+              "xMin": 160.99,
+              "xMax": 171.9
+            },
+            {
+              "text": "a",
+              "xMin": 174.93,
+              "xMax": 180.7
+            },
+            {
+              "text": "mod",
+              "xMin": 183.73,
+              "xMax": 204.64
+            },
+            {
+              "text": "b",
+              "xMin": 207.67,
+              "xMax": 212.35
+            }
+          ]
+        },
+        {
+          "text": "3:",
+          "xMin": 123.75,
+          "yMin": 262.45,
+          "xMax": 130.92,
+          "yMax": 270.42,
+          "words": [
+            {
+              "text": "3:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            }
+          ]
+        },
+        {
+          "text": "while r ̸ = 0 do",
+          "xMin": 152.74,
+          "yMin": 260.5,
+          "xMax": 227.23,
+          "yMax": 270.79,
+          "words": [
+            {
+              "text": "while",
+              "xMin": 152.74,
+              "xMax": 181.49
+            },
+            {
+              "text": "r",
+              "xMin": 185.12,
+              "xMax": 190.05
+            },
+            {
+              "text": "̸",
+              "xMin": 193.38,
+              "xMax": 193.38
+            },
+            {
+              "text": "=",
+              "xMin": 193.38,
+              "xMax": 201.86
+            },
+            {
+              "text": "0",
+              "xMin": 204.9,
+              "xMax": 210.35
+            },
+            {
+              "text": "do",
+              "xMin": 213.98,
+              "xMax": 227.23
+            }
+          ]
+        },
+        {
+          "text": "▷ We have the answer if r is 0",
+          "xMin": 334.18,
+          "yMin": 261.11,
+          "xMax": 476.49,
+          "yMax": 270.79,
+          "words": [
+            {
+              "text": "▷",
+              "xMin": 334.18,
+              "xMax": 339.63
+            },
+            {
+              "text": "We",
+              "xMin": 343.27,
+              "xMax": 358.43
+            },
+            {
+              "text": "have",
+              "xMin": 362.06,
+              "xMax": 383.57
+            },
+            {
+              "text": "the",
+              "xMin": 387.21,
+              "xMax": 402.36
+            },
+            {
+              "text": "answer",
+              "xMin": 406,
+              "xMax": 438.51
+            },
+            {
+              "text": "if",
+              "xMin": 442.15,
+              "xMax": 448.52
+            },
+            {
+              "text": "r",
+              "xMin": 452.15,
+              "xMax": 456.42
+            },
+            {
+              "text": "is",
+              "xMin": 460.06,
+              "xMax": 467.39
+            },
+            {
+              "text": "0",
+              "xMin": 471.03,
+              "xMax": 476.49
+            }
+          ]
+        },
+        {
+          "text": "4:",
+          "xMin": 123.75,
+          "yMin": 276,
+          "xMax": 130.92,
+          "yMax": 283.97,
+          "words": [
+            {
+              "text": "4:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            }
+          ]
+        },
+        {
+          "text": "a ← b",
+          "xMin": 169.1,
+          "yMin": 274.05,
+          "xMax": 196.52,
+          "yMax": 284.34,
+          "words": [
+            {
+              "text": "a",
+              "xMin": 169.1,
+              "xMax": 174.87
+            },
+            {
+              "text": "←",
+              "xMin": 177.9,
+              "xMax": 188.81
+            },
+            {
+              "text": "b",
+              "xMin": 191.84,
+              "xMax": 196.52
+            }
+          ]
+        },
+        {
+          "text": "5:",
+          "xMin": 123.75,
+          "yMin": 289.55,
+          "xMax": 130.92,
+          "yMax": 297.52,
+          "words": [
+            {
+              "text": "5:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            }
+          ]
+        },
+        {
+          "text": "b ← r",
+          "xMin": 169.1,
+          "yMin": 287.59,
+          "xMax": 195.67,
+          "yMax": 297.89,
+          "words": [
+            {
+              "text": "b",
+              "xMin": 169.1,
+              "xMax": 173.78
+            },
+            {
+              "text": "←",
+              "xMin": 176.81,
+              "xMax": 187.72
+            },
+            {
+              "text": "r",
+              "xMin": 190.75,
+              "xMax": 195.67
+            }
+          ]
+        },
+        {
+          "text": "6:",
+          "xMin": 123.75,
+          "yMin": 303.1,
+          "xMax": 130.92,
+          "yMax": 311.06,
+          "words": [
+            {
+              "text": "6:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            }
+          ]
+        },
+        {
+          "text": "r ← a mod b",
+          "xMin": 169.1,
+          "yMin": 301.14,
+          "xMax": 228.71,
+          "yMax": 311.44,
+          "words": [
+            {
+              "text": "r",
+              "xMin": 169.1,
+              "xMax": 174.02
+            },
+            {
+              "text": "←",
+              "xMin": 177.36,
+              "xMax": 188.27
+            },
+            {
+              "text": "a",
+              "xMin": 191.3,
+              "xMax": 197.06
+            },
+            {
+              "text": "mod",
+              "xMin": 200.09,
+              "xMax": 221
+            },
+            {
+              "text": "b",
+              "xMin": 224.03,
+              "xMax": 228.71
+            }
+          ]
+        },
+        {
+          "text": "7:",
+          "xMin": 123.75,
+          "yMin": 316.65,
+          "xMax": 130.92,
+          "yMax": 324.61,
+          "words": [
+            {
+              "text": "7:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            }
+          ]
+        },
+        {
+          "text": "end while",
+          "xMin": 152.74,
+          "yMin": 315.3,
+          "xMax": 204.81,
+          "yMax": 324.99,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 152.74,
+              "xMax": 172.43
+            },
+            {
+              "text": "while",
+              "xMin": 176.06,
+              "xMax": 204.81
+            }
+          ]
+        },
+        {
+          "text": "8:",
+          "xMin": 123.75,
+          "yMin": 330.2,
+          "xMax": 130.92,
+          "yMax": 338.16,
+          "words": [
+            {
+              "text": "8:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            }
+          ]
+        },
+        {
+          "text": "return b",
+          "xMin": 152.74,
+          "yMin": 328.85,
+          "xMax": 195.96,
+          "yMax": 338.54,
+          "words": [
+            {
+              "text": "return",
+              "xMin": 152.74,
+              "xMax": 187.64
+            },
+            {
+              "text": "b",
+              "xMin": 191.28,
+              "xMax": 195.96
+            }
+          ]
+        },
+        {
+          "text": "▷ The gcd is b",
+          "xMin": 407.94,
+          "yMin": 328.85,
+          "xMax": 476.48,
+          "yMax": 338.54,
+          "words": [
+            {
+              "text": "▷",
+              "xMin": 407.94,
+              "xMax": 413.4
+            },
+            {
+              "text": "The",
+              "xMin": 417.03,
+              "xMax": 435.82
+            },
+            {
+              "text": "gcd",
+              "xMin": 439.45,
+              "xMax": 455.81
+            },
+            {
+              "text": "is",
+              "xMin": 459.46,
+              "xMax": 466.79
+            },
+            {
+              "text": "b",
+              "xMin": 470.42,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "9: end procedure",
+          "xMin": 123.75,
+          "yMin": 342.4,
+          "xMax": 214.64,
+          "yMax": 352.09,
+          "words": [
+            {
+              "text": "9:",
+              "xMin": 123.75,
+              "xMax": 130.92
+            },
+            {
+              "text": "end",
+              "xMin": 136.37,
+              "xMax": 156.06
+            },
+            {
+              "text": "procedure",
+              "xMin": 159.7,
+              "xMax": 214.64
+            }
+          ]
+        },
+        {
+          "text": "The text continues after the algorithm, long enough to reach a second",
+          "xMin": 134.76,
+          "yMin": 373.6,
+          "xMax": 476.48,
+          "yMax": 383.29,
+          "words": [
+            {
+              "text": "The",
+              "xMin": 134.76,
+              "xMax": 153.55
+            },
+            {
+              "text": "text",
+              "xMin": 157.84,
+              "xMax": 176.93
+            },
+            {
+              "text": "continues",
+              "xMin": 181.21,
+              "xMax": 225.51
+            },
+            {
+              "text": "after",
+              "xMin": 229.79,
+              "xMax": 251.95
+            },
+            {
+              "text": "the",
+              "xMin": 256.22,
+              "xMax": 271.37
+            },
+            {
+              "text": "algorithm,",
+              "xMin": 275.66,
+              "xMax": 324.78
+            },
+            {
+              "text": "long",
+              "xMin": 329.22,
+              "xMax": 349.22
+            },
+            {
+              "text": "enough",
+              "xMin": 353.51,
+              "xMax": 387.45
+            },
+            {
+              "text": "to",
+              "xMin": 391.73,
+              "xMax": 401.42
+            },
+            {
+              "text": "reach",
+              "xMin": 405.71,
+              "xMax": 430.89
+            },
+            {
+              "text": "a",
+              "xMin": 435.17,
+              "xMax": 440.62
+            },
+            {
+              "text": "second",
+              "xMin": 444.91,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "line of this paragraph so that its spacing can be measured.",
+          "xMin": 117.83,
+          "yMin": 387.15,
+          "xMax": 398.22,
+          "yMax": 396.84,
+          "words": [
+            {
+              "text": "line",
+              "xMin": 117.83,
+              "xMax": 134.8
+            },
+            {
+              "text": "of",
+              "xMin": 138.43,
+              "xMax": 147.22
+            },
+            {
+              "text": "this",
+              "xMin": 150.86,
+              "xMax": 168.5
+            },
+            {
+              "text": "paragraph",
+              "xMin": 172.13,
+              "xMax": 220.68
+            },
+            {
+              "text": "so",
+              "xMin": 224.31,
+              "xMax": 234.07
+            },
+            {
+              "text": "that",
+              "xMin": 237.7,
+              "xMax": 257.7
+            },
+            {
+              "text": "its",
+              "xMin": 261.35,
+              "xMax": 272.92
+            },
+            {
+              "text": "spacing",
+              "xMin": 276.56,
+              "xMax": 311.77
+            },
+            {
+              "text": "can",
+              "xMin": 315.4,
+              "xMax": 331.76
+            },
+            {
+              "text": "be",
+              "xMin": 335.41,
+              "xMax": 346.61
+            },
+            {
+              "text": "measured.",
+              "xMin": 350.26,
+              "xMax": 398.22
+            }
+          ]
+        },
+        {
+          "text": "Algorithm 2 Sum of the positive entries",
+          "xMin": 117.83,
+          "yMin": 411.6,
+          "xMax": 316.11,
+          "yMax": 421.28,
+          "words": [
+            {
+              "text": "Algorithm",
+              "xMin": 117.83,
+              "xMax": 174.3
+            },
+            {
+              "text": "2",
+              "xMin": 178.47,
+              "xMax": 184.75
+            },
+            {
+              "text": "Sum",
+              "xMin": 188.39,
+              "xMax": 209.6
+            },
+            {
+              "text": "of",
+              "xMin": 213.23,
+              "xMax": 222.02
+            },
+            {
+              "text": "the",
+              "xMin": 225.67,
+              "xMax": 240.82
+            },
+            {
+              "text": "positive",
+              "xMin": 244.45,
+              "xMax": 281.18
+            },
+            {
+              "text": "entries",
+              "xMin": 284.81,
+              "xMax": 316.11
+            }
+          ]
+        },
+        {
+          "text": "function PositiveSum(x 1 , . . . , x n )",
+          "xMin": 128.74,
+          "yMin": 426.28,
+          "xMax": 300.23,
+          "yMax": 437.67,
+          "words": [
+            {
+              "text": "function",
+              "xMin": 128.74,
+              "xMax": 173.69
+            },
+            {
+              "text": "PositiveSum(x",
+              "xMin": 177.33,
+              "xMax": 255.14
+            },
+            {
+              "text": "1",
+              "xMin": 255.14,
+              "xMax": 259.38
+            },
+            {
+              "text": ",",
+              "xMin": 259.88,
+              "xMax": 262.91
+            },
+            {
+              "text": ".",
+              "xMin": 264.73,
+              "xMax": 267.76
+            },
+            {
+              "text": ".",
+              "xMin": 269.57,
+              "xMax": 272.6
+            },
+            {
+              "text": ".",
+              "xMin": 274.42,
+              "xMax": 277.45
+            },
+            {
+              "text": ",",
+              "xMin": 279.27,
+              "xMax": 282.31
+            },
+            {
+              "text": "x",
+              "xMin": 284.12,
+              "xMax": 290.35
+            },
+            {
+              "text": "n",
+              "xMin": 290.35,
+              "xMax": 295.49
+            },
+            {
+              "text": ")",
+              "xMin": 295.99,
+              "xMax": 300.23
+            }
+          ]
+        },
+        {
+          "text": "s ← 0",
+          "xMin": 145.1,
+          "yMin": 439.22,
+          "xMax": 172.64,
+          "yMax": 449.52,
+          "words": [
+            {
+              "text": "s",
+              "xMin": 145.1,
+              "xMax": 150.21
+            },
+            {
+              "text": "←",
+              "xMin": 153.25,
+              "xMax": 164.15
+            },
+            {
+              "text": "0",
+              "xMin": 167.18,
+              "xMax": 172.64
+            }
+          ]
+        },
+        {
+          "text": "for i ← 1 to n do",
+          "xMin": 145.1,
+          "yMin": 452.77,
+          "xMax": 230.59,
+          "yMax": 463.07,
+          "words": [
+            {
+              "text": "for",
+              "xMin": 145.1,
+              "xMax": 160.37
+            },
+            {
+              "text": "i",
+              "xMin": 164.01,
+              "xMax": 167.77
+            },
+            {
+              "text": "←",
+              "xMin": 170.8,
+              "xMax": 181.71
+            },
+            {
+              "text": "1",
+              "xMin": 184.74,
+              "xMax": 190.19
+            },
+            {
+              "text": "to",
+              "xMin": 193.83,
+              "xMax": 203.52
+            },
+            {
+              "text": "n",
+              "xMin": 207.16,
+              "xMax": 213.71
+            },
+            {
+              "text": "do",
+              "xMin": 217.35,
+              "xMax": 230.59
+            }
+          ]
+        },
+        {
+          "text": "if x i > 0 then",
+          "xMin": 161.47,
+          "yMin": 466.93,
+          "xMax": 231.43,
+          "yMax": 477.68,
+          "words": [
+            {
+              "text": "if",
+              "xMin": 161.47,
+              "xMax": 168.78
+            },
+            {
+              "text": "x",
+              "xMin": 173.61,
+              "xMax": 179.84
+            },
+            {
+              "text": "i",
+              "xMin": 179.84,
+              "xMax": 182.73
+            },
+            {
+              "text": ">",
+              "xMin": 186.26,
+              "xMax": 194.74
+            },
+            {
+              "text": "0",
+              "xMin": 197.77,
+              "xMax": 203.22
+            },
+            {
+              "text": "then",
+              "xMin": 206.86,
+              "xMax": 231.43
+            }
+          ]
+        },
+        {
+          "text": "s ← s + x i",
+          "xMin": 177.83,
+          "yMin": 479.87,
+          "xMax": 227.48,
+          "yMax": 491.23,
+          "words": [
+            {
+              "text": "s",
+              "xMin": 177.83,
+              "xMax": 182.94
+            },
+            {
+              "text": "←",
+              "xMin": 185.97,
+              "xMax": 196.88
+            },
+            {
+              "text": "s",
+              "xMin": 199.91,
+              "xMax": 205.03
+            },
+            {
+              "text": "+",
+              "xMin": 207.45,
+              "xMax": 215.93
+            },
+            {
+              "text": "x",
+              "xMin": 218.36,
+              "xMax": 224.59
+            },
+            {
+              "text": "i",
+              "xMin": 224.59,
+              "xMax": 227.48
+            }
+          ]
+        },
+        {
+          "text": "else if x i = 0 then",
+          "xMin": 161.47,
+          "yMin": 494.03,
+          "xMax": 255,
+          "yMax": 504.78,
+          "words": [
+            {
+              "text": "else",
+              "xMin": 161.47,
+              "xMax": 181.4
+            },
+            {
+              "text": "if",
+              "xMin": 185.03,
+              "xMax": 192.35
+            },
+            {
+              "text": "x",
+              "xMin": 197.18,
+              "xMax": 203.41
+            },
+            {
+              "text": "i",
+              "xMin": 203.41,
+              "xMax": 206.3
+            },
+            {
+              "text": "=",
+              "xMin": 209.82,
+              "xMax": 218.31
+            },
+            {
+              "text": "0",
+              "xMin": 221.34,
+              "xMax": 226.8
+            },
+            {
+              "text": "then",
+              "xMin": 230.43,
+              "xMax": 255
+            }
+          ]
+        },
+        {
+          "text": "skip it",
+          "xMin": 177.83,
+          "yMin": 507.58,
+          "xMax": 207.89,
+          "yMax": 517.26,
+          "words": [
+            {
+              "text": "skip",
+              "xMin": 177.83,
+              "xMax": 196.98
+            },
+            {
+              "text": "it",
+              "xMin": 200.61,
+              "xMax": 207.89
+            }
+          ]
+        },
+        {
+          "text": "else",
+          "xMin": 161.47,
+          "yMin": 521.13,
+          "xMax": 181.4,
+          "yMax": 530.81,
+          "words": [
+            {
+              "text": "else",
+              "xMin": 161.47,
+              "xMax": 181.4
+            }
+          ]
+        },
+        {
+          "text": "count it as negative",
+          "xMin": 177.83,
+          "yMin": 534.68,
+          "xMax": 271.52,
+          "yMax": 544.36,
+          "words": [
+            {
+              "text": "count",
+              "xMin": 177.83,
+              "xMax": 204.19
+            },
+            {
+              "text": "it",
+              "xMin": 207.83,
+              "xMax": 215.11
+            },
+            {
+              "text": "as",
+              "xMin": 218.74,
+              "xMax": 228.5
+            },
+            {
+              "text": "negative",
+              "xMin": 232.13,
+              "xMax": 271.52
+            }
+          ]
+        },
+        {
+          "text": "end if",
+          "xMin": 161.47,
+          "yMin": 548.23,
+          "xMax": 192.11,
+          "yMax": 557.91,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 161.47,
+              "xMax": 181.15
+            },
+            {
+              "text": "if",
+              "xMin": 184.79,
+              "xMax": 192.11
+            }
+          ]
+        },
+        {
+          "text": "end for",
+          "xMin": 145.1,
+          "yMin": 561.77,
+          "xMax": 183.7,
+          "yMax": 571.46,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 145.1,
+              "xMax": 164.79
+            },
+            {
+              "text": "for",
+              "xMin": 168.42,
+              "xMax": 183.7
+            }
+          ]
+        },
+        {
+          "text": "for all y in the list do",
+          "xMin": 145.1,
+          "yMin": 575.32,
+          "xMax": 253.64,
+          "yMax": 585.01,
+          "words": [
+            {
+              "text": "for",
+              "xMin": 145.1,
+              "xMax": 160.37
+            },
+            {
+              "text": "all",
+              "xMin": 164.55,
+              "xMax": 177.62
+            },
+            {
+              "text": "y",
+              "xMin": 181.26,
+              "xMax": 186.61
+            },
+            {
+              "text": "in",
+              "xMin": 190.64,
+              "xMax": 199.73
+            },
+            {
+              "text": "the",
+              "xMin": 203.36,
+              "xMax": 218.51
+            },
+            {
+              "text": "list",
+              "xMin": 222.16,
+              "xMax": 236.76
+            },
+            {
+              "text": "do",
+              "xMin": 240.39,
+              "xMax": 253.64
+            }
+          ]
+        },
+        {
+          "text": "Visit(y)",
+          "xMin": 161.47,
+          "yMin": 590.84,
+          "xMax": 202.6,
+          "yMax": 600.26,
+          "words": [
+            {
+              "text": "Visit(y)",
+              "xMin": 161.47,
+              "xMax": 202.6
+            }
+          ]
+        },
+        {
+          "text": "end for",
+          "xMin": 145.1,
+          "yMin": 602.42,
+          "xMax": 183.7,
+          "yMax": 612.11,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 145.1,
+              "xMax": 164.79
+            },
+            {
+              "text": "for",
+              "xMin": 168.42,
+              "xMax": 183.7
+            }
+          ]
+        },
+        {
+          "text": "repeat",
+          "xMin": 145.1,
+          "yMin": 615.97,
+          "xMax": 180.06,
+          "yMax": 625.66,
+          "words": [
+            {
+              "text": "repeat",
+              "xMin": 145.1,
+              "xMax": 180.06
+            }
+          ]
+        },
+        {
+          "text": "s ← s/2",
+          "xMin": 161.47,
+          "yMin": 628.91,
+          "xMax": 199.57,
+          "yMax": 639.21,
+          "words": [
+            {
+              "text": "s",
+              "xMin": 161.47,
+              "xMax": 166.58
+            },
+            {
+              "text": "←",
+              "xMin": 169.61,
+              "xMax": 180.52
+            },
+            {
+              "text": "s/2",
+              "xMin": 183.55,
+              "xMax": 199.57
+            }
+          ]
+        },
+        {
+          "text": "until s < 1",
+          "xMin": 145.1,
+          "yMin": 643.07,
+          "xMax": 199.29,
+          "yMax": 652.76,
+          "words": [
+            {
+              "text": "until",
+              "xMin": 145.1,
+              "xMax": 170.54
+            },
+            {
+              "text": "s",
+              "xMin": 174.18,
+              "xMax": 179.29
+            },
+            {
+              "text": "<",
+              "xMin": 182.32,
+              "xMax": 190.81
+            },
+            {
+              "text": "1",
+              "xMin": 193.84,
+              "xMax": 199.29
+            }
+          ]
+        },
+        {
+          "text": "return s",
+          "xMin": 145.1,
+          "yMin": 656.62,
+          "xMax": 188.75,
+          "yMax": 666.31,
+          "words": [
+            {
+              "text": "return",
+              "xMin": 145.1,
+              "xMax": 180
+            },
+            {
+              "text": "s",
+              "xMin": 183.64,
+              "xMax": 188.75
+            }
+          ]
+        },
+        {
+          "text": "end function",
+          "xMin": 128.74,
+          "yMin": 670.17,
+          "xMax": 197.01,
+          "yMax": 679.86,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 128.74,
+              "xMax": 148.43
+            },
+            {
+              "text": "function",
+              "xMin": 152.06,
+              "xMax": 197.01
+            }
+          ]
+        },
+        {
+          "text": "After both algorithms the text continues, and Algorithm 2 has no line",
+          "xMin": 134.76,
+          "yMin": 699.25,
+          "xMax": 476.48,
+          "yMax": 708.94,
+          "words": [
+            {
+              "text": "After",
+              "xMin": 134.76,
+              "xMax": 159.64
+            },
+            {
+              "text": "both",
+              "xMin": 163.87,
+              "xMax": 185.99
+            },
+            {
+              "text": "algorithms",
+              "xMin": 190.21,
+              "xMax": 240.61
+            },
+            {
+              "text": "the",
+              "xMin": 244.83,
+              "xMax": 259.98
+            },
+            {
+              "text": "text",
+              "xMin": 264.2,
+              "xMax": 283.29
+            },
+            {
+              "text": "continues,",
+              "xMin": 287.52,
+              "xMax": 334.84
+            },
+            {
+              "text": "and",
+              "xMin": 339.22,
+              "xMax": 356.8
+            },
+            {
+              "text": "Algorithm",
+              "xMin": 361.02,
+              "xMax": 409.84
+            },
+            {
+              "text": "2",
+              "xMin": 414.06,
+              "xMax": 419.51
+            },
+            {
+              "text": "has",
+              "xMin": 423.74,
+              "xMax": 439.55
+            },
+            {
+              "text": "no",
+              "xMin": 443.78,
+              "xMax": 455.29
+            },
+            {
+              "text": "line",
+              "xMin": 459.51,
+              "xMax": 476.48
+            }
+          ]
+        },
+        {
+          "text": "numbers.",
+          "xMin": 117.83,
+          "yMin": 712.8,
+          "xMax": 161.25,
+          "yMax": 722.49,
+          "words": [
+            {
+              "text": "numbers.",
+              "xMin": 117.83,
+              "xMax": 161.25
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

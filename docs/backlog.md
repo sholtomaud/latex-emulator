@@ -7,14 +7,40 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing: step 10a (`listings`) is done (ADR 0014).
+- **Step 10b: `algorithm` + `algpseudocode`** (`algorithmic`, `\State`,
+  `\If`/`\ElsIf`/`\Else`, `\For`, `\While`, `\Procedure`, `\Function`,
+  `\Require`/`\Ensure`, `\Comment`, line numbers; the `algorithm` float in
+  float.sty's `ruled` style), ADR 0016 (draft). Plan and
+  ADR first; then the `algorithm-basic` fixture from real pdflatex, the
+  pure line builder (`src/latex/algorithmic/`), the renderer and the
+  `ruled` float.
+
+## Next (performance, measured)
+
+- **Large `.bib` libraries (10k entries) make the editor lag.** Measured
+  with a synthetic 10k-entry, 2.8 MB library (Node 22, `--experimental-strip-types`):
+  - every preview render re-parses the whole library: `runBibtex` gets the
+    joined source each time. 130–270 ms per render against 70 ms with no
+    library; most of that is `parseBib` (≈140 ms) and GC.
+  - each undefined citation (including the half-typed key in
+    `\cite{auth`) runs `explainUndefined`, which builds a regex and scans
+    all 2.8 MB: ≈5 ms per undefined key, 1 s for 200 of them, and 15 s
+    for 2,000 occurrences of one missing key in an 80k-character document.
+  - typeahead itself is cheap: `matchEntries` 2–4 ms; the index (208 ms)
+    is built once per library change. But each completion and hover
+    request re-parses the whole document (`citeContextAt`, 14–26 ms at
+    80k characters) on the main thread.
+
+  Fix in TypeScript first (AGENTS §2: Rust only when profiling shows the
+  TS algorithm itself is the limit, and it isn't here): parse each `.bib`
+  file once per change and hand BibTeX the parsed entries and a key map;
+  answer `explainUndefined` from a key → file map; reuse the editor's
+  latest parse for cite context; then move parsing and the library index
+  into the language worker (step 13). Rust/WASM stays a candidate only
+  if `parseBib` alone still blocks after that.
 
 ## Next
 
-- **Step 10b: `algorithm` + `algpseudocode`** (`algorithmic`, `\State`,
-  `\If`/`\ElsIf`/`\Else`, `\For`, `\While`, `\Procedure`, `\Function`,
-  `\Require`/`\Ensure`, `\Comment`, line numbers), the `algorithm` float
-  (float.sty `ruled` style), measured against pdflatex.
 - **Project folders and cloud drives (ADR 0015).** Each phase is its own
   PR. Phase A is done: the project folder (`src/workspace/project.ts`) as
   a zip download, and `npm run check:projects` compiling it with real
