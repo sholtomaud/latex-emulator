@@ -2,7 +2,7 @@
  * What citation typeahead and hovers show: one summary per key in the
  * references library. Pure; no DOM.
  */
-import { parseBib } from '../latex/bibtex/bib-parser.ts';
+import { parseBibCached } from '../latex/bibtex/bib-cache.ts';
 import { formatName, numNames } from '../latex/bibtex/names.ts';
 
 export interface CiteEntry {
@@ -55,7 +55,7 @@ export function indexLibrary(sources: Record<string, string>): CiteEntry[] {
   const seen = new Set<string>();
   const out: CiteEntry[] = [];
   for (const [file, source] of Object.entries(sources))
-    for (const e of parseBib(source).entries) {
+    for (const e of parseBibCached(source).entries) {
       if (seen.has(e.key.toLowerCase())) continue;
       seen.add(e.key.toLowerCase());
       const names = e.fields.get('author') || e.fields.get('editor') || '';

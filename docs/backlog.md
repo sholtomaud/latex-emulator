@@ -15,30 +15,6 @@ Update it in the same PR that starts, finishes or defers an item.
   pure line builder (`src/latex/algorithmic/`), the renderer and the
   `ruled` float.
 
-## Next (performance, measured)
-
-- **Large `.bib` libraries (10k entries) make the editor lag.** Measured
-  with a synthetic 10k-entry, 2.8 MB library (Node 22, `--experimental-strip-types`):
-  - every preview render re-parses the whole library: `runBibtex` gets the
-    joined source each time. 130–270 ms per render against 70 ms with no
-    library; most of that is `parseBib` (≈140 ms) and GC.
-  - each undefined citation (including the half-typed key in
-    `\cite{auth`) runs `explainUndefined`, which builds a regex and scans
-    all 2.8 MB: ≈5 ms per undefined key, 1 s for 200 of them, and 15 s
-    for 2,000 occurrences of one missing key in an 80k-character document.
-  - typeahead itself is cheap: `matchEntries` 2–4 ms; the index (208 ms)
-    is built once per library change. But each completion and hover
-    request re-parses the whole document (`citeContextAt`, 14–26 ms at
-    80k characters) on the main thread.
-
-  Fix in TypeScript first (AGENTS §2: Rust only when profiling shows the
-  TS algorithm itself is the limit, and it isn't here): parse each `.bib`
-  file once per change and hand BibTeX the parsed entries and a key map;
-  answer `explainUndefined` from a key → file map; reuse the editor's
-  latest parse for cite context; then move parsing and the library index
-  into the language worker (step 13). Rust/WASM stays a candidate only
-  if `parseBib` alone still blocks after that.
-
 ## Next
 
 - **Project folders and cloud drives (ADR 0015).** Each phase is its own
@@ -60,6 +36,18 @@ Update it in the same PR that starts, finishes or defers an item.
   language worker and the rest).
 
 ## Deferred follow-ups (from ADRs and PRs)
+
+- Large references libraries: the lag with a 10,000-entry `.bib` is
+  fixed. `src/latex/bibtex/bib-cache.ts` parses each library text once
+  while it is unchanged and indexes its keys, so renders no longer
+  re-read the library and undefined citations no longer scan it.
+  `node scripts/bench-citations.ts` measures it: per render 148 → 20 ms
+  with 400 citations, and 1.7 s → 15–52 ms with undefined citations or
+  while a key is typed. Still on the main thread: one document parse per
+  completion or hover request (`citeContextAt`), and building the
+  typeahead index (≈75–150 ms, once per library change). Both move to
+  the language worker (step 13). Rust/WASM for `parseBib` only if it
+  still blocks after that (AGENTS §2).
 
 - Fidelity measurement: switch the prose position checks in
   `print-fidelity.spec.ts` to the baseline probe the code-line check uses

@@ -2,6 +2,7 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert';
 import fs from 'node:fs';
 import { renderDocument } from './render-document.ts';
+import { bibCacheStats, clearBibCache } from '../latex/bibtex/bib-cache.ts';
 import { serialize } from './hnode.ts';
 import type { HChild } from './hnode.ts';
 
@@ -364,5 +365,54 @@ describe('bibliographyFiles', () => {
       ['refs', 'more']
     );
     assert.deepStrictEqual(bibliographyFiles('no bibliography'), []);
+  });
+});
+
+describe('a large references library is parsed once per change', () => {
+  // Every render used to re-parse the whole library (BibTeX's read, and
+  // again for each undefined citation), which made typing lag with a
+  // 10,000-entry .bib (docs/backlog.md).
+  const many = Array.from(
+    { length: 200 },
+    (_, i) => `@misc{entry_${i}, title = {Entry ${i}}, year = {2000}}`
+  ).join('\n');
+  const src = (body: string) =>
+    `\\documentclass{article}\\usepackage{natbib}\\begin{document}${body}\\bibliographystyle{plainnat}\\bibliography{many}\\end{document}`;
+  const options = {
+    bibFiles: { many, other: '@misc{x_1, title={X}}' },
+    bstStyles,
+  };
+
+  test('rendering again, or editing prose, does not parse it again', () => {
+    clearBibCache();
+    renderDocument(src('See \\citet{entry_3}.'), options);
+    const after = bibCacheStats().parses;
+    assert.strictEqual(after, 1);
+    renderDocument(src('See \\citet{entry_3}.'), options);
+    renderDocument(src('See \\citet{entry_3} and more prose.'), options);
+    renderDocument(src('See \\citet{entry_3} and \\citep{entry_7}.'), options);
+    assert.strictEqual(bibCacheStats().parses, after);
+  });
+
+  test('undefined citations are explained without parsing again', () => {
+    clearBibCache();
+    renderDocument(src('See \\citet{entry_3}.'), options);
+    const after = bibCacheStats().parses;
+    const missing = Array.from({ length: 50 }, (_, i) => `\\cite{gone_${i}}`);
+    const { diagnostics } = renderDocument(
+      src(`See \\citet{entry_3}. ${missing.join(' ')} \\cite{x_1}`),
+      options
+    );
+    // Explaining reads each library file once (without the style's
+    // macros); the other 49 undefined keys parse nothing more.
+    assert.strictEqual(bibCacheStats().parses, after + 2);
+    assert.strictEqual(
+      diagnostics.filter((d) => d.code === 'ref/undefined-citation').length,
+      51
+    );
+    assert.match(
+      diagnostics.find((d) => d.message.includes('"x_1"'))?.message ?? '',
+      /is in other\.bib, which \\bibliography\{many\} doesn’t list/
+    );
   });
 });

@@ -1,5 +1,5 @@
 import type { BibFile, DocumentRepository } from '../storage/types.ts';
-import { parseBib } from '../latex/bibtex/bib-parser.ts';
+import { parseBibCached } from '../latex/bibtex/bib-cache.ts';
 import { cleanBib } from '../references/clean.ts';
 
 export interface BibFileMeta {
@@ -70,7 +70,7 @@ export class BibLibrary {
   async importFile(fileName: string, text: string): Promise<BibImportResult> {
     const name = bibName(fileName);
     await this.put(name, text);
-    const parsed = parseBib(text);
+    const parsed = parseBibCached(text);
     return { name, entries: parsed.entries.length, warnings: parsed.warnings };
   }
 
@@ -84,7 +84,7 @@ export class BibLibrary {
   keys(): Set<string> {
     const keys = new Set<string>();
     for (const f of this.files.values())
-      for (const e of parseBib(f.source).entries) keys.add(e.key);
+      for (const e of parseBibCached(f.source).entries) keys.add(e.key);
     return keys;
   }
 
@@ -122,7 +122,7 @@ export class BibLibrary {
     this.options.publish({
       files: files.map((f) => ({
         name: f.name,
-        entries: parseBib(f.source).entries.length,
+        entries: parseBibCached(f.source).entries.length,
         updatedAt: f.updatedAt,
       })),
       sources: Object.fromEntries(files.map((f) => [f.name, f.source])),
