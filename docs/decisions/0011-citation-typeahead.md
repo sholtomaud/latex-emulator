@@ -27,6 +27,16 @@ asked for typeahead from the library and from Zotero.
     Zotero (local or web), and results are cached per prefix. Zotero on
     this computer refuses requests from web pages (ADR 0009), so in
     practice suggestions come from the web library.
+  - **A failed search pauses the Zotero suggestions**
+    (`src/references/zotero-typeahead.ts`). From the Pages site, every
+    prefix used to send a request to Zotero on this computer that could
+    never succeed: Chrome's Local Network Access check blocks it, and each
+    one logged a CORS error in the console. A rejected web API key failed
+    the same way on every prefix. Now the first failure puts its reason in
+    the explorer's status line ("Zotero suggestions are paused: …") and no
+    more requests are sent. Changing the Zotero settings or the typeahead
+    checkbox tries again, and so does a reload. The library's own keys are
+    still offered.
   - Choosing a Zotero item inserts its new `author_topic_year` key and adds
     the entry to the first library file the document's `\bibliography` lists
     (else `references.bib`).

@@ -20,8 +20,7 @@ import { searchZotero } from '../references/zotero.ts';
 import type { ZoteroSource } from '../references/zotero.ts';
 import { indexLibrary } from '../references/cite-index.ts';
 import type { CiteEntry } from '../references/cite-index.ts';
-import { zoteroSuggestions } from '../references/zotero-suggest.ts';
-import type { ZoteroSuggestion } from '../references/zotero-suggest.ts';
+import { createZoteroTypeahead } from '../references/zotero-typeahead.ts';
 import { bibliographyFiles } from '../render/bibliography.ts';
 import type { CitationServices } from '../language/cite-services.ts';
 import { ImageLibrary } from './image-library.ts';
@@ -242,6 +241,7 @@ export const workspaceActions = {
   },
   setZotero: (source: 'local' | 'web', userId: string, apiKey?: string) => {
     if (apiKey !== undefined) zoteroKey = apiKey;
+    zoteroTypeahead.reset();
     writePref('zotero-source', source);
     writePref('zotero-user', userId.trim());
     bibStore.setState({
@@ -250,6 +250,7 @@ export const workspaceActions = {
   },
   setZoteroTypeahead: (on: boolean) => {
     writePref('zotero-typeahead', String(on));
+    zoteroTypeahead.reset();
     bibStore.setState({
       zotero: { ...bibStore.getState().zotero, typeahead: on },
     });
@@ -355,7 +356,13 @@ function zoteroSource(): ZoteroSource {
 
 let indexed: { sources: Record<string, string>; entries: CiteEntry[] } | null =
   null;
-const zoteroCache = new Map<string, Promise<ZoteroSuggestion[]>>();
+/** Zotero suggestions while typing, paused after a failed search. */
+const zoteroTypeahead = createZoteroTypeahead({
+  search: (source, q) =>
+    searchZotero(source, q, { fetch: (...args) => fetch(...args) }),
+  keys: () => library?.keys() ?? new Set(),
+  onFailure: (status) => bibStore.setState({ status }),
+});
 
 /** Citation typeahead and hovers for the editor (src/language/cite-services.ts). */
 export const citationServices: CitationServices = {
@@ -366,18 +373,9 @@ export const citationServices: CitationServices = {
     return indexed.entries;
   },
   zotero(typed) {
-    const q = typed.trim();
-    if (!bibStore.getState().zotero.typeahead || q.length < 3 || !library)
+    if (!bibStore.getState().zotero.typeahead || !library)
       return Promise.resolve([]);
-    const cacheKey = `${bibStore.getState().zotero.source}:${q.toLowerCase()}`;
-    if (!zoteroCache.has(cacheKey))
-      zoteroCache.set(
-        cacheKey,
-        searchZotero(zoteroSource(), q, { fetch: (...args) => fetch(...args) })
-          .then((r) => (r.ok ? r.hits : []))
-          .then((hits) => zoteroSuggestions(hits, library!.keys()))
-      );
-    return zoteroCache.get(cacheKey)!;
+    return zoteroTypeahead.suggest(zoteroSource(), typed);
   },
   async add(suggestion) {
     if (!library) return;
@@ -389,7 +387,7 @@ export const citationServices: CitationServices = {
       ) ?? 'references';
     if (library.keys().has(suggestion.key)) return;
     await library.addEntry(target, suggestion.text);
-    zoteroCache.clear();
+    zoteroTypeahead.reset();
     bibStore.setState({
       status: `Added ${suggestion.key} from Zotero to ${target}.bib.`,
     });
