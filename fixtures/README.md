@@ -11,7 +11,8 @@ Each folder is one LaTeX document plus what real `pdflatex` makes of it:
 | `reference.version` | The `pdflatex` version that produced them |
 | `images/` | Optional: figures the document includes (`\graphicspath{{images/}}`); the fidelity spec adds them to the document's Images first |
 
-Regenerate with (needs TeX Live and poppler-utils):
+Regenerate with (needs TeX Live and poppler-utils; on Debian or Ubuntu the
+algorithm fixture also needs `texlive-science`, as in CI):
 
 ```bash
 scripts/make-reference.sh fixtures/<name>
