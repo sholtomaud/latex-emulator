@@ -2,7 +2,7 @@
  * A BibTeX emulator: runs a .bst style program over a .bib database and
  * produces the .bbl text real bibtex would write (see ADR 0007). Pure TS.
  */
-import { parseBib } from './bib-parser.ts';
+import { parseBibCached } from './bib-cache.ts';
 import type { BibEntry } from './bib-parser.ts';
 import { formatName, numNames } from './names.ts';
 import {
@@ -535,7 +535,8 @@ export function runBibtex({ bst, bib, citations }: BibtexInput): BibtexResult {
   }
 
   const read = () => {
-    const parsed = parseBib(bib, macros);
+    // Cached: a render with an unchanged library doesn't re-read it.
+    const parsed = parseBibCached(bib, macros);
     warnings.push(...parsed.warnings);
     preamble = parsed.preamble;
     const byKey = new Map(parsed.entries.map((e) => [e.key.toLowerCase(), e]));

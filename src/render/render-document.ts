@@ -1,5 +1,9 @@
 import { parse } from '../latex/parser/parser.ts';
-import { analyzeDocument, plainText } from '../latex/document/structure.ts';
+import {
+  analyzeDocument,
+  packageOptions,
+  plainText,
+} from '../latex/document/structure.ts';
 import type { DocumentStructure } from '../latex/document/structure.ts';
 import { articleGeometry, classOptions } from '../latex/classes/article.ts';
 import type { ArticleGeometry } from '../latex/classes/article.ts';
@@ -44,6 +48,9 @@ import type { LstLanguage } from '../latex/listings/language-types.ts';
 import { fontClasses, inlineListing, listingLines } from './listings.ts';
 import { parseLength } from './lengths.ts';
 import type { VerbNode, VerbatimNode } from '../latex/ast/nodes.ts';
+import { algorithmicLines } from '../latex/algorithmic/lines.ts';
+import type { AlgPart } from '../latex/algorithmic/lines.ts';
+import { boxExtent, textWidth } from './extent.ts';
 
 export interface RenderOptions {
   /** Date used for \today (defaults to now). */
@@ -74,6 +81,26 @@ export interface RenderResult {
   /** Plain-text title, e.g. for the PDF file name. */
   title: string;
 }
+
+/** " H" for float.sty's [H]: set here, in the main list (\float@endH). */
+const floatH = (env: EnvironmentNode) =>
+  /H/.test(keyText(env.args.find((a) => a.optional)?.children ?? []))
+    ? ' H'
+    : '';
+
+/** A length in em, to 4 places (as the TFMs give them). */
+const emLength = (v: number) => `${Number(v.toFixed(4))}em`;
+
+/**
+ * A bold label in a box of its TeX width: the browser rounds glyph
+ * advances to whole pixels, which would move the text after it.
+ */
+const labelBox = (text: string, cls: string) =>
+  h(
+    'span',
+    { class: cls, style: `width: ${emLength(textWidth(text, 'bf'))}` },
+    [text]
+  );
 
 /** Text-font commands → CSS class (or element). */
 const TEXT_COMMANDS: Record<string, string> = {
@@ -294,6 +321,10 @@ export function renderDocument(
   first.images = options.images ?? {};
   first.lstLanguages = options.lstLanguages ?? {};
   first.listingsPreamble(parsed.root.children);
+  const algNoend =
+    packageOptions(parsed.root.children, 'algpseudocode')?.includes('noend') ??
+    false;
+  first.algNoend = algNoend;
   first.renderBlocks(structure.body, first.rootContext());
   const renderer = new Renderer(structure, today, citations, {
     labels: first.labelsOut,
@@ -303,6 +334,7 @@ export function renderDocument(
   renderer.images = options.images ?? {};
   renderer.lstLanguages = options.lstLanguages ?? {};
   renderer.listingsPreamble(parsed.root.children);
+  renderer.algNoend = algNoend;
   const blocks = renderer.renderBlocks(structure.body, renderer.rootContext());
   if (renderer.footnotes.length)
     blocks.push(h('section', { class: 'footnotes' }, renderer.footnotes));
@@ -347,9 +379,12 @@ class Renderer {
     table: 0,
     figure: 0,
     lstlisting: 0,
+    algorithm: 0,
   };
   /** The float being rendered (\\caption numbers within it). */
-  float: 'table' | 'figure' | null = null;
+  float: 'table' | 'figure' | 'algorithm' | null = null;
+  /** algpseudocode's noend option: no "end …" lines. */
+  algNoend = false;
   /** Lengths for p{…} columns and \\includegraphics, in bp. */
   lengths: LengthContext = { textwidth: 345, em: 10, ex: 4.3 };
   images: NonNullable<RenderOptions['images']> = {};
@@ -690,9 +725,39 @@ class Renderer {
         const inner = this.renderBlocks(env.children, ctx);
         this.float = outer;
         return [
-          h('div', { class: `float ${env.name.replace('*', '')}` }, inner),
+          h(
+            'div',
+            { class: `float ${env.name.replace('*', '')}${floatH(env)}` },
+            inner
+          ),
         ];
       }
+      case 'algorithm': {
+        // float.sty \\fs@ruled: the caption always comes first (\\@fs@iftopcapt).
+        const outer = this.float;
+        this.float = 'algorithm';
+        const inner = this.renderBlocks(env.children, ctx);
+        this.float = outer;
+        const isCaption = (b: HElement) =>
+          b.attrs.class?.split(' ').includes('caption') ?? false;
+        const captions = inner.filter(isCaption);
+        // The caption's height and depth set the rules around it; on the
+        // float, where the CSS for the body can see them.
+        const style = captions[0]?.attrs.style;
+        if (style) delete captions[0].attrs.style;
+        return [
+          h(
+            'div',
+            {
+              class: `float algorithm${floatH(env)}${captions.length ? '' : ' nocaption'}`,
+              ...(style ? { style } : {}),
+            },
+            [...captions, ...inner.filter((b) => !isCaption(b))]
+          ),
+        ];
+      }
+      case 'algorithmic':
+        return [this.renderAlgorithmic(env, ctx)];
       case 'abstract':
         return [
           h('div', { class: 'abstract' }, [
@@ -800,6 +865,25 @@ class Renderer {
     }
     const n = ++this.counters[this.float];
     this.currentRef = String(n);
+    // float.sty \\floatc@ruled: {\\bfseries Algorithm n} text\\par, no colon.
+    if (this.float === 'algorithm') {
+      const children = [
+        labelBox(`Algorithm\u00a0${n}`, 'caption-label bf'),
+        ' ',
+        ...text,
+      ];
+      // Its box follows \hrule and is followed by a rule: TeX places it by
+      // its glyphs' height and depth (\@fs@pre, \@fs@mid; ADR 0016).
+      const { height, depth } = boxExtent(children);
+      return h(
+        'p',
+        {
+          class: 'caption alg-caption',
+          style: `--cap-h: ${emLength(height)}; --cap-d: ${emLength(depth)}`,
+        },
+        children
+      );
+    }
     const name = this.float === 'table' ? 'Table' : 'Figure';
     // article.cls \@makecaption: `#1: #2`. The space sits inside the label:
     // a whitespace-only text node directly in the caption (display: table)
@@ -1015,6 +1099,101 @@ class Renderer {
       ? this.lstApply(this.lst, n.options, n.range)
       : this.lst;
     return inlineListing(n.value, s, this.lstLanguage(s, n.range));
+  }
+
+  /**
+   * algorithmic (algorithmicx.sty) in algpseudocode's layout: a list with
+   * \\labelwidth 1.2em when numbered ([n], n > 0) and 0.5em when not, and
+   * \\algorithmicindent (1.5em) per level (ADR 0016). The CSS sets the
+   * lengths; this builds the lines.
+   */
+  renderAlgorithmic(env: EnvironmentNode, ctx: Context): HElement {
+    const { lines, problems } = algorithmicLines(env, {
+      noend: this.algNoend,
+    });
+    for (const p of problems)
+      this.warn(p.range, 'syntax/unbalanced-algorithmic', p.message, 'error');
+    const numbered = lines.some((l) => l.number !== null);
+    const outer = this.currentRef;
+    const part = (p: AlgPart): HChild[] => {
+      switch (p.kind) {
+        case 'keyword':
+          return [h('span', { class: 'bf' }, [p.text])];
+        case 'text':
+          return [p.text];
+        case 'proc':
+          return [
+            h(
+              'span',
+              { class: 'sc' },
+              this.renderInline(p.nodes, withFont(ctx, 'sc'))
+            ),
+          ];
+        case 'nodes':
+          return this.renderInline(p.nodes, ctx);
+      }
+    };
+    // The first line's height and the last one's depth: in a float they
+    // follow and precede a rule, which stops interline glue (ADR 0016).
+    const extent = { height: 0, depth: 0 };
+    const rows = lines.map((l, i) => {
+      // algorithmicx: \\@currentlabel is the line number.
+      this.currentRef = String(l.line);
+      const children: HChild[] = [];
+      if (l.label !== 'none')
+        children.push(
+          labelBox(
+            l.label === 'require' ? 'Require:' : 'Ensure:',
+            'alg-label bf'
+          )
+        );
+      else if (l.number !== null)
+        // \alglinenumber: \footnotesize n:, in a box \labelwidth wide
+        // (normal-size em, so the size change goes inside it).
+        children.push(
+          h('span', { class: 'alg-num' }, [
+            h('span', { class: 'size-footnotesize' }, [`${l.number}:`]),
+          ])
+        );
+      children.push(
+        h('span', { class: 'alg-text' }, tidy(l.parts.flatMap(part)))
+      );
+      if (l.comment)
+        // \\algorithmiccomment: \\hfill\\(\\triangleright\\) #1.
+        children.push(
+          h('span', { class: 'alg-comment' }, [
+            ...this.renderInline(
+              parse('\\(\\triangleright\\)').root.children,
+              ctx
+            ),
+            ' ',
+            ...tidy(this.renderInline(l.comment, ctx)),
+          ])
+        );
+      if (i === 0) extent.height = boxExtent(children).height;
+      if (i === lines.length - 1) extent.depth = boxExtent(children).depth;
+      return h(
+        'div',
+        {
+          class: 'alg-line',
+          ...(l.depth ? { style: `--alg-depth: ${l.depth}` } : {}),
+        },
+        children
+      );
+    });
+    this.currentRef = outer;
+    return h(
+      'div',
+      {
+        class: numbered ? 'algorithmic numbered' : 'algorithmic',
+        ...(rows.length
+          ? {
+              style: `--alg-h: ${emLength(extent.height)}; --alg-d: ${emLength(extent.depth)}`,
+            }
+          : {}),
+      },
+      rows
+    );
   }
 
   /** tabular as an HTML table: one column per spec column (rules included). */
@@ -1263,6 +1442,23 @@ class Renderer {
         ) || '',
       ];
     switch (c.name) {
+      // algpseudocode: \\algorithmicreturn{} and \\textproc{#1}(#2).
+      case 'Return':
+        return [h('span', { class: 'bf' }, ['return']), ' '];
+      case 'Call': {
+        const args = c.args.filter((a) => !a.optional);
+        const params = args[1]?.children ?? [];
+        return [
+          h(
+            'span',
+            { class: 'sc' },
+            this.renderInline(args[0]?.children ?? [], withFont(ctx, 'sc'))
+          ),
+          ...(tidy(this.renderInline(params, ctx)).length
+            ? ['(', ...this.renderInline(params, ctx), ')']
+            : []),
+        ];
+      }
       case 'emph':
         return [h('em', {}, arg())];
       case 'underline':

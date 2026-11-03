@@ -41,7 +41,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             texlive-latex-base texlive-latex-recommended texlive-latex-extra \
-            texlive-fonts-recommended texlive-bibtex-extra lmodern
+            texlive-fonts-recommended texlive-bibtex-extra texlive-science \
+            lmodern
       - run: npm run check:projects
 
   playwright-version:

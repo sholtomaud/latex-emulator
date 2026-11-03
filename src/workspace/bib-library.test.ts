@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import { BibLibrary, bibName } from './bib-library.ts';
 import type { BibLibraryState } from './bib-library.ts';
 import { MemoryRepository } from '../storage/memory-repository.ts';
+import { bibCacheStats } from '../latex/bibtex/bib-cache.ts';
 
 const ODUM =
   '@book{odum_energy_1996, author = {Howard T. Odum}, title = {E}, year = 1996}';
@@ -103,6 +104,20 @@ describe('BibLibrary: adding and cleaning entries', () => {
       'other_2020',
       'x_y_2020',
     ]);
+  });
+
+  test('keys() and the file list parse each file once while unchanged', async () => {
+    const { library } = setup();
+    await library.init();
+    await library.importFile('a.bib', TWO);
+    await library.importFile('b.bib', '@misc{other_2020, title = {O}}');
+    const before = bibCacheStats().parses;
+    library.keys();
+    library.keys();
+    await library.addEntry('b', '@misc{new_2021, title = {N}}');
+    // Only the changed b.bib is read again (publish counts its entries).
+    assert.strictEqual(bibCacheStats().parses, before + 1);
+    assert.ok(library.keys().has('new_2021'));
   });
 
   test('addEntry appends to a file, creating it if needed', async () => {

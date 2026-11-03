@@ -1,0 +1,1912 @@
+{
+  "pages": [
+    {
+      "width": 595.28,
+      "height": 841.89,
+      "lines": [
+        {
+          "text": "1",
+          "xMin": 117.83,
+          "yMin": 127.8,
+          "xMax": 125.9,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 117.83,
+              "xMax": 125.9,
+              "yMin": 127.8,
+              "yMax": 140.54
+            }
+          ]
+        },
+        {
+          "text": "Pseudocode",
+          "xMin": 142.04,
+          "yMin": 127.8,
+          "xMax": 225.26,
+          "yMax": 140.54,
+          "words": [
+            {
+              "text": "Pseudocode",
+              "xMin": 142.04,
+              "xMax": 225.26,
+              "yMin": 127.8,
+              "yMax": 140.54
+            }
+          ]
+        },
+        {
+          "text": "Algorithm 1 is Euclid’s method, set with line numbers in the ruled float",
+          "xMin": 117.83,
+          "yMin": 154.54,
+          "xMax": 476.48,
+          "yMax": 164.53,
+          "words": [
+            {
+              "text": "Algorithm",
+              "xMin": 117.83,
+              "xMax": 166.65,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "1",
+              "xMin": 171.14,
+              "xMax": 176.6,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "is",
+              "xMin": 181.08,
+              "xMax": 188.41,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "Euclid’s",
+              "xMin": 192.91,
+              "xMax": 230.7,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "method,",
+              "xMin": 235.19,
+              "xMax": 274.27,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "set",
+              "xMin": 278.99,
+              "xMax": 292.38,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "with",
+              "xMin": 296.86,
+              "xMax": 318.08,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "line",
+              "xMin": 322.57,
+              "xMax": 339.54,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "numbers",
+              "xMin": 344.04,
+              "xMax": 384.43,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "in",
+              "xMin": 388.92,
+              "xMax": 398.01,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "the",
+              "xMin": 402.5,
+              "xMax": 417.65,
+              "yMin": 154.54,
+              "yMax": 164.22
+            },
+            {
+              "text": "ruled",
+              "xMin": 422.14,
+              "xMax": 450.78,
+              "yMin": 155.44,
+              "yMax": 164.53
+            },
+            {
+              "text": "float",
+              "xMin": 455.27,
+              "xMax": 476.48,
+              "yMin": 154.54,
+              "yMax": 164.22
+            }
+          ]
+        },
+        {
+          "text": "that the algorithm package declares.",
+          "xMin": 117.83,
+          "yMin": 168.08,
+          "xMax": 296.74,
+          "yMax": 178.08,
+          "words": [
+            {
+              "text": "that",
+              "xMin": 117.83,
+              "xMax": 137.83,
+              "yMin": 168.08,
+              "yMax": 177.77
+            },
+            {
+              "text": "the",
+              "xMin": 141.46,
+              "xMax": 156.61,
+              "yMin": 168.08,
+              "yMax": 177.77
+            },
+            {
+              "text": "algorithm",
+              "xMin": 160.25,
+              "xMax": 211.8,
+              "yMin": 168.99,
+              "yMax": 178.08
+            },
+            {
+              "text": "package",
+              "xMin": 215.43,
+              "xMax": 252.41,
+              "yMin": 168.08,
+              "yMax": 177.77
+            },
+            {
+              "text": "declares.",
+              "xMin": 256.04,
+              "xMax": 296.74,
+              "yMin": 168.08,
+              "yMax": 177.77
+            }
+          ]
+        },
+        {
+          "text": "Algorithm 1 Euclid’s algorithm",
+          "xMin": 117.83,
+          "yMin": 193.83,
+          "xMax": 275.9,
+          "yMax": 203.51,
+          "words": [
+            {
+              "text": "Algorithm",
+              "xMin": 117.83,
+              "xMax": 174.3,
+              "yMin": 193.83,
+              "yMax": 203.51
+            },
+            {
+              "text": "1",
+              "xMin": 178.47,
+              "xMax": 184.75,
+              "yMin": 193.83,
+              "yMax": 203.51
+            },
+            {
+              "text": "Euclid’s",
+              "xMin": 188.39,
+              "xMax": 226.18,
+              "yMin": 193.83,
+              "yMax": 203.51
+            },
+            {
+              "text": "algorithm",
+              "xMin": 229.81,
+              "xMax": 275.9,
+              "yMin": 193.83,
+              "yMax": 203.51
+            }
+          ]
+        },
+        {
+          "text": "Require: integers a ≥ 0 and b ≥ 0",
+          "xMin": 117.83,
+          "yMin": 207.3,
+          "xMax": 285.61,
+          "yMax": 217.59,
+          "words": [
+            {
+              "text": "Require:",
+              "xMin": 117.83,
+              "xMax": 164.46,
+              "yMin": 207.91,
+              "yMax": 217.59
+            },
+            {
+              "text": "integers",
+              "xMin": 169.92,
+              "xMax": 206.67,
+              "yMin": 207.91,
+              "yMax": 217.59
+            },
+            {
+              "text": "a",
+              "xMin": 210.31,
+              "xMax": 216.08,
+              "yMin": 207.91,
+              "yMax": 217.59
+            },
+            {
+              "text": "≥",
+              "xMin": 219.11,
+              "xMax": 227.59,
+              "yMin": 207.3,
+              "yMax": 217.59
+            },
+            {
+              "text": "0",
+              "xMin": 230.63,
+              "xMax": 236.08,
+              "yMin": 207.91,
+              "yMax": 217.59
+            },
+            {
+              "text": "and",
+              "xMin": 239.71,
+              "xMax": 257.29,
+              "yMin": 207.91,
+              "yMax": 217.59
+            },
+            {
+              "text": "b",
+              "xMin": 260.93,
+              "xMax": 265.61,
+              "yMin": 207.91,
+              "yMax": 217.59
+            },
+            {
+              "text": "≥",
+              "xMin": 268.64,
+              "xMax": 277.13,
+              "yMin": 207.3,
+              "yMax": 217.59
+            },
+            {
+              "text": "0",
+              "xMin": 280.15,
+              "xMax": 285.61,
+              "yMin": 207.91,
+              "yMax": 217.59
+            }
+          ]
+        },
+        {
+          "text": "Ensure: the greatest common divisor of a and b",
+          "xMin": 117.83,
+          "yMin": 221.46,
+          "xMax": 351.81,
+          "yMax": 231.14,
+          "words": [
+            {
+              "text": "Ensure:",
+              "xMin": 117.83,
+              "xMax": 159.36,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "the",
+              "xMin": 164.81,
+              "xMax": 179.97,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "greatest",
+              "xMin": 183.6,
+              "xMax": 221.26,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "common",
+              "xMin": 224.91,
+              "xMax": 264.91,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "divisor",
+              "xMin": 268.54,
+              "xMax": 300.45,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "of",
+              "xMin": 304.08,
+              "xMax": 312.87,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "a",
+              "xMin": 316.51,
+              "xMax": 322.28,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "and",
+              "xMin": 325.91,
+              "xMax": 343.49,
+              "yMin": 221.46,
+              "yMax": 231.14
+            },
+            {
+              "text": "b",
+              "xMin": 347.13,
+              "xMax": 351.81,
+              "yMin": 221.46,
+              "yMax": 231.14
+            }
+          ]
+        },
+        {
+          "text": "1: procedure Euclid(a, b)",
+          "xMin": 123.75,
+          "yMin": 235,
+          "xMax": 255.67,
+          "yMax": 246.39,
+          "words": [
+            {
+              "text": "1:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 236.35,
+              "yMax": 244.31
+            },
+            {
+              "text": "procedure",
+              "xMin": 136.37,
+              "xMax": 191.31,
+              "yMin": 235,
+              "yMax": 244.69
+            },
+            {
+              "text": "Euclid(a,",
+              "xMin": 194.95,
+              "xMax": 244.93,
+              "yMin": 236.97,
+              "yMax": 246.39
+            },
+            {
+              "text": "b)",
+              "xMin": 246.75,
+              "xMax": 255.67,
+              "yMin": 235,
+              "yMax": 244.69
+            }
+          ]
+        },
+        {
+          "text": "▷ The g.c.d. of a and b",
+          "xMin": 367.09,
+          "yMin": 235,
+          "xMax": 476.49,
+          "yMax": 244.69,
+          "words": [
+            {
+              "text": "▷",
+              "xMin": 367.09,
+              "xMax": 372.54,
+              "yMin": 235,
+              "yMax": 244.69
+            },
+            {
+              "text": "The",
+              "xMin": 376.18,
+              "xMax": 394.97,
+              "yMin": 235,
+              "yMax": 244.69
+            },
+            {
+              "text": "g.c.d.",
+              "xMin": 398.6,
+              "xMax": 424.06,
+              "yMin": 235,
+              "yMax": 244.69
+            },
+            {
+              "text": "of",
+              "xMin": 427.7,
+              "xMax": 436.49,
+              "yMin": 235,
+              "yMax": 244.69
+            },
+            {
+              "text": "a",
+              "xMin": 440.12,
+              "xMax": 445.57,
+              "yMin": 235,
+              "yMax": 244.69
+            },
+            {
+              "text": "and",
+              "xMin": 449.21,
+              "xMax": 466.78,
+              "yMin": 235,
+              "yMax": 244.69
+            },
+            {
+              "text": "b",
+              "xMin": 470.43,
+              "xMax": 476.49,
+              "yMin": 235,
+              "yMax": 244.69
+            }
+          ]
+        },
+        {
+          "text": "2:",
+          "xMin": 123.75,
+          "yMin": 249.9,
+          "xMax": 130.92,
+          "yMax": 257.86,
+          "words": [
+            {
+              "text": "2:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 249.9,
+              "yMax": 257.86
+            }
+          ]
+        },
+        {
+          "text": "r ← a mod b",
+          "xMin": 152.74,
+          "yMin": 247.94,
+          "xMax": 212.35,
+          "yMax": 258.24,
+          "words": [
+            {
+              "text": "r",
+              "xMin": 152.74,
+              "xMax": 157.66,
+              "yMin": 248.55,
+              "yMax": 258.24
+            },
+            {
+              "text": "←",
+              "xMin": 160.99,
+              "xMax": 171.9,
+              "yMin": 247.94,
+              "yMax": 258.24
+            },
+            {
+              "text": "a",
+              "xMin": 174.93,
+              "xMax": 180.7,
+              "yMin": 248.55,
+              "yMax": 258.24
+            },
+            {
+              "text": "mod",
+              "xMin": 183.73,
+              "xMax": 204.64,
+              "yMin": 248.55,
+              "yMax": 258.24
+            },
+            {
+              "text": "b",
+              "xMin": 207.67,
+              "xMax": 212.35,
+              "yMin": 248.55,
+              "yMax": 258.24
+            }
+          ]
+        },
+        {
+          "text": "3:",
+          "xMin": 123.75,
+          "yMin": 263.45,
+          "xMax": 130.92,
+          "yMax": 271.41,
+          "words": [
+            {
+              "text": "3:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 263.45,
+              "yMax": 271.41
+            }
+          ]
+        },
+        {
+          "text": "while r ̸ = 0 do",
+          "xMin": 152.74,
+          "yMin": 261.49,
+          "xMax": 227.23,
+          "yMax": 271.79,
+          "words": [
+            {
+              "text": "while",
+              "xMin": 152.74,
+              "xMax": 181.49,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "r",
+              "xMin": 185.12,
+              "xMax": 190.05,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "̸",
+              "xMin": 193.38,
+              "xMax": 193.38,
+              "yMin": 261.49,
+              "yMax": 271.79
+            },
+            {
+              "text": "=",
+              "xMin": 193.38,
+              "xMax": 201.86,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "0",
+              "xMin": 204.9,
+              "xMax": 210.35,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "do",
+              "xMin": 213.98,
+              "xMax": 227.23,
+              "yMin": 262.1,
+              "yMax": 271.79
+            }
+          ]
+        },
+        {
+          "text": "▷ We have the answer if r is 0",
+          "xMin": 334.18,
+          "yMin": 262.1,
+          "xMax": 476.49,
+          "yMax": 271.79,
+          "words": [
+            {
+              "text": "▷",
+              "xMin": 334.18,
+              "xMax": 339.63,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "We",
+              "xMin": 343.27,
+              "xMax": 358.43,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "have",
+              "xMin": 362.06,
+              "xMax": 383.57,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "the",
+              "xMin": 387.21,
+              "xMax": 402.36,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "answer",
+              "xMin": 406,
+              "xMax": 438.51,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "if",
+              "xMin": 442.15,
+              "xMax": 448.52,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "r",
+              "xMin": 452.15,
+              "xMax": 456.42,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "is",
+              "xMin": 460.06,
+              "xMax": 467.39,
+              "yMin": 262.1,
+              "yMax": 271.79
+            },
+            {
+              "text": "0",
+              "xMin": 471.03,
+              "xMax": 476.49,
+              "yMin": 262.1,
+              "yMax": 271.79
+            }
+          ]
+        },
+        {
+          "text": "4:",
+          "xMin": 123.75,
+          "yMin": 277,
+          "xMax": 130.92,
+          "yMax": 284.96,
+          "words": [
+            {
+              "text": "4:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 277,
+              "yMax": 284.96
+            }
+          ]
+        },
+        {
+          "text": "a ← b",
+          "xMin": 169.1,
+          "yMin": 275.04,
+          "xMax": 196.52,
+          "yMax": 285.34,
+          "words": [
+            {
+              "text": "a",
+              "xMin": 169.1,
+              "xMax": 174.87,
+              "yMin": 275.65,
+              "yMax": 285.34
+            },
+            {
+              "text": "←",
+              "xMin": 177.9,
+              "xMax": 188.81,
+              "yMin": 275.04,
+              "yMax": 285.34
+            },
+            {
+              "text": "b",
+              "xMin": 191.84,
+              "xMax": 196.52,
+              "yMin": 275.65,
+              "yMax": 285.34
+            }
+          ]
+        },
+        {
+          "text": "5:",
+          "xMin": 123.75,
+          "yMin": 290.55,
+          "xMax": 130.92,
+          "yMax": 298.51,
+          "words": [
+            {
+              "text": "5:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 290.55,
+              "yMax": 298.51
+            }
+          ]
+        },
+        {
+          "text": "b ← r",
+          "xMin": 169.1,
+          "yMin": 288.59,
+          "xMax": 195.67,
+          "yMax": 298.89,
+          "words": [
+            {
+              "text": "b",
+              "xMin": 169.1,
+              "xMax": 173.78,
+              "yMin": 289.2,
+              "yMax": 298.89
+            },
+            {
+              "text": "←",
+              "xMin": 176.81,
+              "xMax": 187.72,
+              "yMin": 288.59,
+              "yMax": 298.89
+            },
+            {
+              "text": "r",
+              "xMin": 190.75,
+              "xMax": 195.67,
+              "yMin": 289.2,
+              "yMax": 298.89
+            }
+          ]
+        },
+        {
+          "text": "6:",
+          "xMin": 123.75,
+          "yMin": 304.1,
+          "xMax": 130.92,
+          "yMax": 312.06,
+          "words": [
+            {
+              "text": "6:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 304.1,
+              "yMax": 312.06
+            }
+          ]
+        },
+        {
+          "text": "r ← a mod b",
+          "xMin": 169.1,
+          "yMin": 302.14,
+          "xMax": 228.71,
+          "yMax": 312.44,
+          "words": [
+            {
+              "text": "r",
+              "xMin": 169.1,
+              "xMax": 174.02,
+              "yMin": 302.75,
+              "yMax": 312.44
+            },
+            {
+              "text": "←",
+              "xMin": 177.36,
+              "xMax": 188.27,
+              "yMin": 302.14,
+              "yMax": 312.44
+            },
+            {
+              "text": "a",
+              "xMin": 191.3,
+              "xMax": 197.06,
+              "yMin": 302.75,
+              "yMax": 312.44
+            },
+            {
+              "text": "mod",
+              "xMin": 200.09,
+              "xMax": 221,
+              "yMin": 302.75,
+              "yMax": 312.44
+            },
+            {
+              "text": "b",
+              "xMin": 224.03,
+              "xMax": 228.71,
+              "yMin": 302.75,
+              "yMax": 312.44
+            }
+          ]
+        },
+        {
+          "text": "7:",
+          "xMin": 123.75,
+          "yMin": 317.65,
+          "xMax": 130.92,
+          "yMax": 325.61,
+          "words": [
+            {
+              "text": "7:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 317.65,
+              "yMax": 325.61
+            }
+          ]
+        },
+        {
+          "text": "end while",
+          "xMin": 152.74,
+          "yMin": 316.3,
+          "xMax": 204.81,
+          "yMax": 325.99,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 152.74,
+              "xMax": 172.43,
+              "yMin": 316.3,
+              "yMax": 325.99
+            },
+            {
+              "text": "while",
+              "xMin": 176.06,
+              "xMax": 204.81,
+              "yMin": 316.3,
+              "yMax": 325.99
+            }
+          ]
+        },
+        {
+          "text": "8:",
+          "xMin": 123.75,
+          "yMin": 331.2,
+          "xMax": 130.92,
+          "yMax": 339.16,
+          "words": [
+            {
+              "text": "8:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 331.2,
+              "yMax": 339.16
+            }
+          ]
+        },
+        {
+          "text": "return b",
+          "xMin": 152.74,
+          "yMin": 329.85,
+          "xMax": 195.96,
+          "yMax": 339.54,
+          "words": [
+            {
+              "text": "return",
+              "xMin": 152.74,
+              "xMax": 187.64,
+              "yMin": 329.85,
+              "yMax": 339.54
+            },
+            {
+              "text": "b",
+              "xMin": 191.28,
+              "xMax": 195.96,
+              "yMin": 329.85,
+              "yMax": 339.54
+            }
+          ]
+        },
+        {
+          "text": "▷ The gcd is b",
+          "xMin": 407.94,
+          "yMin": 329.85,
+          "xMax": 476.48,
+          "yMax": 339.54,
+          "words": [
+            {
+              "text": "▷",
+              "xMin": 407.94,
+              "xMax": 413.4,
+              "yMin": 329.85,
+              "yMax": 339.54
+            },
+            {
+              "text": "The",
+              "xMin": 417.03,
+              "xMax": 435.82,
+              "yMin": 329.85,
+              "yMax": 339.54
+            },
+            {
+              "text": "gcd",
+              "xMin": 439.45,
+              "xMax": 455.81,
+              "yMin": 329.85,
+              "yMax": 339.54
+            },
+            {
+              "text": "is",
+              "xMin": 459.46,
+              "xMax": 466.79,
+              "yMin": 329.85,
+              "yMax": 339.54
+            },
+            {
+              "text": "b",
+              "xMin": 470.42,
+              "xMax": 476.48,
+              "yMin": 329.85,
+              "yMax": 339.54
+            }
+          ]
+        },
+        {
+          "text": "9: end procedure",
+          "xMin": 123.75,
+          "yMin": 343.4,
+          "xMax": 214.64,
+          "yMax": 353.08,
+          "words": [
+            {
+              "text": "9:",
+              "xMin": 123.75,
+              "xMax": 130.92,
+              "yMin": 344.75,
+              "yMax": 352.71
+            },
+            {
+              "text": "end",
+              "xMin": 136.37,
+              "xMax": 156.06,
+              "yMin": 343.4,
+              "yMax": 353.08
+            },
+            {
+              "text": "procedure",
+              "xMin": 159.7,
+              "xMax": 214.64,
+              "yMin": 343.4,
+              "yMax": 353.08
+            }
+          ]
+        },
+        {
+          "text": "The text continues after the algorithm, long enough to reach a second",
+          "xMin": 134.76,
+          "yMin": 375.6,
+          "xMax": 476.48,
+          "yMax": 385.28,
+          "words": [
+            {
+              "text": "The",
+              "xMin": 134.76,
+              "xMax": 153.55,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "text",
+              "xMin": 157.84,
+              "xMax": 176.93,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "continues",
+              "xMin": 181.21,
+              "xMax": 225.51,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "after",
+              "xMin": 229.79,
+              "xMax": 251.95,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "the",
+              "xMin": 256.22,
+              "xMax": 271.37,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "algorithm,",
+              "xMin": 275.66,
+              "xMax": 324.78,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "long",
+              "xMin": 329.22,
+              "xMax": 349.22,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "enough",
+              "xMin": 353.51,
+              "xMax": 387.45,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "to",
+              "xMin": 391.73,
+              "xMax": 401.42,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "reach",
+              "xMin": 405.71,
+              "xMax": 430.89,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "a",
+              "xMin": 435.17,
+              "xMax": 440.62,
+              "yMin": 375.6,
+              "yMax": 385.28
+            },
+            {
+              "text": "second",
+              "xMin": 444.91,
+              "xMax": 476.48,
+              "yMin": 375.6,
+              "yMax": 385.28
+            }
+          ]
+        },
+        {
+          "text": "line of this paragraph so that its spacing can be measured.",
+          "xMin": 117.83,
+          "yMin": 389.15,
+          "xMax": 398.22,
+          "yMax": 398.83,
+          "words": [
+            {
+              "text": "line",
+              "xMin": 117.83,
+              "xMax": 134.8,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "of",
+              "xMin": 138.43,
+              "xMax": 147.22,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "this",
+              "xMin": 150.86,
+              "xMax": 168.5,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "paragraph",
+              "xMin": 172.13,
+              "xMax": 220.68,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "so",
+              "xMin": 224.31,
+              "xMax": 234.07,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "that",
+              "xMin": 237.7,
+              "xMax": 257.7,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "its",
+              "xMin": 261.35,
+              "xMax": 272.92,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "spacing",
+              "xMin": 276.56,
+              "xMax": 311.77,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "can",
+              "xMin": 315.4,
+              "xMax": 331.76,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "be",
+              "xMin": 335.41,
+              "xMax": 346.61,
+              "yMin": 389.15,
+              "yMax": 398.83
+            },
+            {
+              "text": "measured.",
+              "xMin": 350.26,
+              "xMax": 398.22,
+              "yMin": 389.15,
+              "yMax": 398.83
+            }
+          ]
+        },
+        {
+          "text": "Algorithm 2 Sum of the positive entries",
+          "xMin": 117.83,
+          "yMin": 414.58,
+          "xMax": 316.11,
+          "yMax": 424.27,
+          "words": [
+            {
+              "text": "Algorithm",
+              "xMin": 117.83,
+              "xMax": 174.3,
+              "yMin": 414.58,
+              "yMax": 424.27
+            },
+            {
+              "text": "2",
+              "xMin": 178.47,
+              "xMax": 184.75,
+              "yMin": 414.58,
+              "yMax": 424.27
+            },
+            {
+              "text": "Sum",
+              "xMin": 188.39,
+              "xMax": 209.6,
+              "yMin": 414.58,
+              "yMax": 424.27
+            },
+            {
+              "text": "of",
+              "xMin": 213.23,
+              "xMax": 222.02,
+              "yMin": 414.58,
+              "yMax": 424.27
+            },
+            {
+              "text": "the",
+              "xMin": 225.67,
+              "xMax": 240.82,
+              "yMin": 414.58,
+              "yMax": 424.27
+            },
+            {
+              "text": "positive",
+              "xMin": 244.45,
+              "xMax": 281.18,
+              "yMin": 414.58,
+              "yMax": 424.27
+            },
+            {
+              "text": "entries",
+              "xMin": 284.81,
+              "xMax": 316.11,
+              "yMin": 414.58,
+              "yMax": 424.27
+            }
+          ]
+        },
+        {
+          "text": "function PositiveSum(x 1 , . . . , x n )",
+          "xMin": 128.74,
+          "yMin": 429.27,
+          "xMax": 300.23,
+          "yMax": 440.66,
+          "words": [
+            {
+              "text": "function",
+              "xMin": 128.74,
+              "xMax": 173.69,
+              "yMin": 429.27,
+              "yMax": 438.96
+            },
+            {
+              "text": "PositiveSum(x",
+              "xMin": 177.33,
+              "xMax": 255.14,
+              "yMin": 431.23,
+              "yMax": 440.66
+            },
+            {
+              "text": "1",
+              "xMin": 255.14,
+              "xMax": 259.38,
+              "yMin": 432.95,
+              "yMax": 440.02
+            },
+            {
+              "text": ",",
+              "xMin": 259.88,
+              "xMax": 262.91,
+              "yMin": 429.27,
+              "yMax": 438.96
+            },
+            {
+              "text": ".",
+              "xMin": 264.73,
+              "xMax": 267.76,
+              "yMin": 429.27,
+              "yMax": 438.96
+            },
+            {
+              "text": ".",
+              "xMin": 269.57,
+              "xMax": 272.6,
+              "yMin": 429.27,
+              "yMax": 438.96
+            },
+            {
+              "text": ".",
+              "xMin": 274.42,
+              "xMax": 277.45,
+              "yMin": 429.27,
+              "yMax": 438.96
+            },
+            {
+              "text": ",",
+              "xMin": 279.27,
+              "xMax": 282.31,
+              "yMin": 429.27,
+              "yMax": 438.96
+            },
+            {
+              "text": "x",
+              "xMin": 284.12,
+              "xMax": 290.35,
+              "yMin": 429.27,
+              "yMax": 438.96
+            },
+            {
+              "text": "n",
+              "xMin": 290.35,
+              "xMax": 295.49,
+              "yMin": 432.95,
+              "yMax": 440.02
+            },
+            {
+              "text": ")",
+              "xMin": 295.99,
+              "xMax": 300.23,
+              "yMin": 429.27,
+              "yMax": 438.96
+            }
+          ]
+        },
+        {
+          "text": "s ← 0",
+          "xMin": 145.1,
+          "yMin": 442.21,
+          "xMax": 172.64,
+          "yMax": 452.51,
+          "words": [
+            {
+              "text": "s",
+              "xMin": 145.1,
+              "xMax": 150.21,
+              "yMin": 442.82,
+              "yMax": 452.51
+            },
+            {
+              "text": "←",
+              "xMin": 153.25,
+              "xMax": 164.15,
+              "yMin": 442.21,
+              "yMax": 452.51
+            },
+            {
+              "text": "0",
+              "xMin": 167.18,
+              "xMax": 172.64,
+              "yMin": 442.82,
+              "yMax": 452.51
+            }
+          ]
+        },
+        {
+          "text": "for i ← 1 to n do",
+          "xMin": 145.1,
+          "yMin": 455.76,
+          "xMax": 230.59,
+          "yMax": 466.06,
+          "words": [
+            {
+              "text": "for",
+              "xMin": 145.1,
+              "xMax": 160.37,
+              "yMin": 456.37,
+              "yMax": 466.06
+            },
+            {
+              "text": "i",
+              "xMin": 164.01,
+              "xMax": 167.77,
+              "yMin": 456.37,
+              "yMax": 466.06
+            },
+            {
+              "text": "←",
+              "xMin": 170.8,
+              "xMax": 181.71,
+              "yMin": 455.76,
+              "yMax": 466.06
+            },
+            {
+              "text": "1",
+              "xMin": 184.74,
+              "xMax": 190.19,
+              "yMin": 456.37,
+              "yMax": 466.06
+            },
+            {
+              "text": "to",
+              "xMin": 193.83,
+              "xMax": 203.52,
+              "yMin": 456.37,
+              "yMax": 466.06
+            },
+            {
+              "text": "n",
+              "xMin": 207.16,
+              "xMax": 213.71,
+              "yMin": 456.37,
+              "yMax": 466.06
+            },
+            {
+              "text": "do",
+              "xMin": 217.35,
+              "xMax": 230.59,
+              "yMin": 456.37,
+              "yMax": 466.06
+            }
+          ]
+        },
+        {
+          "text": "if x i > 0 then",
+          "xMin": 161.47,
+          "yMin": 469.92,
+          "xMax": 231.43,
+          "yMax": 480.67,
+          "words": [
+            {
+              "text": "if",
+              "xMin": 161.47,
+              "xMax": 168.78,
+              "yMin": 469.92,
+              "yMax": 479.6
+            },
+            {
+              "text": "x",
+              "xMin": 173.61,
+              "xMax": 179.84,
+              "yMin": 469.92,
+              "yMax": 479.6
+            },
+            {
+              "text": "i",
+              "xMin": 179.84,
+              "xMax": 182.73,
+              "yMin": 473.59,
+              "yMax": 480.67
+            },
+            {
+              "text": ">",
+              "xMin": 186.26,
+              "xMax": 194.74,
+              "yMin": 469.92,
+              "yMax": 479.6
+            },
+            {
+              "text": "0",
+              "xMin": 197.77,
+              "xMax": 203.22,
+              "yMin": 469.92,
+              "yMax": 479.6
+            },
+            {
+              "text": "then",
+              "xMin": 206.86,
+              "xMax": 231.43,
+              "yMin": 469.92,
+              "yMax": 479.6
+            }
+          ]
+        },
+        {
+          "text": "s ← s + x i",
+          "xMin": 177.83,
+          "yMin": 482.86,
+          "xMax": 227.48,
+          "yMax": 494.22,
+          "words": [
+            {
+              "text": "s",
+              "xMin": 177.83,
+              "xMax": 182.94,
+              "yMin": 483.47,
+              "yMax": 493.15
+            },
+            {
+              "text": "←",
+              "xMin": 185.97,
+              "xMax": 196.88,
+              "yMin": 482.86,
+              "yMax": 493.15
+            },
+            {
+              "text": "s",
+              "xMin": 199.91,
+              "xMax": 205.03,
+              "yMin": 483.47,
+              "yMax": 493.15
+            },
+            {
+              "text": "+",
+              "xMin": 207.45,
+              "xMax": 215.93,
+              "yMin": 483.47,
+              "yMax": 493.15
+            },
+            {
+              "text": "x",
+              "xMin": 218.36,
+              "xMax": 224.59,
+              "yMin": 483.47,
+              "yMax": 493.15
+            },
+            {
+              "text": "i",
+              "xMin": 224.59,
+              "xMax": 227.48,
+              "yMin": 487.14,
+              "yMax": 494.22
+            }
+          ]
+        },
+        {
+          "text": "else if x i = 0 then",
+          "xMin": 161.47,
+          "yMin": 497.02,
+          "xMax": 255,
+          "yMax": 507.77,
+          "words": [
+            {
+              "text": "else",
+              "xMin": 161.47,
+              "xMax": 181.4,
+              "yMin": 497.02,
+              "yMax": 506.7
+            },
+            {
+              "text": "if",
+              "xMin": 185.03,
+              "xMax": 192.35,
+              "yMin": 497.02,
+              "yMax": 506.7
+            },
+            {
+              "text": "x",
+              "xMin": 197.18,
+              "xMax": 203.41,
+              "yMin": 497.02,
+              "yMax": 506.7
+            },
+            {
+              "text": "i",
+              "xMin": 203.41,
+              "xMax": 206.3,
+              "yMin": 500.69,
+              "yMax": 507.77
+            },
+            {
+              "text": "=",
+              "xMin": 209.82,
+              "xMax": 218.31,
+              "yMin": 497.02,
+              "yMax": 506.7
+            },
+            {
+              "text": "0",
+              "xMin": 221.34,
+              "xMax": 226.8,
+              "yMin": 497.02,
+              "yMax": 506.7
+            },
+            {
+              "text": "then",
+              "xMin": 230.43,
+              "xMax": 255,
+              "yMin": 497.02,
+              "yMax": 506.7
+            }
+          ]
+        },
+        {
+          "text": "skip it",
+          "xMin": 177.83,
+          "yMin": 510.57,
+          "xMax": 207.89,
+          "yMax": 520.25,
+          "words": [
+            {
+              "text": "skip",
+              "xMin": 177.83,
+              "xMax": 196.98,
+              "yMin": 510.57,
+              "yMax": 520.25
+            },
+            {
+              "text": "it",
+              "xMin": 200.61,
+              "xMax": 207.89,
+              "yMin": 510.57,
+              "yMax": 520.25
+            }
+          ]
+        },
+        {
+          "text": "else",
+          "xMin": 161.47,
+          "yMin": 524.11,
+          "xMax": 181.4,
+          "yMax": 533.8,
+          "words": [
+            {
+              "text": "else",
+              "xMin": 161.47,
+              "xMax": 181.4,
+              "yMin": 524.11,
+              "yMax": 533.8
+            }
+          ]
+        },
+        {
+          "text": "count it as negative",
+          "xMin": 177.83,
+          "yMin": 537.66,
+          "xMax": 271.52,
+          "yMax": 547.35,
+          "words": [
+            {
+              "text": "count",
+              "xMin": 177.83,
+              "xMax": 204.19,
+              "yMin": 537.66,
+              "yMax": 547.35
+            },
+            {
+              "text": "it",
+              "xMin": 207.83,
+              "xMax": 215.11,
+              "yMin": 537.66,
+              "yMax": 547.35
+            },
+            {
+              "text": "as",
+              "xMin": 218.74,
+              "xMax": 228.5,
+              "yMin": 537.66,
+              "yMax": 547.35
+            },
+            {
+              "text": "negative",
+              "xMin": 232.13,
+              "xMax": 271.52,
+              "yMin": 537.66,
+              "yMax": 547.35
+            }
+          ]
+        },
+        {
+          "text": "end if",
+          "xMin": 161.47,
+          "yMin": 551.21,
+          "xMax": 192.11,
+          "yMax": 560.9,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 161.47,
+              "xMax": 181.15,
+              "yMin": 551.21,
+              "yMax": 560.9
+            },
+            {
+              "text": "if",
+              "xMin": 184.79,
+              "xMax": 192.11,
+              "yMin": 551.21,
+              "yMax": 560.9
+            }
+          ]
+        },
+        {
+          "text": "end for",
+          "xMin": 145.1,
+          "yMin": 564.76,
+          "xMax": 183.7,
+          "yMax": 574.45,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 145.1,
+              "xMax": 164.79,
+              "yMin": 564.76,
+              "yMax": 574.45
+            },
+            {
+              "text": "for",
+              "xMin": 168.42,
+              "xMax": 183.7,
+              "yMin": 564.76,
+              "yMax": 574.45
+            }
+          ]
+        },
+        {
+          "text": "repeat",
+          "xMin": 145.1,
+          "yMin": 578.31,
+          "xMax": 180.06,
+          "yMax": 588,
+          "words": [
+            {
+              "text": "repeat",
+              "xMin": 145.1,
+              "xMax": 180.06,
+              "yMin": 578.31,
+              "yMax": 588
+            }
+          ]
+        },
+        {
+          "text": "s ← Halve(s)",
+          "xMin": 161.47,
+          "yMin": 591.25,
+          "xMax": 230.73,
+          "yMax": 603.25,
+          "words": [
+            {
+              "text": "s",
+              "xMin": 161.47,
+              "xMax": 166.58,
+              "yMin": 591.86,
+              "yMax": 601.55
+            },
+            {
+              "text": "←",
+              "xMin": 169.61,
+              "xMax": 180.52,
+              "yMin": 591.25,
+              "yMax": 601.55
+            },
+            {
+              "text": "Halve(s)",
+              "xMin": 184.15,
+              "xMax": 230.73,
+              "yMin": 593.82,
+              "yMax": 603.25
+            }
+          ]
+        },
+        {
+          "text": "until s < 1",
+          "xMin": 145.1,
+          "yMin": 605.41,
+          "xMax": 199.29,
+          "yMax": 615.1,
+          "words": [
+            {
+              "text": "until",
+              "xMin": 145.1,
+              "xMax": 170.54,
+              "yMin": 605.41,
+              "yMax": 615.1
+            },
+            {
+              "text": "s",
+              "xMin": 174.18,
+              "xMax": 179.29,
+              "yMin": 605.41,
+              "yMax": 615.1
+            },
+            {
+              "text": "<",
+              "xMin": 182.32,
+              "xMax": 190.81,
+              "yMin": 605.41,
+              "yMax": 615.1
+            },
+            {
+              "text": "1",
+              "xMin": 193.84,
+              "xMax": 199.29,
+              "yMin": 605.41,
+              "yMax": 615.1
+            }
+          ]
+        },
+        {
+          "text": "return s",
+          "xMin": 145.1,
+          "yMin": 618.96,
+          "xMax": 188.75,
+          "yMax": 628.65,
+          "words": [
+            {
+              "text": "return",
+              "xMin": 145.1,
+              "xMax": 180,
+              "yMin": 618.96,
+              "yMax": 628.65
+            },
+            {
+              "text": "s",
+              "xMin": 183.64,
+              "xMax": 188.75,
+              "yMin": 618.96,
+              "yMax": 628.65
+            }
+          ]
+        },
+        {
+          "text": "end function",
+          "xMin": 128.74,
+          "yMin": 632.51,
+          "xMax": 197.01,
+          "yMax": 642.2,
+          "words": [
+            {
+              "text": "end",
+              "xMin": 128.74,
+              "xMax": 148.43,
+              "yMin": 632.51,
+              "yMax": 642.2
+            },
+            {
+              "text": "function",
+              "xMin": 152.06,
+              "xMax": 197.01,
+              "yMin": 632.51,
+              "yMax": 642.2
+            }
+          ]
+        },
+        {
+          "text": "After both algorithms the text continues, and Algorithm 2 has no line",
+          "xMin": 134.76,
+          "yMin": 662.59,
+          "xMax": 476.48,
+          "yMax": 672.27,
+          "words": [
+            {
+              "text": "After",
+              "xMin": 134.76,
+              "xMax": 159.64,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "both",
+              "xMin": 163.87,
+              "xMax": 185.99,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "algorithms",
+              "xMin": 190.21,
+              "xMax": 240.61,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "the",
+              "xMin": 244.83,
+              "xMax": 259.98,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "text",
+              "xMin": 264.2,
+              "xMax": 283.29,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "continues,",
+              "xMin": 287.52,
+              "xMax": 334.84,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "and",
+              "xMin": 339.22,
+              "xMax": 356.8,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "Algorithm",
+              "xMin": 361.02,
+              "xMax": 409.84,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "2",
+              "xMin": 414.06,
+              "xMax": 419.51,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "has",
+              "xMin": 423.74,
+              "xMax": 439.55,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "no",
+              "xMin": 443.78,
+              "xMax": 455.29,
+              "yMin": 662.59,
+              "yMax": 672.27
+            },
+            {
+              "text": "line",
+              "xMin": 459.51,
+              "xMax": 476.48,
+              "yMin": 662.59,
+              "yMax": 672.27
+            }
+          ]
+        },
+        {
+          "text": "numbers.",
+          "xMin": 117.83,
+          "yMin": 676.13,
+          "xMax": 161.25,
+          "yMax": 685.82,
+          "words": [
+            {
+              "text": "numbers.",
+              "xMin": 117.83,
+              "xMax": 161.25,
+              "yMin": 676.13,
+              "yMax": 685.82
+            }
+          ]
+        },
+        {
+          "text": "1",
+          "xMin": 294.43,
+          "yMin": 742.69,
+          "xMax": 299.88,
+          "yMax": 752.37,
+          "words": [
+            {
+              "text": "1",
+              "xMin": 294.43,
+              "xMax": 299.88,
+              "yMin": 742.69,
+              "yMax": 752.37
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

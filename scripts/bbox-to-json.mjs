@@ -1,6 +1,7 @@
 // Convert `pdftotext -bbox-layout` XHTML into a compact JSON list of pages and
 // text lines: { pages: [{ width, height, lines: [{ text, xMin, yMin, xMax, yMax, words }] }] }
-// where words is [{ text, xMin, xMax }].
+// where words is [{ text, xMin, xMax, yMin, yMax }]: a word's own box, from
+// its font's ascent and descent (lines mixing fonts are taller than either).
 // Coordinates are PDF points (1/72 in) from the page's top-left corner.
 import fs from 'node:fs';
 
@@ -24,9 +25,15 @@ for (const page of html.matchAll(
   )) {
     const words = [
       ...line[5].matchAll(
-        /<word xMin="([\d.]+)" yMin="[\d.]+" xMax="([\d.]+)" yMax="[\d.]+">([\s\S]*?)<\/word>/g
+        /<word xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)">([\s\S]*?)<\/word>/g
       ),
-    ].map((w) => ({ text: decode(w[3]), xMin: num(w[1]), xMax: num(w[2]) }));
+    ].map((w) => ({
+      text: decode(w[5]),
+      xMin: num(w[1]),
+      xMax: num(w[3]),
+      yMin: num(w[2]),
+      yMax: num(w[4]),
+    }));
     lines.push({
       text: words.map((w) => w.text).join(' '),
       xMin: num(line[1]),

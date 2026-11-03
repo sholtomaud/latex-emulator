@@ -398,6 +398,12 @@ class Translator {
     }
 
     switch (name) {
+      // latex.ltx: \mkern5mu \mathbin{\operator@font mod} \mkern5mu, less
+      // the Bin's own \medmuskip: 5mu (5/18 em) each side.
+      case 'bmod':
+        return {
+          el: mo('mod', { lspace: '0.2778em', rspace: '0.2778em' }),
+        };
       case 'frac':
       case 'dfrac':
       case 'tfrac':
@@ -759,6 +765,17 @@ export function mathToMathML(
 ): MathResult {
   const t = new Translator();
   const children = t.list(nodes);
+  // TeX puts space only between atoms: an operator alone in its formula
+  // (algpseudocode's \(\triangleright\)) gets none. MathML would give it
+  // the operator dictionary's spacing.
+  const [only] = children;
+  if (
+    children.length === 1 &&
+    typeof only !== 'string' &&
+    only.tag === 'mo' &&
+    Object.keys(only.attrs).length === 0
+  )
+    children[0] = { ...only, attrs: { lspace: '0', rspace: '0' } };
   return {
     math: m('math', display ? { displaystyle: 'true' } : {}, children),
     diagnostics: t.diagnostics,

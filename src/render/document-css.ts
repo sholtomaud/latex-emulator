@@ -223,6 +223,13 @@ export function geometryCss(g: ArticleGeometry): string {
     `  --medskip: ${pt(6)};`,
     `  --tabcolsep: ${pt(6)};`,
     `  --arrayrulewidth: ${pt(0.4)};`,
+    // float.sty \\fs@ruled (algorithm.sty's style): \\hrule height.8pt above,
+    // \\kern2pt around the caption rule, \\hrule (0.4pt) below; latex.ltx
+    // \\lineskip, the interline glue before a float.sty [H] box.
+    `  --ruled-top: ${pt(0.8)};`,
+    `  --ruled-kern: ${pt(2)};`,
+    `  --hrule: ${pt(0.4)};`,
+    `  --lineskip: ${pt(1)};`,
     `  --doublerulesep: ${pt(2)};`,
     // \jot (latex.ltx): extra space between amsmath display rows.
     `  --jot: ${pt(3)};`,

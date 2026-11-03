@@ -4,10 +4,10 @@
  * from a hand-written thebibliography. Pure: no DOM.
  */
 import { parse } from '../latex/parser/parser.ts';
-import { parseBib } from '../latex/bibtex/bib-parser.ts';
+import { bibKeyIndex, parseBibCached } from '../latex/bibtex/bib-cache.ts';
 import { runBibtex } from '../latex/bibtex/bibtex.ts';
 import { keyText, toLatex } from '../latex/ast/to-latex.ts';
-import { plainText } from '../latex/document/structure.ts';
+import { packageOptions, plainText } from '../latex/document/structure.ts';
 import type { CommandNode, EnvironmentNode, Node } from '../latex/ast/nodes.ts';
 import type { Diagnostic, DiagnosticFix } from '../latex/diagnostics.ts';
 import { parseBibitemLabel } from './natbib.ts';
@@ -85,23 +85,7 @@ export function bibliographyFiles(src: string): string[] {
 
 /** Options of \usepackage[...]{natbib}, or null when natbib isn't loaded. */
 export function natbibPackageOptions(nodes: Node[]): string[] | null {
-  for (const n of nodes) {
-    if (n.kind === 'environment' && n.name === 'document') break;
-    if (n.kind !== 'command' || n.name !== 'usepackage') continue;
-    const mandatory = n.args.find((a) => !a.optional);
-    const names = plainText(mandatory?.children ?? [])
-      .split(',')
-      .map((p) => p.trim());
-    if (!names.includes('natbib')) continue;
-    const optional = n.args.find((a) => a.optional);
-    return optional
-      ? plainText(optional.children)
-          .split(',')
-          .map((o) => o.trim())
-          .filter(Boolean)
-      : [];
-  }
-  return null;
+  return packageOptions(nodes, 'natbib');
 }
 
 /**
@@ -168,8 +152,6 @@ function listedFiles(scan: CitationScan): string[] {
     : [];
 }
 
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 /**
  * Say where an undefined citation's key actually is: in a file the document
  * doesn't list, in a document with no \bibliography, in an entry BibTeX
@@ -179,21 +161,17 @@ export function explainUndefined(
   key: string,
   scan: CitationScan,
   bibFiles: Record<string, string>,
-  parsed: (name: string) => ReturnType<typeof parseBib> = (name) =>
-    parseBib(bibFiles[name]),
   /** Where `\\end{document}` starts, for inserting a \\bibliography. */
   endOfDocument?: number
 ): { message: string; fixes?: DiagnosticFix[] } {
   const lower = key.toLowerCase();
   const listed = listedFiles(scan);
   for (const [name, source] of Object.entries(bibFiles)) {
-    const { entries, warnings } = parsed(name);
-    const readable = entries.some((e) => e.key.toLowerCase() === lower);
-    const written = new RegExp(
-      `@\\s*\\w+\\s*[{(]\\s*${escapeRegExp(key)}\\s*,`,
-      'i'
-    ).exec(source);
-    if (!readable && !written) continue;
+    // Cached per file text: many undefined keys cost one read of each file.
+    const index = bibKeyIndex(source);
+    const readable = index.readable.has(lower);
+    const written = index.written.get(lower);
+    if (!readable && written === undefined) continue;
     if (!scan.bibliography)
       return {
         message: `Citation "${key}" is in ${name}.bib, but the document has no \\bibliography. Add \\bibliographystyle{plainnat} and \\bibliography{${name}} where the references should appear.`,
@@ -230,7 +208,8 @@ export function explainUndefined(
       };
     }
     if (!readable) {
-      const line = source.slice(0, written!.index).split('\n').length;
+      const { warnings } = parseBibCached(source);
+      const line = source.slice(0, written).split('\n').length;
       const problem =
         warnings.find((w) => {
           const at = /\(line (\d+)\)/.exec(w);
@@ -324,24 +303,16 @@ export function buildBibliography(
     }
   }
   for (const env of scan.environments) bibitemLabels(env, labels);
-  // Parsed once per render, only when a citation is undefined.
-  const cache = new Map<string, ReturnType<typeof parseBib>>();
   return {
     environment,
     labels,
     diagnostics,
-    explain: (key) => {
-      const files = options.bibFiles ?? {};
-      return explainUndefined(
+    explain: (key) =>
+      explainUndefined(
         key,
         scan,
-        files,
-        (name) => {
-          if (!cache.has(name)) cache.set(name, parseBib(files[name]));
-          return cache.get(name)!;
-        },
+        options.bibFiles ?? {},
         options.endOfDocument
-      );
-    },
+      ),
   };
 }

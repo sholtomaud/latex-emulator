@@ -257,6 +257,29 @@ describe('mathToMathML: generic parsing', () => {
 });
 
 describe('mathToMathML: less common constructs', () => {
+  test('\\bmod is "mod" with 5mu each side (latex.ltx); triangles are binary', () => {
+    // \bmod: \mkern5mu \mathbin{mod} \mkern5mu less the Bin's own
+    // \medmuskip, i.e. 5mu = 0.2778em each side.
+    assert.strictEqual(
+      tr('a \\bmod b'),
+      '<mi>a</mi><mo lspace="0.2778em" rspace="0.2778em">mod</mo><mi>b</mi>'
+    );
+    assert.strictEqual(
+      tr('a \\triangleright b \\triangleleft c'),
+      '<mi>a</mi><mo>▷</mo><mi>b</mi><mo>◁</mo><mi>c</mi>'
+    );
+  });
+
+  test('an operator alone in a formula has no space around it, as in TeX', () => {
+    // TeX only puts space between atoms; algpseudocode's \Comment is
+    // \(\triangleright\) on its own.
+    assert.strictEqual(
+      tr('\\triangleright'),
+      '<mo lspace="0" rspace="0">▷</mo>'
+    );
+    assert.strictEqual(tr('='), '<mo lspace="0" rspace="0">=</mo>');
+  });
+
   test('\\text keeps text-mode content: ties, escapes, nested math', () => {
     assert.strictEqual(tr('\\text{a~b \\% $x$}'), '<mtext>a b % x</mtext>');
     assert.strictEqual(tr('\\mbox{\\emph{y}}'), '<mtext>y</mtext>');

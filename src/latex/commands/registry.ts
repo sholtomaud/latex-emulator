@@ -387,6 +387,45 @@ cmd('cmidrule', '', 'booktabs rule under columns: \\cmidrule(lr){a-b}.');
 cmd('tabularnewline', '', 'Ends a table row.');
 env('thebibliography', 'm', 'The bibliography: \\bibitem entries.');
 
+// Pseudocode (ADR 0016): algorithm.sty's float, algpseudocode's commands.
+env(
+  'algorithm',
+  'o',
+  'An algorithm float, ruled (algorithm.sty; shown where it is written, \\caption numbers it).'
+);
+env(
+  'algorithmic',
+  'o',
+  'Pseudocode (algpseudocode): \\begin{algorithmic}[1] numbers every line, [n] every n-th.'
+);
+cmd('State', '', 'A statement: one line of the algorithm.');
+cmd('Statex', '', 'An unnumbered line with no statement.');
+cmd('Require', '', 'The algorithm’s input, after a bold “Require:”.');
+cmd('Ensure', '', 'The algorithm’s output, after a bold “Ensure:”.');
+cmd('Return', '', 'Prints a bold “return”.');
+cmd('Call', 'm m', 'A procedure call: \\Call{Name}{args} prints Name(args).');
+cmd('Comment', 'm', 'A comment, flush right after ▷.');
+cmd(['If', 'ElsIf'], 'm', 'if/else if … then: \\If{condition} … \\EndIf.');
+cmd('Else', '', 'The else branch of an \\If.');
+cmd(
+  ['While', 'For', 'ForAll'],
+  'm',
+  'A loop: \\While{condition} … \\EndWhile (\\EndFor for \\For).'
+);
+cmd('Repeat', '', 'repeat … \\Until{condition}.');
+cmd('Until', 'm', 'Ends a \\Repeat loop: until condition.');
+cmd('Loop', '', 'An endless loop, to \\EndLoop.');
+cmd(
+  ['Procedure', 'Function'],
+  'm m',
+  '\\Procedure{Name}{args} … \\EndProcedure (\\EndFunction).'
+);
+cmd(
+  ['EndIf', 'EndFor', 'EndWhile', 'EndLoop', 'EndProcedure', 'EndFunction'],
+  '',
+  'Closes its block, printing “end …” (not with the noend option).'
+);
+
 // Keys, labels and URLs are not text.
 /** Commands that cite (natbib and classic \\cite), not counting \\nocite. */
 export const CITE_COMMANDS: ReadonlySet<string> = new Set([

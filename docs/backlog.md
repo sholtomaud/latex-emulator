@@ -7,14 +7,10 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing: step 10a (`listings`) is done (ADR 0014).
+Nothing: step 10 (code: `listings`, ADR 0014; pseudocode, ADR 0016) is done.
 
 ## Next
 
-- **Step 10b: `algorithm` + `algpseudocode`** (`algorithmic`, `\State`,
-  `\If`/`\ElsIf`/`\Else`, `\For`, `\While`, `\Procedure`, `\Function`,
-  `\Require`/`\Ensure`, `\Comment`, line numbers), the `algorithm` float
-  (float.sty `ruled` style), measured against pdflatex.
 - **Project folders and cloud drives (ADR 0015).** Each phase is its own
   PR. Phase A is done: the project folder (`src/workspace/project.ts`) as
   a zip download, and `npm run check:projects` compiling it with real
@@ -34,6 +30,29 @@ Nothing: step 10a (`listings`) is done (ADR 0014).
   language worker and the rest).
 
 ## Deferred follow-ups (from ADRs and PRs)
+
+- Pseudocode (ADR 0016): `\listofalgorithms`; the package's numbering
+  options (`section`, …); the older `algorithmic` package (`\STATE`);
+  `\algdef`/`\algnewcommand`; `algorithm2e`; comments too wide for their
+  line. The ▷ of a long comment drifts with the browser's whole-pixel
+  glyph advances (declared `triangleGap`).
+- Math: `\triangleright` outside `\Comment` uses Latin Modern Math's
+  large U+25B7 (cmmi's is about half its size; the font has no U+25B9).
+  `x_1, \dots, x_n` sets the ellipsis tighter than TeX's `. . .`.
+- `\usepackage` validation: AGENTS §6 says unknown packages warn, but no
+  package is checked today (found during step 10b).
+
+- Large references libraries: the lag with a 10,000-entry `.bib` is
+  fixed. `src/latex/bibtex/bib-cache.ts` parses each library text once
+  while it is unchanged and indexes its keys, so renders no longer
+  re-read the library and undefined citations no longer scan it.
+  `node scripts/bench-citations.ts` measures it: per render 148 → 20 ms
+  with 400 citations, and 1.7 s → 15–52 ms with undefined citations or
+  while a key is typed. Still on the main thread: one document parse per
+  completion or hover request (`citeContextAt`), and building the
+  typeahead index (≈75–150 ms, once per library change). Both move to
+  the language worker (step 13). Rust/WASM for `parseBib` only if it
+  still blocks after that (AGENTS §2).
 
 - Fidelity measurement: switch the prose position checks in
   `print-fidelity.spec.ts` to the baseline probe the code-line check uses
