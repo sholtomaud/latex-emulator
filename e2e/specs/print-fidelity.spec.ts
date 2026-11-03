@@ -15,7 +15,14 @@ interface RefLine {
   yMin: number;
   xMax: number;
   yMax: number;
-  words: { text: string; xMin: number; xMax: number }[];
+  /** yMin/yMax: the word's own box (fixtures made since ADR 0016). */
+  words: {
+    text: string;
+    xMin: number;
+    xMax: number;
+    yMin?: number;
+    yMax?: number;
+  }[];
 }
 
 /** The reference line containing `needle`, and the x of the word it starts at. */
@@ -57,6 +64,25 @@ interface FixtureSpec {
      */
     below?: { line: string; by: number };
   }[];
+  /**
+   * Algorithm lines (ADR 0016), in order: `word` is the first word of the
+   * line's text (after any number or label), compared with the first glyph
+   * of the matching .alg-text, using the word's own box for the baseline
+   * (lines mix cmr, cmmi and cmsy). `comment` is the comment's last word:
+   * its right edge is checked, as the comment is set flush right.
+   */
+  algLines?: {
+    word: string;
+    comment?: string;
+    /**
+     * Why this line's ▷ is known to miss the tolerance. It is asserted in
+     * an expected-failure test, so it turns red (and this note must go)
+     * once fixed.
+     */
+    triangleGap?: string;
+  }[];
+  /** Vertical ranges (pt) of algorithm bodies, skipped by the line-break check. */
+  algBodies?: [number, number][];
   /** Lines whose start we check: paragraphs, headings, title lines, items. */
   checked: string[];
   /**
@@ -259,6 +285,62 @@ const FIXTURES: FixtureSpec[] = [
       { start: '}', tt: true },
     ],
   },
+  {
+    name: 'algorithm-basic',
+    ready: { selector: '.alg-text', text: 'integers' },
+    checked: [
+      'Pseudocode',
+      'Algorithm 1 is',
+      'that the',
+      'Euclid’s algorithm',
+      'The text continues',
+      'line of this',
+      'Sum of the positive',
+      'After both',
+      'numbers.',
+    ],
+    headings: ['Pseudocode'],
+    body: [140, 700],
+    algBodies: [
+      [200, 350],
+      [420, 640],
+    ],
+    algLines: [
+      { word: 'integers' },
+      { word: 'the' },
+      { word: 'procedure', comment: 'b' },
+      { word: 'r' },
+      {
+        word: 'while',
+        comment: '0',
+        // Flush right, so its x is the comment's width from the margin.
+        triangleGap:
+          'The browser rounds each glyph advance to a whole pixel: across this comment’s 28 characters that adds up to 1.7pt.',
+      },
+      { word: 'a' },
+      { word: 'b' },
+      { word: 'r' },
+      { word: 'end' },
+      { word: 'return', comment: 'b' },
+      { word: 'end' },
+      { word: 'function' },
+      { word: 's' },
+      { word: 'for' },
+      { word: 'if' },
+      { word: 's' },
+      { word: 'else' },
+      { word: 'skip' },
+      { word: 'else' },
+      { word: 'count' },
+      { word: 'end' },
+      { word: 'end' },
+      { word: 'repeat' },
+      { word: 's' },
+      { word: 'until' },
+      { word: 'return' },
+      { word: 'end' },
+    ],
+  },
 ];
 
 for (const fixture of FIXTURES) {
@@ -378,8 +460,11 @@ for (const fixture of FIXTURES) {
           else same.text = `${same.text} ${l.text}`;
         } else merged.push({ ...l });
       }
+      const inAlgorithm = (l: RefLine) =>
+        (fixture.algBodies ?? []).some(([a, b]) => l.yMin > a && l.yMin < b);
       const expected = merged
         .filter((l) => l.yMin > top && l.yMin < bottom) // body text, not title or folio
+        .filter((l) => !inAlgorithm(l))
         .filter((l) => {
           const words = l.text.split(' ').filter((w) => !isLabelOrNumber(w));
           return words.length > 0 && !headings.has(words.join(' '));
@@ -561,6 +646,167 @@ for (const fixture of FIXTURES) {
             .soft(Math.abs(r.dy), `baseline of "${r.start}" (pt)`)
             .toBeLessThanOrEqual(1);
         }
+      });
+
+    /** Each algorithm line's (and comment's) offset from pdflatex's. */
+    async function algRows(page: Page) {
+      const frame = await load(page);
+      const ours = await frame.evaluate(async () => {
+        await document.fonts.ready;
+        const box = document
+          .querySelector('.latex-page')!
+          .getBoundingClientRect();
+        const PX_TO_PT = 0.75;
+        /** The first (or last) visible character's rect and baseline. */
+        const glyph = (el: Element, last: boolean) => {
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+            acceptNode: (n) =>
+              n.textContent!.trim()
+                ? NodeFilter.FILTER_ACCEPT
+                : NodeFilter.FILTER_REJECT,
+          });
+          let n: Node | null = walker.nextNode();
+          if (last) for (let m = n; m; m = walker.nextNode()) n = m;
+          if (!n) return null;
+          const t = n.textContent!;
+          const at = last ? t.trimEnd().length - 1 : t.search(/\S/);
+          const r = document.createRange();
+          r.setStart(n, at);
+          r.setEnd(n, at + 1);
+          const rect = r.getClientRects()[0];
+          // The baseline exactly: an empty inline-block's bottom sits on it.
+          // Inside MathML a span has no baseline: probe before the <math>.
+          const probe = document.createElement('span');
+          probe.style.cssText = 'display:inline-block;width:0;height:0';
+          const math = n.parentElement!.closest('math');
+          if (math) math.before(probe);
+          else r.insertNode(probe);
+          const baseline = probe.getBoundingClientRect().bottom;
+          probe.remove();
+          return {
+            x: (rect.left - box.left) * PX_TO_PT,
+            right: (rect.right - box.left) * PX_TO_PT,
+            baseline: (baseline - box.top) * PX_TO_PT,
+          };
+        };
+        return [...document.querySelectorAll('.alg-line')].map((line) => ({
+          text: glyph(line.querySelector('.alg-text')!, false),
+          comment: line.querySelector('.alg-comment')
+            ? glyph(line.querySelector('.alg-comment')!, true)
+            : null,
+          triangle: line.querySelector('.alg-comment')
+            ? glyph(line.querySelector('.alg-comment')!, false)
+            : null,
+        }));
+      });
+      // The reference words in reading order: each line's word is the
+      // next occurrence below the previous one.
+      const lines = [...reference.pages[0].lines].sort(
+        (a, b) => a.yMin - b.yMin
+      );
+      const algBodies = fixture.algBodies ?? [];
+      const words = lines
+        .filter((l) => algBodies.some(([a, b]) => l.yMin > a && l.yMin < b))
+        .flatMap((l) => l.words.map((w) => ({ ...w, line: l })));
+      const wordBaseline = (w: (typeof words)[number]) =>
+        w.yMin! + ((w.yMax! - w.yMin!) * 694) / 888;
+      let from = 0;
+      const rows: {
+        what: string;
+        dx: number;
+        dy: number;
+        tol: number;
+        gap?: string;
+      }[] = [];
+      fixture.algLines!.forEach((spec, i) => {
+        const at = words.findIndex(
+          (w, j) => j >= from && w.text === spec.word && !/^\d+:$/.test(w.text)
+        );
+        if (at < 0) throw new Error(`"${spec.word}" is not in the reference`);
+        const w = words[at];
+        // The next line's word is on a later baseline.
+        from = words.findIndex(
+          (x, j) => j > at && wordBaseline(x) > wordBaseline(w) + 3
+        );
+        if (from < 0) from = words.length;
+        const mine = ours[i]?.text;
+        expect(mine, `line ${i + 1} not found in the preview`).toBeTruthy();
+        rows.push({
+          what: `${i + 1}: ${spec.word}`,
+          dx: mine!.x - w.xMin,
+          dy: mine!.baseline - wordBaseline(w),
+          tol: 0.5,
+        });
+        if (spec.comment) {
+          // The comment's last word, on the same line (by baseline).
+          const c = words.find(
+            (x, j) =>
+              j >= at &&
+              x.text === spec.comment &&
+              Math.abs(wordBaseline(x) - wordBaseline(w)) < 3 &&
+              x.xMin > 300
+          );
+          if (!c) throw new Error(`comment "${spec.comment}" not found`);
+          const cm = ours[i].comment;
+          expect(cm, `line ${i + 1} has no comment`).toBeTruthy();
+          rows.push({
+            what: `${i + 1}: ▷ … ${spec.comment} (right)`,
+            dx: cm!.right - c.xMax,
+            dy: cm!.baseline - wordBaseline(c),
+            tol: 1,
+          });
+          // The ▷: where the comment starts, so its width counts.
+          const tri = words.find(
+            (x, j) =>
+              j >= at &&
+              x.text === '▷' &&
+              Math.abs(wordBaseline(x) - wordBaseline(w)) < 3
+          );
+          if (!tri) throw new Error(`no ▷ on line ${i + 1}`);
+          rows.push({
+            what: `${i + 1}: ▷ (left)`,
+            dx: ours[i].triangle!.x - tri.xMin,
+            dy: 0,
+            tol: 1,
+            gap: spec.triangleGap,
+          });
+        }
+      });
+      console.log(
+        rows
+          .map(
+            (r) =>
+              `${r.what.padEnd(32)} dx=${r.dx.toFixed(2)}pt dy=${r.dy.toFixed(2)}pt`
+          )
+          .join('\n')
+      );
+      expect(ours).toHaveLength(fixture.algLines!.length);
+      return rows;
+    }
+
+    const expectWithin = (rows: Awaited<ReturnType<typeof algRows>>) => {
+      for (const r of rows) {
+        expect
+          .soft(Math.abs(r.dx), `x of "${r.what}" (pt)`)
+          .toBeLessThanOrEqual(r.tol);
+        expect
+          .soft(Math.abs(r.dy), `baseline of "${r.what}" (pt)`)
+          .toBeLessThanOrEqual(1);
+      }
+    };
+
+    if (fixture.algLines)
+      test('algorithm lines start where pdflatex puts them', async ({
+        page,
+      }) => {
+        expectWithin((await algRows(page)).filter((r) => !r.gap));
+      });
+
+    const triangleGaps = (fixture.algLines ?? []).filter((l) => l.triangleGap);
+    if (triangleGaps.length)
+      test('known algorithm gap', async ({ page }) => {
+        test.fail(true, triangleGaps.map((l) => l.triangleGap).join(' '));
+        expectWithin((await algRows(page)).filter((r) => r.gap));
       });
 
     if (fixture.eqnos)

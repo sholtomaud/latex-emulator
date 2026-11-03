@@ -46,6 +46,15 @@ describe('geometryCss', () => {
     );
   });
 
+  test('float.sty’s ruled rules and kerns, and \\lineskip (TeX pt)', () => {
+    // \fs@ruled: \hrule height.8pt, \kern2pt, \hrule (0.4pt); latex.ltx
+    // \lineskip 1pt.
+    assert.ok(Math.abs(varValue(css, '--ruled-top') - toBp(0.8)) < 0.001);
+    assert.ok(Math.abs(varValue(css, '--ruled-kern') - toBp(2)) < 0.001);
+    assert.ok(Math.abs(varValue(css, '--hrule') - toBp(0.4)) < 0.001);
+    assert.ok(Math.abs(varValue(css, '--lineskip') - toBp(1)) < 0.001);
+  });
+
   test('the first baseline sits \\topskip below the top of the text block', () => {
     // First line box: baseline at half-leading + ascent; we offset the text block so that is \topskip.
     const lh = toBp(13.6);

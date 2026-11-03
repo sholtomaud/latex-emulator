@@ -38,6 +38,8 @@ export const OPERATORS: Record<string, string> = {
   '\\ominus': '⊖',
   '\\otimes': '⊗',
   '\\oslash': '⊘',
+  '\\triangleright': '▷',
+  '\\triangleleft': '◁',
   '\\odot': '⊙',
   '\\cup': '∪',
   '\\cap': '∩',

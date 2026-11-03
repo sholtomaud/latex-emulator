@@ -40,11 +40,8 @@ of this paragraph so that its spacing can be measured.
       \State count it as negative
     \EndIf
   \EndFor
-  \ForAll{$y$ in the list}
-    \State \Call{Visit}{$y$}
-  \EndFor
   \Repeat
-    \State $s \gets s / 2$
+    \State $s \gets$ \Call{Halve}{$s$}
   \Until{$s < 1$}
   \State \Return $s$
 \EndFunction

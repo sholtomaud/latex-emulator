@@ -7,7 +7,7 @@ import { parse } from '../latex/parser/parser.ts';
 import { bibKeyIndex, parseBibCached } from '../latex/bibtex/bib-cache.ts';
 import { runBibtex } from '../latex/bibtex/bibtex.ts';
 import { keyText, toLatex } from '../latex/ast/to-latex.ts';
-import { plainText } from '../latex/document/structure.ts';
+import { packageOptions, plainText } from '../latex/document/structure.ts';
 import type { CommandNode, EnvironmentNode, Node } from '../latex/ast/nodes.ts';
 import type { Diagnostic, DiagnosticFix } from '../latex/diagnostics.ts';
 import { parseBibitemLabel } from './natbib.ts';
@@ -85,23 +85,7 @@ export function bibliographyFiles(src: string): string[] {
 
 /** Options of \usepackage[...]{natbib}, or null when natbib isn't loaded. */
 export function natbibPackageOptions(nodes: Node[]): string[] | null {
-  for (const n of nodes) {
-    if (n.kind === 'environment' && n.name === 'document') break;
-    if (n.kind !== 'command' || n.name !== 'usepackage') continue;
-    const mandatory = n.args.find((a) => !a.optional);
-    const names = plainText(mandatory?.children ?? [])
-      .split(',')
-      .map((p) => p.trim());
-    if (!names.includes('natbib')) continue;
-    const optional = n.args.find((a) => a.optional);
-    return optional
-      ? plainText(optional.children)
-          .split(',')
-          .map((o) => o.trim())
-          .filter(Boolean)
-      : [];
-  }
-  return null;
+  return packageOptions(nodes, 'natbib');
 }
 
 /**

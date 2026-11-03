@@ -30,11 +30,13 @@ const ALLOWED_TAGS = new Set([
 const ALLOWED_ATTRS = new Set(['class', 'data-env', 'colspan', 'alt']);
 /**
  * The only inline styles the renderer generates: p{…} widths, image boxes,
- * listings' unit widths, margins and rule settings. Each declaration must be
- * one of these properties with a plain (possibly negative) number in pt or em.
+ * listings' unit widths, margins and rule settings, and algorithms' glyph
+ * extents and nesting depth (ADR 0016). Each declaration must be one of
+ * these properties with a plain (possibly negative) number in pt or em, or
+ * --alg-depth with a whole number.
  */
 const SAFE_DECL =
-  /^(width|height|margin-left|margin-right|--lst-numbersep|--lst-framesep|--lst-framerule): -?\d+(\.\d+)?(pt|em)$/;
+  /^(?:(width|height|margin-left|margin-right|--lst-numbersep|--lst-framesep|--lst-framerule|--alg-h|--alg-d|--cap-h|--cap-d): -?\d+(\.\d+)?(pt|em)|--alg-depth: \d+)$/;
 const safeStyle = (style: string) =>
   style.split('; ').every((d) => SAFE_DECL.test(d));
 /**

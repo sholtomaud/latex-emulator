@@ -7,13 +7,7 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-- **Step 10b: `algorithm` + `algpseudocode`** (`algorithmic`, `\State`,
-  `\If`/`\ElsIf`/`\Else`, `\For`, `\While`, `\Procedure`, `\Function`,
-  `\Require`/`\Ensure`, `\Comment`, line numbers; the `algorithm` float in
-  float.sty's `ruled` style), ADR 0016 (draft). Plan and
-  ADR first; then the `algorithm-basic` fixture from real pdflatex, the
-  pure line builder (`src/latex/algorithmic/`), the renderer and the
-  `ruled` float.
+Nothing: step 10 (code: `listings`, ADR 0014; pseudocode, ADR 0016) is done.
 
 ## Next
 
@@ -36,6 +30,17 @@ Update it in the same PR that starts, finishes or defers an item.
   language worker and the rest).
 
 ## Deferred follow-ups (from ADRs and PRs)
+
+- Pseudocode (ADR 0016): `\listofalgorithms`; the package's numbering
+  options (`section`, …); the older `algorithmic` package (`\STATE`);
+  `\algdef`/`\algnewcommand`; `algorithm2e`; comments too wide for their
+  line. The ▷ of a long comment drifts with the browser's whole-pixel
+  glyph advances (declared `triangleGap`).
+- Math: `\triangleright` outside `\Comment` uses Latin Modern Math's
+  large U+25B7 (cmmi's is about half its size; the font has no U+25B9).
+  `x_1, \dots, x_n` sets the ellipsis tighter than TeX's `. . .`.
+- `\usepackage` validation: AGENTS §6 says unknown packages warn, but no
+  package is checked today (found during step 10b).
 
 - Large references libraries: the lag with a 10,000-entry `.bib` is
   fixed. `src/latex/bibtex/bib-cache.ts` parses each library text once

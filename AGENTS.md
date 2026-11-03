@@ -192,6 +192,7 @@ src/
 │   ├── document/                 # preamble/body split, class options, metadata
 │   ├── commands/                 # registry: supported commands & environments,
 │   │                             #   arity, docs, render hooks (single table)
+│   ├── algorithmic/              # algpseudocode: body → numbered, nested lines
 │   ├── lint/                     # rule-per-file lint rules
 │   ├── spell/                    # prose extraction + checker interface
 │   └── math/                     # TeX math → MathML
@@ -283,6 +284,12 @@ document (ADR 0003).
 - Code (ADR 0014): `listings`' `lstlisting`, `\lstinline`, `\lstset`,
   `\lstdefinestyle`/`style=`; 18 languages generated from TeX Live's
   definitions; fixed and flexible columns, numbers, frames, captions.
+- Pseudocode (ADR 0016): algpseudocode's `algorithmic` (`\State`,
+  `\Statex`, `\Require`/`\Ensure`, `\If`/`\ElsIf`/`\Else`, `\For`,
+  `\ForAll`, `\While`, `\Repeat`/`\Until`, `\Loop`, `\Procedure`,
+  `\Function`, `\Call`, `\Return`, `\Comment`; `[n]` line numbers, the
+  `noend` option) in algorithm.sty's `ruled` `algorithm` float. float.sty's
+  `[H]` is honoured for every float (ADR 0012 places the others as `[h]`).
 
 **Tier 2:** `\newcommand`/`\renewcommand` (with optional-arg defaults),
 `abstract`,
@@ -505,7 +512,10 @@ the commit message.
   (`eqnos`) and skip display-math lines in the line-break check
   (`displayLines`). A fixture's `images/` folder is added to the
   document's Images before rendering (`figure-basic`). `codeLines` checks
-  each listing line's first glyph and baseline (`listings-basic`).
+  each listing line's first glyph and baseline (`listings-basic`), and
+  `algLines` each algorithm line's, its comment's right edge and its ▷
+  (`algorithm-basic`, whose `algBodies` skip the line-break check; one
+  long comment's ▷ is a declared `triangleGap`).
   Tighten these tolerances as fidelity improves; never loosen them to get
   green. `page.pdf()` is a **test-only** tool; the app itself uses `print()`.
 
@@ -655,9 +665,9 @@ chosen branch.
    Images folders (upload, drag-and-drop, paste, reuse across documents
    without copies; IndexedDB), checked against pdflatex (ADR 0013). Later:
    Zotero attachments, `\includegraphics` typeahead.
-10. Code. ✅ `listings` (`lstlisting`, `\lstinline`), checked against
-    pdflatex (ADR 0014). Still to do: `algorithm` + `algpseudocode` for
-    pseudocode. No invented `\code` command.
+10. ✅ Code. `listings` (`lstlisting`, `\lstinline`), checked against
+    pdflatex (ADR 0014). `algorithm` + `algpseudocode` for pseudocode,
+    checked against pdflatex (ADR 0016). No invented `\code` command.
 11. `elsarticle` class (Elsevier), checked against pdflatex.
 12. The starter document becomes a tour of every supported feature (updated
     alongside each step above).

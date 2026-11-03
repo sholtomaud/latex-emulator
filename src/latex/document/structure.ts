@@ -50,6 +50,30 @@ export function plainText(nodes: Node[]): string {
     .join('');
 }
 
+/**
+ * The options of \usepackage[…]{name} in the preamble, or null when the
+ * package isn't loaded. \usepackage{a,b} loads both with the same options.
+ */
+export function packageOptions(nodes: Node[], name: string): string[] | null {
+  for (const n of nodes) {
+    if (n.kind === 'environment' && n.name === 'document') break;
+    if (n.kind !== 'command' || n.name !== 'usepackage') continue;
+    const mandatory = n.args.find((a) => !a.optional);
+    const names = plainText(mandatory?.children ?? [])
+      .split(',')
+      .map((p) => p.trim());
+    if (!names.includes(name)) continue;
+    const optional = n.args.find((a) => a.optional);
+    return optional
+      ? plainText(optional.children)
+          .split(',')
+          .map((o) => o.trim())
+          .filter(Boolean)
+      : [];
+  }
+  return null;
+}
+
 export function analyzeDocument(root: RootNode): DocumentStructure {
   const diagnostics: Diagnostic[] = [];
   const packages: string[] = [];

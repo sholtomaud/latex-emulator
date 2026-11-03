@@ -105,7 +105,8 @@ body {
   .latex-document .date,
   .latex-document .math-display,
   .latex-document .abstract-title,
-  .latex-document .caption
+  .latex-document .caption,
+  .latex-document .alg-line
 ) {
   --bfs: var(--fs);
   --blh: var(--lh);
@@ -134,6 +135,7 @@ body {
   .latex-document .tabular,
   .latex-document .lstlisting,
   .latex-document .lst-code,
+  .latex-document .algorithmic,
   .latex-document section
 ) {
   display: flow-root;
@@ -761,11 +763,27 @@ body {
  * the \prevdepth term above: the gap is \intextsep.
  */
 .latex-document
-  .float:is(
+  .float:not(.H):is(
     :has(> .caption:last-child),
     :has(> .centering:last-child > .caption:last-child)
   )
   + * {
+  --prev-after: var(--intextsep);
+}
+
+/*
+ * float.sty's [H] puts the box in the main list where it is written
+ * (\float@endH: \vskip\intextsep \box \vskip\intextsep). The box is
+ * taller than \baselineskip, so \lineskip goes before it, after the
+ * previous line's depth; after it \prevdepth is 0 (the box ends with
+ * \vskip\z@), so the next baseline is \intextsep + \baselineskip below.
+ * Measured with \showlists against fixtures/algorithm-basic (ADR 0016).
+ */
+.latex-document .float.H {
+  --before: calc(var(--intextsep) + 0.194em + var(--lineskip));
+}
+
+.latex-document .float.H + * {
   --prev-after: var(--intextsep);
 }
 
@@ -1338,4 +1356,155 @@ body {
   box-shadow:
     inset 0 var(--lst-framerule) currentColor,
     inset 0 calc(-1 * var(--lst-framerule)) currentColor;
+}
+
+/* ------------------------------------------------------------ algorithms */
+
+/*
+ * algorithmic (algorithmicx.sty) is a list (ADR 0016): \itemsep, \parsep
+ * and \partopsep 0, \topsep 0.2em, \labelsep 0.5em, \labelwidth 1.2em
+ * when numbered ([n], n > 0) and 0.5em when not, \leftmargin =
+ * \labelwidth + \labelsep; \algorithmicindent 1.5em per level. Each line
+ * is an \item: its label hangs in the margin; \hskip\ALG@tlm indents the
+ * text by its depth (only the first line, should it wrap).
+ */
+.latex-document .algorithmic {
+  --alg-labelwidth: 0.5em;
+  --before: 0.2em;
+}
+
+.latex-document .algorithmic.numbered {
+  --alg-labelwidth: 1.2em;
+}
+
+.latex-document .algorithmic + * {
+  --prev-after: 0.2em;
+}
+
+.latex-document .alg-line {
+  --alg-leftmargin: calc(var(--alg-labelwidth) + 0.5em);
+  padding-left: var(--alg-leftmargin);
+  text-indent: 0;
+  /* Items set at natural spacing; ragged when it wraps (\parfillskip). */
+  word-spacing: normal;
+  hyphens: manual;
+}
+
+.latex-document .alg-text {
+  margin-left: calc(var(--alg-depth, 0) * 1.5em);
+}
+
+/*
+ * \alglinenumber: \footnotesize n:, right-aligned in \labelwidth, then
+ * \labelsep. A zero-net-width box (line-height 0, so the smaller size
+ * never moves the line).
+ */
+.latex-document .alg-num {
+  display: inline-flex;
+  justify-content: flex-end;
+  width: var(--alg-labelwidth);
+  margin: 0 0.5em 0 calc(-1 * var(--alg-leftmargin));
+  line-height: 0;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+/*
+ * \Require/\Ensure: \item[\textbf{Require:}], wider than \labelwidth, so
+ * it starts at the line's start and the text follows after \labelsep.
+ */
+.latex-document .alg-label {
+  /* Its TeX width is set inline (src/render/extent.ts textWidth). */
+  display: inline-block;
+  white-space: nowrap;
+  margin: 0 0.5em 0 calc(-1 * var(--alg-leftmargin));
+}
+
+/* \algorithmiccomment: \hfill\(\triangleright\) text, flush right. */
+.latex-document .alg-comment {
+  float: right;
+}
+
+/*
+ * cmmi10's \triangleright is a small open triangle: 0.5em wide, from
+ * 0.035em to 0.465em (tftopl). Latin Modern Math has none that small: its
+ * U+25B7 spans −0.178em to 0.678em, 0.858em wide (U+25B9, unicode-math's
+ * \smalltriangleright, is not in the font). Half size, raised 0.124em and
+ * widened to 0.5em matches cmmi's box.
+ */
+.latex-document .alg-comment > math:first-child {
+  font-size: 50%;
+  vertical-align: 0.248em;
+  margin-right: 0.142em;
+}
+
+/*
+ * The algorithm float (algorithm.sty, float.sty \fs@ruled):
+ *   \hrule height.8pt \kern2pt, the caption, \kern2pt\hrule\kern2pt,
+ *   the body, \kern2pt\hrule.
+ * After a rule \prevdepth is −1000pt, so no interline glue: the caption's
+ * and the first line's baselines sit their own height below (--cap-h,
+ * --alg-h, from the glyphs; src/render/extent.ts), and each rule sits its
+ * line's depth (--cap-d, --alg-d) below. The body is a minipage
+ * (\@setminipage): no \topsep above its list, \topsep below it.
+ */
+.latex-document .float.algorithm {
+  /* Rules of exact thickness: a border would be rounded to device pixels. */
+  background: linear-gradient(currentColor, currentColor) top / 100%
+    var(--ruled-top) no-repeat;
+  padding-top: calc(var(--ruled-top) + var(--ruled-kern));
+}
+
+/*
+ * The caption's baseline sits its height below the kern. Negative skips
+ * must set --prev-after too: the margin takes the larger of the two.
+ */
+.latex-document .float.algorithm > .alg-caption:first-child {
+  --before: calc(var(--cap-h) - var(--blh));
+  --prev-after: var(--before);
+  display: block;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/*
+ * \floatc@ruled: {\bfseries Algorithm n} text: no colon, no extra space;
+ * the label in a box of its TeX width.
+ */
+.latex-document .alg-caption .caption-label {
+  display: inline-block;
+  white-space: nowrap;
+  margin-right: 0;
+}
+
+.latex-document .float.algorithm > .algorithmic {
+  --before: 0pt;
+  background: linear-gradient(currentColor, currentColor) bottom / 100%
+    var(--hrule) no-repeat;
+  padding-bottom: calc(var(--alg-d) + 0.2em + var(--ruled-kern) + var(--hrule));
+}
+
+/* \@fs@mid after the caption: \kern2pt \hrule \kern2pt. */
+.latex-document .float.algorithm > .alg-caption + .algorithmic {
+  --before: calc(var(--cap-d) + var(--ruled-kern));
+}
+
+/* [H] with no caption still has it (\@floatcapt is \vbox{}, not void). */
+.latex-document .float.algorithm.H.nocaption > .algorithmic {
+  --before: var(--ruled-kern);
+}
+
+.latex-document .float.algorithm > .alg-caption + .algorithmic,
+.latex-document .float.algorithm.H.nocaption > .algorithmic {
+  background:
+    linear-gradient(currentColor, currentColor) top / 100% var(--hrule)
+      no-repeat,
+    linear-gradient(currentColor, currentColor) bottom / 100% var(--hrule)
+      no-repeat;
+  padding-top: calc(var(--hrule) + var(--ruled-kern));
+}
+
+.latex-document .float.algorithm > .algorithmic > .alg-line:first-child {
+  --before: calc(var(--alg-h) - var(--blh));
+  --prev-after: var(--before);
 }
