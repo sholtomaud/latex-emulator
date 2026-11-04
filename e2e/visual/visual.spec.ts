@@ -125,6 +125,27 @@ test.describe('visual', () => {
     await expect(sheet).toHaveScreenshot('preview-tables.png');
   });
 
+  test('preview page with elsarticle', async ({ page }) => {
+    await openApp(page);
+    const toggle = page.getByRole('button', { name: 'Toggle documents' });
+    await toggle.click();
+    await page
+      .locator('document-explorer .import-bib-input')
+      .setInputFiles('fixtures/elsarticle-basic/refs.bib');
+    await expect(page.getByRole('status')).toContainText('Imported');
+    await toggle.click();
+    await setSource(
+      page,
+      fs.readFileSync('fixtures/elsarticle-basic/input.tex', 'utf8')
+    );
+    const sheet = page
+      .frameLocator('latex-preview iframe')
+      .locator('.latex-page');
+    await expect(sheet.locator('.thebibliography li')).toHaveCount(1);
+    await page.evaluate(() => document.fonts.ready);
+    await expect(sheet).toHaveScreenshot('preview-elsarticle.png');
+  });
+
   test('preview page with listings', async ({ page }) => {
     await openApp(page);
     await setSource(

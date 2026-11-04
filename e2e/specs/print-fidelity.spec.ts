@@ -341,6 +341,33 @@ const FIXTURES: FixtureSpec[] = [
       { word: 'end' },
     ],
   },
+  {
+    name: 'elsarticle-basic',
+    ready: { selector: '.els-title', text: 'Energy flows' },
+    bibFiles: ['refs.bib'],
+    checked: [
+      'Energy flows',
+      'Department of Systems',
+      'Marine Science',
+      'Abstract',
+      'We measure',
+      'them with',
+      'Keywords',
+      'Introduction',
+      'Estuaries',
+      'follows the method',
+      'Study site',
+      'The estuary',
+      'Results',
+      'The model reproduces the seasonal pattern of',
+      'References',
+    ],
+    centred: ['Energy flows', 'Department of Systems', 'Marine Science'],
+    headings: ['Introduction', 'Study site', 'Results', 'References'],
+    // From the abstract down to the references: the title block above and
+    // the title-page notes and footer below are checked as needles only.
+    body: [240, 640],
+  },
 ];
 
 for (const fixture of FIXTURES) {
@@ -401,8 +428,10 @@ for (const fixture of FIXTURES) {
         await document.fonts.ready;
         const starts: string[] = [];
         // Listing lines are code, checked by codeLines.
+        // Listing lines are code (codeLines); elsarticle's addresses and
+        // the title-page notes sit outside the checked body range.
         for (const para of document.querySelectorAll(
-          'article p:not(.lst-line)'
+          'article p:not(.lst-line, .els-addresses p, .footnotes p)'
         )) {
           const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT, {
             // Labels aren't text; inline math is one box (its fraction
@@ -443,7 +472,7 @@ for (const fixture of FIXTURES) {
 
       const norm = (w: string) => w.replace(/[^\p{L}\p{N}]/gu, '');
       const isLabelOrNumber = (w: string) =>
-        /^(\d+(\.\d+)*\.?|\x88|•)$/.test(w);
+        /^(\d+(\.\d+)*\.?|\[\d+\]|\x88|•)$/.test(w);
       const headings = new Set(fixture.headings);
       const [top, bottom] = fixture.body;
       // poppler splits a line at font changes: merge fragments on one baseline.

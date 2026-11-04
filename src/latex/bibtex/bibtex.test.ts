@@ -26,6 +26,9 @@ function assertSameBbl(actual: string, expected: string) {
 
 describe('runBibtex matches real bibtex (fixtures/bibtex/expected)', () => {
   for (const style of [
+    'elsarticle-num',
+    'elsarticle-num-names',
+    'elsarticle-harv',
     'plainnat',
     'unsrtnat',
     'abbrvnat',

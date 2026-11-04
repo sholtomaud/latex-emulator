@@ -1,0 +1,137 @@
+\providecommand{\noopsort}[1]{}
+\begin{thebibliography}{20}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Book
+\bibitem[{Odum(1996)}]{odum_energy_1996}
+\bibinfo{author}{H.~T. Odum}, \bibinfo{title}{Environmental Accounting:
+  {Emergy} and Environmental Decision Making}, \bibinfo{publisher}{John Wiley
+  \& Sons}, \bibinfo{address}{New York}, \bibinfo{year}{1996}.
+%Type = Article
+\bibitem[{Brown and Ulgiati(2004)}]{brown_emergy_2004}
+\bibinfo{author}{M.~T. Brown}, \bibinfo{author}{S.~Ulgiati},
+\newblock \bibinfo{title}{Energy quality, emergy, and transformity: {H.T.}
+  {Odum}'s contributions to quantifying and understanding systems},
+\newblock \bibinfo{journal}{Ecological Modelling} \bibinfo{volume}{178}
+  (\bibinfo{year}{2004}) \bibinfo{pages}{201--213}.
+  \DOIprefix\doi{10.1016/j.ecolmodel.2003.12.032}.
+%Type = Inproceedings
+\bibitem[{Hall et~al.(2014)Hall, Lambert, and Balogh}]{hall_energy_2014}
+\bibinfo{author}{C.~A.~S. Hall}, \bibinfo{author}{J.~G. Lambert},
+  \bibinfo{author}{S.~B. Balogh},
+\newblock \bibinfo{title}{{EROI} of different fuels and the implications for
+  society},
+\newblock in: \bibinfo{editor}{J.~Smith}, \bibinfo{editor}{J.~Doe} (Eds.),
+  \bibinfo{booktitle}{Proceedings of the Energy Policy Workshop},
+  \bibinfo{year}{2014}, pp. \bibinfo{pages}{141--152}. \URLprefix
+  \url{https://example.org/eroi}.
+%Type = Article
+\bibitem[{van~der Waals(1873)}]{waals_continuity_1873}
+\bibinfo{author}{J.~D. van~der Waals},
+\newblock \bibinfo{title}{On the continuity of the gaseous and liquid states},
+\newblock \bibinfo{journal}{Doctoral Dissertation, " # "Leiden}
+  (\bibinfo{year}{1873}) \bibinfo{pages}{7}.
+%Type = Book
+\bibitem[{de~la Fontaine(1668)}]{fontaine_fables_1668}
+\bibinfo{author}{J.~de~la Fontaine}, \bibinfo{title}{Fables Choisies},
+  volume~\bibinfo{volume}{1} of \textit{\bibinfo{series}{Classiques}},
+  \bibinfo{edition}{first} ed., \bibinfo{publisher}{Claude Barbin},
+  \bibinfo{address}{Paris}, \bibinfo{year}{1668}.
+%Type = Misc
+\bibitem[{King(1963)}]{king_letter_1963}
+\bibinfo{author}{M.~L. King, Jr.}, \bibinfo{title}{Letter from {Birmingham}
+  jail}, \bibinfo{howpublished}{Pamphlet}, \bibinfo{year}{1963}.
+  \bibinfo{note}{Widely reprinted}.
+%Type = Techreport
+\bibitem[{{World Health Organization}(2020)}]{who_report_2020}
+\bibinfo{author}{{World Health Organization}}, \bibinfo{title}{Global Report on
+  Energy and Health}, \bibinfo{type}{Technical Report}
+  \bibinfo{number}{WHO/123}, WHO, \bibinfo{address}{Geneva},
+  \bibinfo{year}{2020}.
+%Type = Phdthesis
+\bibitem[{{\"O}zt{\"u}rk(2010)}]{ozturk_thesis_2010}
+\bibinfo{author}{A.~{\"O}zt{\"u}rk}, \bibinfo{title}{Emergy Synthesis of
+  {Turkish} Agriculture}, Ph.D. thesis, University of Florida,
+  \bibinfo{year}{2010}.
+%Type = Masterthesis
+\bibitem[{Li(2015)}]{li_masters_2015}
+\bibinfo{author}{W.~Li}, \bibinfo{title}{Short Names in Bibliographies},
+  \bibinfo{type}{{MSc} thesis}, MIT, \bibinfo{year}{2015}.
+%Type = Incollection
+\bibitem[{Ng et~al.(2012)Ng, Jordan et~al.}]{ng_chapter_2012}
+\bibinfo{author}{A.~Y. Ng}, \bibinfo{author}{M.~I. Jordan}, et~al.,
+\newblock \bibinfo{title}{A chapter on learning},
+\newblock in: \bibinfo{editor}{J.-P. Sartre} (Ed.),
+  \bibinfo{booktitle}{Advances in Learning}, \bibinfo{publisher}{Springer},
+  \bibinfo{year}{2012}, pp. \bibinfo{pages}{1--20}.
+%Type = Unpublished
+\bibitem[{Aristotle( 350)}]{aristotle_physics}
+\bibinfo{author}{Aristotle}, \bibinfo{title}{Physics}, \bibinfo{year}{-350}.
+  \bibinfo{note}{Manuscript}.
+%Type = Manual
+\bibitem[{r_m(2023)}]{r_manual_2023}
+\bibinfo{title}{R: A Language and Environment for Statistical Computing},
+  \bibinfo{organization}{R Core Team}, \bibinfo{address}{Vienna, Austria},
+  \bibinfo{year}{2023}. \URLprefix \url{https://www.R-project.org/}.
+%Type = Booklet
+\bibitem[{Anon(1999)}]{anon_booklet_1999}
+Anon, \bibinfo{title}{An anonymous booklet}, \bibinfo{howpublished}{Distributed
+  at the conference}, \bibinfo{year}{1999}.
+%Type = Proceedings
+\bibitem[{Smith and Doe(2014)}]{energy_proc_2014}
+\bibinfo{editor}{J.~Smith}, \bibinfo{editor}{J.~Doe} (Eds.),
+  \bibinfo{title}{Proceedings of the Energy Policy Workshop},
+  \bibinfo{publisher}{Energy Press}, \bibinfo{year}{2014}.
+%Type = Inproceedings
+\bibitem[{Doe(2014)}]{crossref_paper_2014}
+\bibinfo{author}{J.~Doe},
+\newblock \bibinfo{title}{A paper inheriting its proceedings},
+\newblock in:  \cite{energy_proc_2014}, \bibinfo{year}{2014}, pp.
+  \bibinfo{pages}{5--9}.
+%Type = Inbook
+\bibitem[{Tufte(1983)}]{tufte_inbook_1983}
+\bibinfo{author}{E.~R. Tufte}, \bibinfo{title}{The Visual Display of
+  Quantitative Information}, \bibinfo{publisher}{Graphics Press},
+  \bibinfo{year}{1983}, pp. \bibinfo{pages}{13--52}.
+%Type = Article
+\bibitem[{Odum and Pinkerton(1955{\natexlab{a}})}]{odum_maximum_1955}
+\bibinfo{author}{H.~T. Odum}, \bibinfo{author}{R.~C. Pinkerton},
+\newblock \bibinfo{title}{Time's speed regulator: the optimum efficiency for
+  maximum power output in physical and biological systems},
+\newblock \bibinfo{journal}{American Scientist} \bibinfo{volume}{43}
+  (\bibinfo{year}{1955}{\natexlab{a}}) \bibinfo{pages}{331--343}.
+%Type = Article
+\bibitem[{Odum and Pinkerton(1955{\natexlab{b}})}]{odum_maximum_1955b}
+\bibinfo{author}{H.~T. Odum}, \bibinfo{author}{R.~C. Pinkerton},
+\newblock \bibinfo{title}{A second 1955 paper},
+\newblock \bibinfo{journal}{American Scientist}
+  (\bibinfo{year}{1955}{\natexlab{b}}).
+%Type = Misc
+\bibitem[{{\O}stergaard et~al.(2001){\O}stergaard, {\l}ukasz {\'E}mile, de~la
+  {\ss}tra{\ss}e, {\o}rsted, and {\oe}hman}]{foreign_letters}
+\bibinfo{author}{{\AE}.~{\O}stergaard}, \bibinfo{author}{{\l}ukasz {\'E}mile},
+  \bibinfo{author}{X.~de~la {\ss}tra{\ss}e}, \bibinfo{author}{{\i}.~{\o}rsted},
+  \bibinfo{author}{A.~{\oe}hman}, \bibinfo{title}{{\AE}sop {\oe}uvre {\'e}cole
+  {\ss} {\i}{\j} {\l}{\l} {\o}{\o} {\aa}{\aa} {\"u}ber: {\'{E}}tude {\TeX}
+  {\`a} la {\c c}a{\c c}a}, \bibinfo{year}{2001}.
+%Type = Misc
+\bibitem[{{\'e}tienne {\v{S}}koda et~al.(1750){\'e}tienne {\v{S}}koda,
+  {de}~Gaulle, Beethoven, d'Alembert, Charles Louis~de Secondat, and
+  Dickens}]{von_cases}
+\bibinfo{author}{J.~{\'e}tienne {\v{S}}koda}, \bibinfo{author}{C.~{de}~Gaulle},
+  \bibinfo{author}{L.~v. Beethoven}, \bibinfo{author}{J.~l.~R. d'Alembert},
+  \bibinfo{author}{B.~d.~M. Charles Louis~de Secondat},
+  \bibinfo{author}{{\relax Ch}.~Dickens}, \bibinfo{title}{Von cases},
+  \bibinfo{year}{1750}.
+
+\end{thebibliography}

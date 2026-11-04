@@ -1,0 +1,1313 @@
+{
+  "pages": [
+    {
+      "width": 612,
+      "height": 792,
+      "lines": [
+        {
+          "text": "Energy flows in a small estuary",
+          "xMin": 197.12,
+          "yMin": 125.81,
+          "xMax": 413.13,
+          "yMax": 141.11,
+          "words": [
+            {
+              "text": "Energy",
+              "xMin": 197.12,
+              "xMax": 246.06,
+              "yMin": 125.81,
+              "yMax": 141.11
+            },
+            {
+              "text": "flows",
+              "xMin": 251.26,
+              "xMax": 284.98,
+              "yMin": 125.81,
+              "yMax": 141.11
+            },
+            {
+              "text": "in",
+              "xMin": 290.18,
+              "xMax": 303.27,
+              "yMin": 125.81,
+              "yMax": 141.11
+            },
+            {
+              "text": "a",
+              "xMin": 308.47,
+              "xMax": 316.37,
+              "yMin": 125.81,
+              "yMax": 141.11
+            },
+            {
+              "text": "small",
+              "xMin": 321.55,
+              "xMax": 357.52,
+              "yMin": 125.81,
+              "yMax": 141.11
+            },
+            {
+              "text": "estuary",
+              "xMin": 362.72,
+              "xMax": 413.13,
+              "yMin": 125.81,
+              "yMax": 141.11
+            }
+          ]
+        },
+        {
+          "text": "Ada Lovelace a,∗ , Howard T. Odum a,b",
+          "xMin": 210.91,
+          "yMin": 160.26,
+          "xMax": 398.84,
+          "yMax": 172.45,
+          "words": [
+            {
+              "text": "Ada",
+              "xMin": 210.91,
+              "xMax": 232.05,
+              "yMin": 161.84,
+              "yMax": 172.45
+            },
+            {
+              "text": "Lovelace",
+              "xMin": 235.94,
+              "xMax": 279.36,
+              "yMin": 161.84,
+              "yMax": 172.45
+            },
+            {
+              "text": "a,∗",
+              "xMin": 279.36,
+              "xMax": 290.18,
+              "yMin": 160.26,
+              "yMax": 167.34
+            },
+            {
+              "text": ",",
+              "xMin": 289.68,
+              "xMax": 292.93,
+              "yMin": 161.84,
+              "yMax": 172.45
+            },
+            {
+              "text": "Howard",
+              "xMin": 296.83,
+              "xMax": 336.17,
+              "yMin": 161.84,
+              "yMax": 172.45
+            },
+            {
+              "text": "T.",
+              "xMin": 340.07,
+              "xMax": 351.78,
+              "yMin": 161.84,
+              "yMax": 172.45
+            },
+            {
+              "text": "Odum",
+              "xMin": 355.69,
+              "xMax": 387.54,
+              "yMin": 161.84,
+              "yMax": 172.45
+            },
+            {
+              "text": "a,b",
+              "xMin": 387.55,
+              "xMax": 398.84,
+              "yMin": 160.26,
+              "yMax": 167.34
+            }
+          ]
+        },
+        {
+          "text": "a",
+          "xMin": 144.46,
+          "yMin": 183.59,
+          "xMax": 148.66,
+          "yMax": 189.79,
+          "words": [
+            {
+              "text": "a",
+              "xMin": 144.46,
+              "xMax": 148.66,
+              "yMin": 183.59,
+              "yMax": 189.79
+            }
+          ]
+        },
+        {
+          "text": "Department of Systems Ecology, University of Florida, Gainesville, USA",
+          "xMin": 149.16,
+          "yMin": 185.14,
+          "xMax": 465.79,
+          "yMax": 193.98,
+          "words": [
+            {
+              "text": "Department",
+              "xMin": 149.16,
+              "xMax": 200.09,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "of",
+              "xMin": 203.66,
+              "xMax": 211.81,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "Systems",
+              "xMin": 215.36,
+              "xMax": 249.99,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "Ecology,",
+              "xMin": 253.56,
+              "xMax": 289.09,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "University",
+              "xMin": 292.65,
+              "xMax": 337.36,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "of",
+              "xMin": 340.91,
+              "xMax": 349.06,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "Florida,",
+              "xMin": 352.63,
+              "xMax": 387.27,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "Gainesville,",
+              "xMin": 390.83,
+              "xMax": 441.82,
+              "yMin": 185.14,
+              "yMax": 193.98
+            },
+            {
+              "text": "USA",
+              "xMin": 445.38,
+              "xMax": 465.79,
+              "yMin": 185.14,
+              "yMax": 193.98
+            }
+          ]
+        },
+        {
+          "text": "b",
+          "xMin": 203.75,
+          "yMin": 195.55,
+          "xMax": 207.55,
+          "yMax": 201.74,
+          "words": [
+            {
+              "text": "b",
+              "xMin": 203.75,
+              "xMax": 207.55,
+              "yMin": 195.55,
+              "yMax": 201.74
+            }
+          ]
+        },
+        {
+          "text": "Marine Science Institute, Port Aransas, USA",
+          "xMin": 208.05,
+          "yMin": 197.09,
+          "xMax": 406.5,
+          "yMax": 205.94,
+          "words": [
+            {
+              "text": "Marine",
+              "xMin": 208.05,
+              "xMax": 239.51,
+              "yMin": 197.09,
+              "yMax": 205.94
+            },
+            {
+              "text": "Science",
+              "xMin": 243.08,
+              "xMax": 275.16,
+              "yMin": 197.09,
+              "yMax": 205.94
+            },
+            {
+              "text": "Institute,",
+              "xMin": 278.72,
+              "xMax": 318.2,
+              "yMin": 197.09,
+              "yMax": 205.94
+            },
+            {
+              "text": "Port",
+              "xMin": 321.77,
+              "xMax": 341.13,
+              "yMin": 197.09,
+              "yMax": 205.94
+            },
+            {
+              "text": "Aransas,",
+              "xMin": 344.7,
+              "xMax": 382.52,
+              "yMin": 197.09,
+              "yMax": 205.94
+            },
+            {
+              "text": "USA",
+              "xMin": 386.09,
+              "xMax": 406.5,
+              "yMin": 197.09,
+              "yMax": 205.94
+            }
+          ]
+        },
+        {
+          "text": "Abstract",
+          "xMin": 110.85,
+          "yMin": 254.17,
+          "xMax": 162.26,
+          "yMax": 264.78,
+          "words": [
+            {
+              "text": "Abstract",
+              "xMin": 110.85,
+              "xMax": 162.26,
+              "yMin": 254.17,
+              "yMax": 264.78
+            }
+          ]
+        },
+        {
+          "text": "We measure the energy flows of a small estuary over one year and compare",
+          "xMin": 110.85,
+          "yMin": 274.59,
+          "xMax": 499.4,
+          "yMax": 285.21,
+          "words": [
+            {
+              "text": "We",
+              "xMin": 110.85,
+              "xMax": 127.1,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "measure",
+              "xMin": 131.29,
+              "xMax": 172.98,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "the",
+              "xMin": 177.16,
+              "xMax": 193.42,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "energy",
+              "xMin": 197.59,
+              "xMax": 231.09,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "flows",
+              "xMin": 235.27,
+              "xMax": 260.36,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "of",
+              "xMin": 264.55,
+              "xMax": 273.98,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "a",
+              "xMin": 278.16,
+              "xMax": 284.02,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "small",
+              "xMin": 288.19,
+              "xMax": 314.92,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "estuary",
+              "xMin": 319.1,
+              "xMax": 356.56,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "over",
+              "xMin": 360.73,
+              "xMax": 381.88,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "one",
+              "xMin": 386.06,
+              "xMax": 403.62,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "year",
+              "xMin": 407.79,
+              "xMax": 429.26,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "and",
+              "xMin": 433.44,
+              "xMax": 452.29,
+              "yMin": 274.59,
+              "yMax": 285.21
+            },
+            {
+              "text": "compare",
+              "xMin": 456.47,
+              "xMax": 499.4,
+              "yMin": 274.59,
+              "yMax": 285.21
+            }
+          ]
+        },
+        {
+          "text": "them with a simple model. The model reproduces the seasonal pattern.",
+          "xMin": 110.85,
+          "yMin": 289.04,
+          "xMax": 477.57,
+          "yMax": 299.65,
+          "words": [
+            {
+              "text": "them",
+              "xMin": 110.85,
+              "xMax": 136.87,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "with",
+              "xMin": 140.77,
+              "xMax": 163.53,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "a",
+              "xMin": 167.44,
+              "xMax": 173.29,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "simple",
+              "xMin": 177.19,
+              "xMax": 209.77,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "model.",
+              "xMin": 213.67,
+              "xMax": 247.81,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "The",
+              "xMin": 253.02,
+              "xMax": 273.17,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "model",
+              "xMin": 277.08,
+              "xMax": 307.97,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "reproduces",
+              "xMin": 311.87,
+              "xMax": 366.89,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "the",
+              "xMin": 370.8,
+              "xMax": 387.05,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "seasonal",
+              "xMin": 390.95,
+              "xMax": 432.7,
+              "yMin": 289.04,
+              "yMax": 299.65
+            },
+            {
+              "text": "pattern.",
+              "xMin": 436.6,
+              "xMax": 477.57,
+              "yMin": 289.04,
+              "yMax": 299.65
+            }
+          ]
+        },
+        {
+          "text": "Keywords: emergy, estuary, systems ecology",
+          "xMin": 110.85,
+          "yMin": 309.63,
+          "xMax": 342.74,
+          "yMax": 320.24,
+          "words": [
+            {
+              "text": "Keywords:",
+              "xMin": 110.85,
+              "xMax": 163.33,
+              "yMin": 309.63,
+              "yMax": 320.24
+            },
+            {
+              "text": "emergy,",
+              "xMin": 173.39,
+              "xMax": 213.39,
+              "yMin": 309.63,
+              "yMax": 320.24
+            },
+            {
+              "text": "estuary,",
+              "xMin": 217.28,
+              "xMax": 258,
+              "yMin": 309.63,
+              "yMax": 320.24
+            },
+            {
+              "text": "systems",
+              "xMin": 261.89,
+              "xMax": 301.43,
+              "yMin": 309.63,
+              "yMax": 320.24
+            },
+            {
+              "text": "ecology",
+              "xMin": 305.34,
+              "xMax": 342.74,
+              "yMin": 309.63,
+              "yMax": 320.24
+            }
+          ]
+        },
+        {
+          "text": "1. Introduction",
+          "xMin": 110.85,
+          "yMin": 348.55,
+          "xMax": 202.05,
+          "yMax": 359.16,
+          "words": [
+            {
+              "text": "1.",
+              "xMin": 110.85,
+              "xMax": 121.31,
+              "yMin": 348.55,
+              "yMax": 359.16
+            },
+            {
+              "text": "Introduction",
+              "xMin": 128.05,
+              "xMax": 202.05,
+              "yMin": 348.55,
+              "yMax": 359.16
+            }
+          ]
+        },
+        {
+          "text": "Estuaries collect energy from the tide, the river and the sun. This paper",
+          "xMin": 128.41,
+          "yMin": 371.96,
+          "xMax": 499.4,
+          "yMax": 382.57,
+          "words": [
+            {
+              "text": "Estuaries",
+              "xMin": 128.41,
+              "xMax": 175.53,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "collect",
+              "xMin": 179.39,
+              "xMax": 211.91,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "energy",
+              "xMin": 215.77,
+              "xMax": 249.26,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "from",
+              "xMin": 253.12,
+              "xMax": 276.86,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "the",
+              "xMin": 280.72,
+              "xMax": 296.98,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "tide,",
+              "xMin": 300.85,
+              "xMax": 323.6,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "the",
+              "xMin": 327.47,
+              "xMax": 343.73,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "river",
+              "xMin": 347.59,
+              "xMax": 371.01,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "and",
+              "xMin": 374.87,
+              "xMax": 393.73,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "the",
+              "xMin": 397.59,
+              "xMax": 413.85,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "sun.",
+              "xMin": 417.71,
+              "xMax": 438.59,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "This",
+              "xMin": 443.77,
+              "xMax": 466.6,
+              "yMin": 371.96,
+              "yMax": 382.57
+            },
+            {
+              "text": "paper",
+              "xMin": 470.46,
+              "xMax": 499.4,
+              "yMin": 371.96,
+              "yMax": 382.57
+            }
+          ]
+        },
+        {
+          "text": "follows the method of Odum [1].",
+          "xMin": 110.85,
+          "yMin": 386.4,
+          "xMax": 276.75,
+          "yMax": 397.02,
+          "words": [
+            {
+              "text": "follows",
+              "xMin": 110.85,
+              "xMax": 145.39,
+              "yMin": 386.4,
+              "yMax": 397.02
+            },
+            {
+              "text": "the",
+              "xMin": 149.29,
+              "xMax": 165.55,
+              "yMin": 386.4,
+              "yMax": 397.02
+            },
+            {
+              "text": "method",
+              "xMin": 169.44,
+              "xMax": 208.15,
+              "yMin": 386.4,
+              "yMax": 397.02
+            },
+            {
+              "text": "of",
+              "xMin": 212.05,
+              "xMax": 221.48,
+              "yMin": 386.4,
+              "yMax": 397.02
+            },
+            {
+              "text": "Odum",
+              "xMin": 225.38,
+              "xMax": 257.24,
+              "yMin": 386.4,
+              "yMax": 397.02
+            },
+            {
+              "text": "[1].",
+              "xMin": 261.14,
+              "xMax": 276.75,
+              "yMin": 386.4,
+              "yMax": 397.02
+            }
+          ]
+        },
+        {
+          "text": "1.1. Study site",
+          "xMin": 110.85,
+          "yMin": 412.81,
+          "xMax": 186.17,
+          "yMax": 423.42,
+          "words": [
+            {
+              "text": "1.1.",
+              "xMin": 110.85,
+              "xMax": 129.98,
+              "yMin": 412.81,
+              "yMax": 423.42
+            },
+            {
+              "text": "Study",
+              "xMin": 135.96,
+              "xMax": 164.35,
+              "yMin": 412.81,
+              "yMax": 423.42
+            },
+            {
+              "text": "site",
+              "xMin": 168.54,
+              "xMax": 186.17,
+              "yMin": 412.81,
+              "yMax": 423.42
+            }
+          ]
+        },
+        {
+          "text": "The estuary is small enough to be sampled in a day, which lets every flow",
+          "xMin": 128.41,
+          "yMin": 430.24,
+          "xMax": 499.39,
+          "yMax": 440.86,
+          "words": [
+            {
+              "text": "The",
+              "xMin": 128.41,
+              "xMax": 148.57,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "estuary",
+              "xMin": 151.96,
+              "xMax": 189.42,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "is",
+              "xMin": 192.8,
+              "xMax": 200.67,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "small",
+              "xMin": 204.04,
+              "xMax": 230.77,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "enough",
+              "xMin": 234.15,
+              "xMax": 270.57,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "to",
+              "xMin": 273.96,
+              "xMax": 284.36,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "be",
+              "xMin": 287.75,
+              "xMax": 299.78,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "sampled",
+              "xMin": 303.16,
+              "xMax": 344.85,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "in",
+              "xMin": 348.22,
+              "xMax": 357.97,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "a",
+              "xMin": 361.36,
+              "xMax": 367.21,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "day,",
+              "xMin": 370.59,
+              "xMax": 391.08,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "which",
+              "xMin": 394.57,
+              "xMax": 424.15,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "lets",
+              "xMin": 427.53,
+              "xMax": 445.16,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "every",
+              "xMin": 448.54,
+              "xMax": 475.53,
+              "yMin": 430.24,
+              "yMax": 440.86
+            },
+            {
+              "text": "flow",
+              "xMin": 478.91,
+              "xMax": 499.39,
+              "yMin": 430.24,
+              "yMax": 440.86
+            }
+          ]
+        },
+        {
+          "text": "be measured on the same day of each month of the year.",
+          "xMin": 110.85,
+          "yMin": 444.69,
+          "xMax": 401.36,
+          "yMax": 455.3,
+          "words": [
+            {
+              "text": "be",
+              "xMin": 110.85,
+              "xMax": 122.88,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "measured",
+              "xMin": 126.79,
+              "xMax": 174.97,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "on",
+              "xMin": 178.88,
+              "xMax": 191.24,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "the",
+              "xMin": 195.14,
+              "xMax": 211.39,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "same",
+              "xMin": 215.29,
+              "xMax": 240.72,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "day",
+              "xMin": 244.63,
+              "xMax": 262.84,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "of",
+              "xMin": 266.74,
+              "xMax": 276.17,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "each",
+              "xMin": 280.07,
+              "xMax": 302.51,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "month",
+              "xMin": 306.41,
+              "xMax": 339.25,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "of",
+              "xMin": 343.15,
+              "xMax": 352.58,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "the",
+              "xMin": 356.49,
+              "xMax": 372.75,
+              "yMin": 444.69,
+              "yMax": 455.3
+            },
+            {
+              "text": "year.",
+              "xMin": 376.64,
+              "xMax": 401.36,
+              "yMin": 444.69,
+              "yMax": 455.3
+            }
+          ]
+        },
+        {
+          "text": "2. Results",
+          "xMin": 110.85,
+          "yMin": 477.06,
+          "xMax": 171.26,
+          "yMax": 487.68,
+          "words": [
+            {
+              "text": "2.",
+              "xMin": 110.85,
+              "xMax": 121.31,
+              "yMin": 477.06,
+              "yMax": 487.68
+            },
+            {
+              "text": "Results",
+              "xMin": 128.05,
+              "xMax": 171.26,
+              "yMin": 477.06,
+              "yMax": 487.68
+            }
+          ]
+        },
+        {
+          "text": "The model reproduces the seasonal pattern of the measured flows.",
+          "xMin": 128.41,
+          "yMin": 500.48,
+          "xMax": 467.57,
+          "yMax": 511.09,
+          "words": [
+            {
+              "text": "The",
+              "xMin": 128.41,
+              "xMax": 148.57,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "model",
+              "xMin": 152.47,
+              "xMax": 183.36,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "reproduces",
+              "xMin": 187.27,
+              "xMax": 242.29,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "the",
+              "xMin": 246.19,
+              "xMax": 262.45,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "seasonal",
+              "xMin": 266.35,
+              "xMax": 308.09,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "pattern",
+              "xMin": 312,
+              "xMax": 349.73,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "of",
+              "xMin": 353.62,
+              "xMax": 363.05,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "the",
+              "xMin": 366.95,
+              "xMax": 383.21,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "measured",
+              "xMin": 387.12,
+              "xMax": 435.31,
+              "yMin": 500.48,
+              "yMax": 511.09
+            },
+            {
+              "text": "flows.",
+              "xMin": 439.21,
+              "xMax": 467.57,
+              "yMin": 500.48,
+              "yMax": 511.09
+            }
+          ]
+        },
+        {
+          "text": "References",
+          "xMin": 110.85,
+          "yMin": 532.86,
+          "xMax": 173.79,
+          "yMax": 543.47,
+          "words": [
+            {
+              "text": "References",
+              "xMin": 110.85,
+              "xMax": 173.79,
+              "yMin": 532.86,
+              "yMax": 543.47
+            }
+          ]
+        },
+        {
+          "text": "[1] H. T. Odum, Systems Ecology: An Introduction, Wiley, New York, 1983.",
+          "xMin": 110.85,
+          "yMin": 556.27,
+          "xMax": 499.39,
+          "yMax": 566.88,
+          "words": [
+            {
+              "text": "[1]",
+              "xMin": 110.85,
+              "xMax": 123.21,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "H.",
+              "xMin": 129.07,
+              "xMax": 141.1,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "T.",
+              "xMin": 144.4,
+              "xMax": 156.1,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "Odum,",
+              "xMin": 159.41,
+              "xMax": 194.53,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "Systems",
+              "xMin": 197.95,
+              "xMax": 239.38,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "Ecology:",
+              "xMin": 242.69,
+              "xMax": 286.1,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "An",
+              "xMin": 291,
+              "xMax": 306.28,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "Introduction,",
+              "xMin": 309.59,
+              "xMax": 376.89,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "Wiley,",
+              "xMin": 380.32,
+              "xMax": 412.5,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "New",
+              "xMin": 415.93,
+              "xMax": 438.37,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "York,",
+              "xMin": 441.68,
+              "xMax": 469.31,
+              "yMin": 556.27,
+              "yMax": 566.88
+            },
+            {
+              "text": "1983.",
+              "xMin": 472.73,
+              "xMax": 499.39,
+              "yMin": 556.27,
+              "yMax": 566.88
+            }
+          ]
+        },
+        {
+          "text": "∗",
+          "xMin": 124.21,
+          "yMin": 651.44,
+          "xMax": 128.29,
+          "yMax": 658.02,
+          "words": [
+            {
+              "text": "∗",
+              "xMin": 124.21,
+              "xMax": 128.29,
+              "yMin": 651.44,
+              "yMax": 658.02
+            }
+          ]
+        },
+        {
+          "text": "Corresponding author",
+          "xMin": 128.79,
+          "yMin": 653.37,
+          "xMax": 224.4,
+          "yMax": 662.22,
+          "words": [
+            {
+              "text": "Corresponding",
+              "xMin": 128.79,
+              "xMax": 192.27,
+              "yMin": 653.37,
+              "yMax": 662.22
+            },
+            {
+              "text": "author",
+              "xMin": 195.59,
+              "xMax": 224.4,
+              "yMin": 653.37,
+              "yMax": 662.22
+            }
+          ]
+        },
+        {
+          "text": "Email address: ada@example.org (Ada Lovelace)",
+          "xMin": 128.79,
+          "yMin": 665.33,
+          "xMax": 345.65,
+          "yMax": 674.45,
+          "words": [
+            {
+              "text": "Email",
+              "xMin": 128.79,
+              "xMax": 154.39,
+              "yMin": 665.33,
+              "yMax": 674.17
+            },
+            {
+              "text": "address:",
+              "xMin": 157.95,
+              "xMax": 192.71,
+              "yMin": 665.33,
+              "yMax": 674.17
+            },
+            {
+              "text": "ada@example.org",
+              "xMin": 197.87,
+              "xMax": 276.32,
+              "yMin": 666.15,
+              "yMax": 674.45
+            },
+            {
+              "text": "(Ada",
+              "xMin": 279.64,
+              "xMax": 301.5,
+              "yMin": 665.33,
+              "yMax": 674.17
+            },
+            {
+              "text": "Lovelace)",
+              "xMin": 304.82,
+              "xMax": 345.65,
+              "yMin": 665.33,
+              "yMax": 674.17
+            }
+          ]
+        },
+        {
+          "text": "Preprint submitted to Ecological Modelling",
+          "xMin": 110.85,
+          "yMin": 695.22,
+          "xMax": 295.22,
+          "yMax": 704.07,
+          "words": [
+            {
+              "text": "Preprint",
+              "xMin": 110.85,
+              "xMax": 147.15,
+              "yMin": 695.22,
+              "yMax": 704.07
+            },
+            {
+              "text": "submitted",
+              "xMin": 150.71,
+              "xMax": 191.7,
+              "yMin": 695.22,
+              "yMax": 704.07
+            },
+            {
+              "text": "to",
+              "xMin": 195.26,
+              "xMax": 203.66,
+              "yMin": 695.22,
+              "yMax": 704.07
+            },
+            {
+              "text": "Ecological",
+              "xMin": 207.23,
+              "xMax": 249.64,
+              "yMin": 695.22,
+              "yMax": 704.07
+            },
+            {
+              "text": "Modelling",
+              "xMin": 253.19,
+              "xMax": 295.22,
+              "yMin": 695.22,
+              "yMax": 704.07
+            }
+          ]
+        },
+        {
+          "text": "4 November 2026",
+          "xMin": 424.14,
+          "yMin": 695.22,
+          "xMax": 499.39,
+          "yMax": 704.07,
+          "words": [
+            {
+              "text": "4",
+              "xMin": 424.14,
+              "xMax": 429.23,
+              "yMin": 695.22,
+              "yMax": 704.07
+            },
+            {
+              "text": "November",
+              "xMin": 432.8,
+              "xMax": 475.47,
+              "yMin": 695.22,
+              "yMax": 704.07
+            },
+            {
+              "text": "2026",
+              "xMin": 479.02,
+              "xMax": 499.39,
+              "yMin": 695.22,
+              "yMax": 704.07
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

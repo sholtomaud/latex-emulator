@@ -3,7 +3,8 @@
 # style, as ground truth for the BibTeX emulator's unit tests:
 #   fixtures/bibtex/expected/<style>.bbl
 # and copy the shipped styles, unmodified, into src/assets/bst/.
-# Needs TeX Live (bibtex and the .bst files). Commit the outputs.
+# Needs TeX Live (bibtex and the .bst files; elsarticle's come with
+# texlive-publishers). Commit the outputs.
 set -eu
 cd "$(dirname "$0")/../fixtures/bibtex"
 mkdir -p expected
@@ -11,7 +12,8 @@ BST=../../src/assets/bst
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 cp test.bib probe.bst "$WORK/"
-for style in plainnat unsrtnat abbrvnat plain unsrt abbrv alpha probe; do
+for style in plainnat unsrtnat abbrvnat plain unsrt abbrv alpha \
+  elsarticle-num elsarticle-num-names elsarticle-harv probe; do
   sed "s/STYLE/$style/" cite-all.tex > "$WORK/doc.tex"
   # \citation{*} in the .aux is all bibtex needs; no pdflatex required.
   printf '\\citation{*}\n\\bibstyle{%s}\n\\bibdata{test}\n' "$style" > "$WORK/doc.aux"
