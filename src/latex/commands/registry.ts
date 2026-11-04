@@ -75,8 +75,8 @@ cmd('usepackage', 'o m', 'Loads a package.', 'preamble');
 cmd('title', 'm', 'Sets the document title used by \\maketitle.', 'preamble');
 cmd(
   'author',
-  'm',
-  'Sets the author(s); separate several with \\and.',
+  'o m',
+  'Sets the author(s); separate several with \\and. elsarticle: \\author[a,b]{Name} with affiliation labels.',
   'preamble'
 );
 cmd(
@@ -88,6 +88,41 @@ cmd(
 cmd('and', '', 'Separates authors in \\author.');
 cmd('thanks', 'm', 'Adds a footnote to the title or author.');
 cmd('maketitle', '', 'Typesets the title block.');
+
+// elsarticle.cls front matter (ADR 0018)
+env(
+  'frontmatter',
+  '',
+  'elsarticle: title, authors, addresses, abstract and keywords; typeset at its end.'
+);
+env('keyword', '', 'elsarticle: keywords, separated by \\sep.');
+cmd(
+  'journal',
+  'm',
+  'elsarticle: the journal named in the "Preprint submitted to" footer.',
+  'preamble'
+);
+cmd(
+  ['address', 'affiliation'],
+  'o m',
+  'elsarticle: an author address, labelled for \\author[label].'
+);
+cmd(
+  'ead',
+  'o m',
+  'elsarticle: the previous author’s e-mail address (\\ead[url]{…} for a web page).'
+);
+cmd(
+  ['cortext', 'fntext', 'tnotetext'],
+  'o m',
+  'elsarticle: a title-page note, labelled for \\corref/\\fnref/\\tnoteref.'
+);
+cmd(
+  ['corref', 'fnref', 'tnoteref'],
+  'm',
+  'elsarticle: marks an author or the title with a labelled note.'
+);
+cmd('sep', '', 'elsarticle: separates keywords.');
 
 // Sectioning
 cmd(

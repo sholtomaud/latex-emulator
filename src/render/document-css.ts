@@ -216,6 +216,10 @@ export function geometryCss(g: ArticleGeometry): string {
     `  --displayskip: ${pt(ABOVE_DISPLAY[g.options.size])};`,
     // Floats and tables (size1x.clo \intextsep; article.cls).
     `  --intextsep: ${pt(g.options.size === 12 ? 14 : 12)};`,
+    // TeX's em in the normal size's bold and italic fonts (\fontdimen6 of
+    // cmbx10/cmbx12 and cmti10/cmti12; 11pt uses the 10pt designs scaled).
+    `  --quad-bf: ${g.options.size === 12 ? 1.125 : 1.15};`,
+    `  --quad-it: ${g.options.size === 12 ? 1 : 1.0222};`,
     `  --abovecaptionskip: ${pt(10)};`,
     // latex.ltx \smallskipamount / \medskipamount (listings' caption skips
     // and aboveskip/belowskip).
@@ -291,6 +295,39 @@ export function preprintCss(
     text-align: left;
   }
   @bottom-right {${box(right, "'LM Mono 10', monospace")}
+    text-align: right;
+  }
+}`;
+}
+
+/**
+ * elsarticle's first-page style (\ps@pprintTitle): no page number, and
+ * \footnotesize\itshape "Preprint submitted to …" at the left with the date
+ * at the right, in the footer, on the page number's baseline.
+ */
+export function firstPageFooterCss(
+  footer: { left: string; right: string },
+  g: ArticleGeometry
+): string {
+  const { fontSize, baselineskip } = g.sizes.footnotesize;
+  const baselineInLine = (baselineskip - fontSize) / 2 + FONT_ASCENT * fontSize;
+  const box = (content: string) => `
+    content: ${cssString(content)};
+    vertical-align: top;
+    padding-top: ${pt(g.footskip - baselineInLine)};
+    font-family: 'LM Roman 10', serif; /* \footnotesize: the 10pt design */
+    font-style: italic;
+    font-size: ${pt(fontSize)};
+    line-height: ${pt(baselineskip)};
+    white-space: nowrap;`;
+  return `@page :first {
+  @bottom-center {
+    content: none;
+  }
+  @bottom-left {${box(footer.left)}
+    text-align: left;
+  }
+  @bottom-right {${box(footer.right)}
     text-align: right;
   }
 }`;

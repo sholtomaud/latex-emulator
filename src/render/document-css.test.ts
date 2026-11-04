@@ -4,6 +4,7 @@ import { articleGeometry, toBp } from '../latex/classes/article.ts';
 import {
   FONT_ASCENT,
   FONT_FACES,
+  firstPageFooterCss,
   fontFaceCss,
   geometryCss,
   preprintCss,
@@ -155,5 +156,45 @@ describe('preprintCss', () => {
     const css = preprintCss({ ...stamp, version: '1"} body{x' }, g11);
     assert.ok(!css.includes('1"}'));
     assert.match(css, /v1\\"\} body\{x/);
+  });
+});
+
+describe('firstPageFooterCss (elsarticle \\ps@pprintTitle)', () => {
+  test('first page only: footnotesize italic, left and right, no page number', () => {
+    const css = firstPageFooterCss(
+      { left: 'Preprint submitted to "J"', right: '4 November 2026' },
+      g11
+    );
+    assert.match(css, /^@page :first \{/);
+    assert.match(css, /@bottom-center \{\s*content: none;/);
+    assert.match(
+      css,
+      /@bottom-left \{[^}]*content: "Preprint submitted to \\"J\\"";[^}]*font-style: italic;/
+    );
+    assert.match(
+      css,
+      /@bottom-right \{[^}]*content: "4 November 2026";[^}]*text-align: right;/
+    );
+    // On the page number's baseline, in \footnotesize.
+    const size = /font-size: ([\d.]+)pt/.exec(css)![1];
+    assert.equal(
+      Number(size),
+      Number(((g11.sizes.footnotesize.fontSize * 72) / 72.27).toFixed(4))
+    );
+  });
+});
+
+describe('font quads (TeX’s em) for headings set in the normal size', () => {
+  test('cmbx and cmti: the 10pt designs at 10pt and 11pt, the 12pt ones at 12pt', () => {
+    const quads = (size: 10 | 11 | 12) => {
+      const css = geometryCss(articleGeometry({ size, paper: 'letterpaper' }));
+      return [
+        /--quad-bf: ([\d.]+);/.exec(css)?.[1],
+        /--quad-it: ([\d.]+);/.exec(css)?.[1],
+      ];
+    };
+    assert.deepEqual(quads(10), ['1.15', '1.0222']);
+    assert.deepEqual(quads(11), ['1.15', '1.0222']);
+    assert.deepEqual(quads(12), ['1.125', '1']);
   });
 });

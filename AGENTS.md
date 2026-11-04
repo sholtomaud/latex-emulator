@@ -188,7 +188,8 @@ src/
 │   ├── parser/                   # error-tolerant parser → AST
 │   ├── ast/                      # node types, visitors, source ranges
 │   ├── macros/                   # \newcommand / \renewcommand expansion
-│   ├── classes/                  # class geometry from article.cls / size1x.clo
+│   ├── classes/                  # class geometry from article.cls / size1x.clo;
+│   │                             #   elsarticle.cls options + front matter (ADR 0018)
 │   ├── document/                 # preamble/body split, class options, metadata
 │   ├── commands/                 # registry: supported commands & environments,
 │   │                             #   arity, docs, render hooks (single table)
@@ -250,7 +251,11 @@ are only known in the printed PDF). Footnotes are collected at the end of the
 document (ADR 0003).
 
 - Preamble: `\documentclass[opts]{article}` (`10pt|11pt|12pt`, `a4paper|letterpaper`,
-  `twocolumn` later), `\usepackage` (recognised and validated; known packages
+  `twocolumn` later) or `{elsarticle}` (ADR 0018: `preprint`, the front
+  matter with labelled authors and addresses, `\ead`, `\cortext`/`\corref`,
+  `\fntext`/`\fnref`, `\tnotetext`, abstract and `keyword`/`\sep`,
+  `\journal`, its headings and first-page footer, natbib loaded, the
+  elsarticle `.bst` styles), `\usepackage` (recognised and validated; known packages
   toggle features, unknown ones warn), `\title`, `\author`, `\date`, `\maketitle`.
 - Sectioning: `\section`, `\subsection`, `\subsubsection`, `\paragraph`, starred variants.
 - Text: paragraphs (blank line), `\\`, `\newline`, `\par`, `~`, `--`, `---`,
@@ -675,7 +680,10 @@ chosen branch.
 10. ✅ Code. `listings` (`lstlisting`, `\lstinline`), checked against
     pdflatex (ADR 0014). `algorithm` + `algpseudocode` for pseudocode,
     checked against pdflatex (ADR 0016). No invented `\code` command.
-11. `elsarticle` class (Elsevier), checked against pdflatex.
+11. `elsarticle` class (Elsevier), checked against pdflatex. ✅ Phase A,
+    `preprint` mode: front matter, headings, footer, natbib, `.bst` styles
+    (ADR 0018). Still to do: `review`, `1p`/`3p`/`5p`, the class's lists,
+    theorems and captions.
 12. The starter document becomes a tour of every supported feature (updated
     alongside each step above).
 13. Language worker (parsing and diagnostics off the main thread), lint rules,

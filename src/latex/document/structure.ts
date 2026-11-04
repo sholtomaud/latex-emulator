@@ -31,7 +31,7 @@ export interface DocumentStructure {
 }
 
 /** Classes whose layout the emulator implements. */
-export const SUPPORTED_CLASSES = ['article'];
+export const SUPPORTED_CLASSES = ['article', 'elsarticle'];
 
 /** Plain text of argument content (commands contribute their mandatory arguments). */
 export function plainText(nodes: Node[]): string {

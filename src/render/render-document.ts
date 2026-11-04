@@ -48,6 +48,8 @@ import type { LstLanguage } from '../latex/listings/language-types.ts';
 import { fontClasses, inlineListing, listingLines } from './listings.ts';
 import { parseLength } from './lengths.ts';
 import type { VerbNode, VerbatimNode } from '../latex/ast/nodes.ts';
+import { elsFrontmatter, elsOptions } from '../latex/classes/elsarticle.ts';
+import type { ElsOptions } from '../latex/classes/elsarticle.ts';
 import { algorithmicLines } from '../latex/algorithmic/lines.ts';
 import type { AlgPart } from '../latex/algorithmic/lines.ts';
 import { boxExtent, textWidth } from './extent.ts';
@@ -80,6 +82,11 @@ export interface RenderResult {
   diagnostics: Diagnostic[];
   /** Plain-text title, e.g. for the PDF file name. */
   title: string;
+  /**
+   * The class's footer on the first page (elsarticle's \ps@pprintTitle:
+   * "Preprint submitted to …" left, the date right), when it has one.
+   */
+  firstPageFooter?: { left: string; right: string };
 }
 
 /** " H" for float.sty's [H]: set here, in the main list (\float@endH). */
@@ -278,10 +285,16 @@ export function renderDocument(
 ): RenderResult {
   const parsed = parse(src);
   const structure = analyzeDocument(parsed.root);
+  const els =
+    structure.documentClass?.name === 'elsarticle'
+      ? elsOptions(structure.documentClass.options)
+      : null;
   const geometry = articleGeometry(
-    classOptions(structure.documentClass?.options ?? [])
+    els
+      ? { size: els.size, paper: els.paper }
+      : classOptions(structure.documentClass?.options ?? [])
   );
-  const natbib = natbibPackageOptions(parsed.root.children);
+  const natbib = elsNatbib(els, parsed.root.children);
   const scan = scanCitations(structure.body);
   const docEnv = parsed.root.children.find(
     (n) => n.kind === 'environment' && n.name === 'document'
@@ -325,6 +338,7 @@ export function renderDocument(
     packageOptions(parsed.root.children, 'algpseudocode')?.includes('noend') ??
     false;
   first.algNoend = algNoend;
+  first.elsarticle = els;
   first.renderBlocks(structure.body, first.rootContext());
   const renderer = new Renderer(structure, today, citations, {
     labels: first.labelsOut,
@@ -335,11 +349,26 @@ export function renderDocument(
   renderer.lstLanguages = options.lstLanguages ?? {};
   renderer.listingsPreamble(parsed.root.children);
   renderer.algNoend = algNoend;
+  renderer.elsarticle = els;
   const blocks = renderer.renderBlocks(structure.body, renderer.rootContext());
   if (renderer.footnotes.length)
     blocks.push(h('section', { class: 'footnotes' }, renderer.footnotes));
   return {
-    tree: h('article', { class: 'latex-document' }, blocks),
+    tree: h(
+      'article',
+      { class: els ? 'latex-document elsarticle' : 'latex-document' },
+      blocks
+    ),
+    ...(els && (els.mode === 'preprint' || els.mode === 'review')
+      ? {
+          firstPageFooter: {
+            left: `Preprint submitted to ${preambleText(parsed.root.children, 'journal') || 'Elsevier'}`,
+            right: structure.metadata.date
+              ? plainText(structure.metadata.date).replace(/\s+/g, ' ').trim()
+              : formatToday(today),
+          },
+        }
+      : {}),
     structure,
     geometry,
     diagnostics: [
@@ -350,6 +379,33 @@ export function renderDocument(
     ],
     title: plainText(structure.metadata.title ?? []).trim(),
   };
+}
+
+/**
+ * natbib's options: elsarticle loads natbib itself with [numbers] or
+ * [round,authoryear], plus \biboptions{…} (elsarticle.cls); otherwise only
+ * an explicit \usepackage[…]{natbib} counts.
+ */
+function elsNatbib(els: ElsOptions | null, nodes: Node[]): string[] | null {
+  const loaded = natbibPackageOptions(nodes);
+  if (!els?.natbib) return loaded;
+  const extra = preambleText(nodes, 'biboptions')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return [...els.natbib, ...(loaded ?? []), ...extra];
+}
+
+/** The plain text of a preamble command's argument, e.g. \journal{…}. */
+function preambleText(nodes: Node[], name: string): string {
+  for (const n of nodes) {
+    if (n.kind === 'environment' && n.name === 'document') break;
+    if (n.kind === 'command' && n.name === name)
+      return plainText(lastMandatory(n)?.children ?? [])
+        .replace(/\s+/g, ' ')
+        .trim();
+  }
+  return '';
 }
 
 interface Citations {
@@ -388,6 +444,8 @@ class Renderer {
   /** Lengths for p{…} columns and \\includegraphics, in bp. */
   lengths: LengthContext = { textwidth: 345, em: 10, ex: 4.3 };
   images: NonNullable<RenderOptions['images']> = {};
+  /** elsarticle's options when the document uses that class (ADR 0018). */
+  elsarticle: ElsOptions | null = null;
   lstLanguages: Record<string, LstLanguage> = {};
   /** listings' settings so far (\lstset), and its named styles. */
   lst: LstSettings = DEFAULT_LST;
@@ -477,7 +535,13 @@ class Renderer {
       inline = [];
       if (!content.length && !runIn) return;
       const children = runIn ? [runIn, ...content] : content;
-      const unindented = noindent || after === 'heading' || after === 'block';
+      // article's headings have a negative \@startsection beforeskip, which
+      // drops the next paragraph's indent; elsarticle's are positive, so it
+      // keeps it (latex.ltx \@startsection, \@afterindentfalse).
+      const unindented =
+        noindent ||
+        (after === 'heading' && !this.elsarticle) ||
+        after === 'block';
       const cls = runIn ? 'runin' : unindented ? 'noindent' : '';
       blocks.push(h('p', cls ? { class: cls } : {}, children));
       noindent = false;
@@ -658,8 +722,9 @@ class Renderer {
       .join('.');
     this.currentRef = number;
     this.tocOut.push({ level, number, title });
+    // elsarticle.cls: \@seccntformat puts \@seccntDot (.) after the number.
     return h(tag, { class: c.name }, [
-      h('span', { class: 'secnum' }, [number]),
+      h('span', { class: 'secnum' }, [this.elsarticle ? `${number}.` : number]),
       ...title,
     ]);
   }
@@ -758,6 +823,9 @@ class Renderer {
       }
       case 'algorithmic':
         return [this.renderAlgorithmic(env, ctx)];
+      case 'frontmatter':
+        if (this.elsarticle) return [this.renderFrontmatter(env, ctx)];
+        return body();
       case 'abstract':
         return [
           h('div', { class: 'abstract' }, [
@@ -966,6 +1034,106 @@ class Renderer {
           [img]
         )
       : img;
+  }
+
+  /**
+   * elsarticle's frontmatter: \pprintMaketitle's title block (title,
+   * authors with their marks, addresses, rules around the abstract and
+   * keywords). The title-page notes (\printFirstPageNotes) become the first
+   * footnotes, collected at the end like all footnotes (ADR 0003).
+   */
+  renderFrontmatter(env: EnvironmentNode, ctx: Context): HElement {
+    const f = elsFrontmatter(env);
+    const inline = (nodes: Node[]) => tidy(this.renderInline(nodes, ctx));
+    const sup = (marks: string[]) =>
+      marks.length ? [h('sup', {}, [marks.join(',')])] : [];
+    const authors: HChild[] = [];
+    f.authors.forEach((a, i) => {
+      if (i) authors.push(', ');
+      authors.push(
+        h('span', { class: 'author' }, [...inline(a.name), ...sup(a.marks)])
+      );
+    });
+    const blocks: HElement[] = [
+      h('div', { class: 'els-title' }, inline(f.title)),
+      h('div', { class: 'els-authors' }, authors),
+    ];
+    if (f.addresses.length)
+      blocks.push(
+        h(
+          'div',
+          { class: 'els-addresses' },
+          f.addresses.map((a) =>
+            h('p', {}, [
+              ...(a.mark ? [h('sup', {}, [a.mark])] : []),
+              ...inline(a.text),
+            ])
+          )
+        )
+      );
+    blocks.push(h('hr', { class: 'els-rule' }));
+    if (f.abstract)
+      blocks.push(
+        h('div', { class: 'els-abstract' }, [
+          h('p', { class: 'els-abstract-title' }, ['Abstract']),
+          // \noindent before the first paragraph.
+          ...this.renderBlocks(f.abstract, ctx, 'block'),
+        ])
+      );
+    if (f.keywords) {
+      const words: HChild[] = [];
+      f.keywords.forEach((k, i) => {
+        if (i) words.push(', ');
+        words.push(...inline(k));
+      });
+      // \textit{Keywords:\ } then a space: an italic and an upright one
+      // (a no-break space for the italic one, so the two don't collapse).
+      blocks.push(
+        h('p', { class: 'els-keywords' }, [
+          h('span', { class: 'it' }, ['Keywords:\u00a0']),
+          ' ',
+          ...words,
+        ])
+      );
+    }
+    blocks.push(h('hr', { class: 'els-rule' }));
+
+    // \printFirstPageNotes: \tnotes, \cornotes, e-mails, URLs, \fnotes.
+    const note = (mark: string, text: HChild[]) =>
+      h('p', {}, [h('sup', { class: 'footnote-mark' }, [mark]), ...text]);
+    const listed = (
+      label: string,
+      items: { address: string; author: Node[] }[]
+    ) => {
+      const out: HChild[] = [h('span', { class: 'it' }, [label])];
+      items.forEach((e, i) => {
+        if (i) out.push(', ');
+        out.push(
+          h('span', { class: 'tt' }, [e.address]),
+          ' (',
+          ...inline(e.author),
+          ')'
+        );
+      });
+      return h('p', { class: 'els-email' }, out);
+    };
+    const notes: HElement[] = [];
+    for (const n of f.notes)
+      if (n.kind !== 'fntext') notes.push(note(n.mark, inline(n.text)));
+    if (f.emails.length)
+      notes.push(
+        listed(
+          f.emails.length === 1 ? 'Email address: ' : 'Email addresses: ',
+          f.emails
+        )
+      );
+    if (f.urls.length) notes.push(listed('URL: ', f.urls));
+    for (const n of f.notes)
+      if (n.kind === 'fntext') notes.push(note(n.mark, inline(n.text)));
+    this.footnotes.push(...notes);
+    // \fntext numbers share the footnote counter (\setcounter{footnote}).
+    this.counters.footnote = f.notes.filter((n) => n.kind === 'fntext').length;
+    return h('header', { class: 'els-frontmatter' }, blocks);
   }
 
   /** \lstset and \lstdefinestyle in the preamble, in order. */

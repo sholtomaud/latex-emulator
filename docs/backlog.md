@@ -11,6 +11,13 @@ Nothing: step 10 (code: `listings`, ADR 0014; pseudocode, ADR 0016) is done.
 
 ## Next
 
+- **elsarticle phase B (ADR 0018):** `review` (1.5 line spacing); `1p` and
+  `3p` (elsarticle.cls's geometry values, two-sided); the class's list
+  spacing; `\newtheorem`/`\newproof`/`\newdefinition` (needs theorem
+  environments); `\footnotesize` captions; `highlights` and
+  `graphicalabstract`. Then `5p` (two columns). Each measured with a
+  fixture.
+
 - **Project folders and cloud drives (ADR 0015).** Each phase is its own
   PR. Phase A is done: the project folder (`src/workspace/project.ts`) as
   a zip download, and `npm run check:projects` compiling it with real
@@ -26,10 +33,20 @@ Nothing: step 10 (code: `listings`, ADR 0014; pseudocode, ADR 0016) is done.
   - Later: export a document other than the open one (from the explorer);
     automatic saving to the drive (off by default), versions in the
     drive.
-- Steps 11–13 of AGENTS §14 (elsarticle, the starter-document tour, the
-  language worker and the rest).
+- Steps 12–13 of AGENTS §14 (the starter-document tour, the language
+  worker and the rest).
 
 ## Deferred follow-ups (from ADRs and PRs)
+
+- Text rendering (ADR 0018): try `text-rendering: geometricPrecision` on
+  the whole document. On the elsarticle addresses it made the CI image
+  measure exactly what the host does; document-wide it may remove the
+  pixel-rounding gaps (centred table cells, the algorithm ▷) and let the
+  centred-line tolerance tighten. It changes every visual baseline.
+- Optical sizes: TeX picks the design by size (cmr10 for `\footnotesize`
+  and `\small` even in a 12pt document). Footnotes, the elsarticle
+  addresses and footer do; the general size classes still inherit the
+  document's design (LM Roman 12 in 12pt documents).
 
 - Test browser (ADR 0017): run the Playwright container as the image's
   non-root `pwuser` with a seccomp profile that lets Chromium's sandbox

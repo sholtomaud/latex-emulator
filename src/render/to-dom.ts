@@ -11,6 +11,7 @@ const ALLOWED_TAGS = new Set([
   'em',
   'u',
   'sup',
+  'hr',
   'br',
   'h2',
   'h3',

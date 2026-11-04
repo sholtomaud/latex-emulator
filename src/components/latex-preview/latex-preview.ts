@@ -8,6 +8,7 @@ import { renderDocument } from '../../render/render-document.ts';
 import { toDom } from '../../render/to-dom.ts';
 import {
   fontFaceCss,
+  firstPageFooterCss,
   geometryCss,
   preprintCss,
 } from '../../render/document-css.ts';
@@ -191,7 +192,11 @@ export class LatexPreviewComponent extends BaseComponent {
       lstLanguages: this.lstLanguages ?? {},
     });
     this.geometry = result.geometry;
-    const css = geometryCss(result.geometry);
+    const css =
+      geometryCss(result.geometry) +
+      (result.firstPageFooter
+        ? `\n${firstPageFooterCss(result.firstPageFooter, result.geometry)}`
+        : '');
     if (this.geometryStyle && this.geometryStyle.textContent !== css) {
       this.geometryStyle.textContent = css;
       queueMicrotask(() => this.fitToPane());

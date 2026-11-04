@@ -1,0 +1,96 @@
+\providecommand{\noopsort}[1]{}
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{odum_energy_1996}
+H.~T. Odum, Environmental Accounting: {Emergy} and Environmental Decision
+  Making, John Wiley \& Sons, New York, 1996.
+
+\bibitem{brown_emergy_2004}
+M.~T. Brown, S.~Ulgiati, Energy quality, emergy, and transformity: {H.T.}
+  {Odum}'s contributions to quantifying and understanding systems, Ecological
+  Modelling 178~(1--2) (2004) 201--213.
+\newblock \href {https://doi.org/10.1016/j.ecolmodel.2003.12.032}
+  {\path{doi:10.1016/j.ecolmodel.2003.12.032}}.
+
+\bibitem{hall_energy_2014}
+C.~A.~S. Hall, J.~G. Lambert, S.~B. Balogh,
+  \href{https://example.org/eroi}{{EROI} of different fuels and the
+  implications for society}, in: J.~Smith, J.~Doe (Eds.), Proceedings of the
+  Energy Policy Workshop, 2014, pp. 141--152.
+\newline\urlprefix\url{https://example.org/eroi}
+
+\bibitem{waals_continuity_1873}
+J.~D. van~der Waals, On the continuity of the gaseous and liquid states,
+  Doctoral Dissertation, " # "Leiden (1873) 7.
+
+\bibitem{fontaine_fables_1668}
+J.~de~la Fontaine, Fables Choisies, 1st Edition, Vol.~1 of Classiques, Claude
+  Barbin, Paris, 1668.
+
+\bibitem{king_letter_1963}
+M.~L. King, Jr., Letter from {Birmingham} jail, Pamphlet, widely reprinted
+  (Apr. 1963).
+
+\bibitem{who_report_2020}
+{World Health Organization}, Global report on energy and health, Technical
+  Report WHO/123, WHO, Geneva (2020).
+
+\bibitem{ozturk_thesis_2010}
+A.~{\"O}zt{\"u}rk, Emergy synthesis of {Turkish} agriculture, Ph.D. thesis,
+  University of Florida (2010).
+
+\bibitem{li_masters_2015}
+W.~Li, Short names in bibliographies, {MSc} thesis, MIT (2015).
+
+\bibitem{ng_chapter_2012}
+A.~Y. Ng, M.~I. Jordan, et~al., A chapter on learning, in: J.-P. Sartre (Ed.),
+  Advances in Learning, Springer, 2012, Ch.~3, pp. 1--20.
+
+\bibitem{aristotle_physics}
+Aristotle, Physics, manuscript (-350).
+
+\bibitem{r_manual_2023}
+R Core Team, Vienna, Austria, \href{https://www.R-project.org/}{R: A Language
+  and Environment for Statistical Computing} (2023).
+\newline\urlprefix\url{https://www.R-project.org/}
+
+\bibitem{anon_booklet_1999}
+An anonymous booklet, Distributed at the conference (1999).
+
+\bibitem{energy_proc_2014}
+J.~Smith, J.~Doe (Eds.), Proceedings of the Energy Policy Workshop, Energy
+  Press, 2014.
+
+\bibitem{crossref_paper_2014}
+J.~Doe, A paper inheriting its proceedings, in: Smith and Doe
+  \cite{energy_proc_2014}, pp. 5--9.
+
+\bibitem{tufte_inbook_1983}
+E.~R. Tufte, The Visual Display of Quantitative Information, Graphics Press,
+  1983, Ch.~2, pp. 13--52.
+
+\bibitem{odum_maximum_1955}
+H.~T. Odum, R.~C. Pinkerton, Time's speed regulator: the optimum efficiency for
+  maximum power output in physical and biological systems, American Scientist
+  43 (1955) 331--343.
+
+\bibitem{odum_maximum_1955b}
+H.~T. Odum, R.~C. Pinkerton, A second 1955 paper, American Scientist (1955).
+
+\bibitem{foreign_letters}
+{\AE}.~{\O}stergaard, {\l}ukasz {\'E}mile, X.~de~la {\ss}tra{\ss}e,
+  {\i}.~{\o}rsted, A.~{\oe}hman, {\AE}sop {\oe}uvre {\'e}cole {\ss} {\i}{\j}
+  {\l}{\l} {\o}{\o} {\aa}{\aa} {\"u}ber: {\'{E}}tude {\TeX} {\`a} la {\c c}a{\c
+  c}a (2001).
+
+\bibitem{von_cases}
+J.~{\'e}tienne {\v{S}}koda, C.~{de}~Gaulle, L.~v. Beethoven, J.~l.~R.
+  d'Alembert, B.~d.~M. Charles Louis~de Secondat, {\relax Ch}.~Dickens, Von
+  cases (1750).
+
+\end{thebibliography}
