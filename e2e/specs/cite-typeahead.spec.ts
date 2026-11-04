@@ -139,4 +139,49 @@ test.describe('citation typeahead', () => {
       'Added odum_systems_1983 from Zotero to references.bib.'
     );
   });
+  test('Zotero on this computer unreachable: one request, then paused with a reason', async ({
+    page,
+  }) => {
+    // From a website Chrome blocks localhost and Zotero drops browser
+    // requests (ADR 0009): fetch() fails. It used to fail on every prefix.
+    let requests = 0;
+    await page.route('http://localhost:23119/**', (route) => {
+      requests++;
+      return route.abort('failed');
+    });
+    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    const library = page.getByRole('region', { name: 'Bibliography' });
+    await library.getByText('Zotero', { exact: true }).click();
+    await library
+      .getByLabel('Suggest from Zotero while typing citations')
+      .check();
+
+    await typeAtEnd(page, '', '\\citep{odu');
+    await expect(library.getByRole('status')).toContainText(
+      'Zotero suggestions are paused: Zotero on this computer can’t be reached from this site'
+    );
+    await page.keyboard.type('m, cos');
+    // The library's own keys are still offered.
+    await page.keyboard.press('Backspace');
+    await page.keyboard.press('Backspace');
+    await page.keyboard.press('Backspace');
+    await page.keyboard.type('knu');
+    await expect(suggestions(page).first()).toContainText('knuth_texbook_1984');
+    expect(requests).toBe(1);
+
+    // Changing the setting tries again.
+    await library
+      .getByLabel('Suggest from Zotero while typing citations')
+      .uncheck();
+    await library
+      .getByLabel('Suggest from Zotero while typing citations')
+      .check();
+    // Back inside the braces (Monaco closed the one we typed).
+    await editorInput(page).focus();
+    await page.keyboard.press('ControlOrMeta+End');
+    await page.keyboard.press('ArrowLeft');
+    // A comma (a trigger character) starts the next key: ask again.
+    await page.keyboard.type(',sys');
+    await expect.poll(() => requests).toBe(2);
+  });
 });
