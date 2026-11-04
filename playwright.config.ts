@@ -39,20 +39,46 @@ function fallbackChromium(): string | undefined {
     .find((file) => fs.existsSync(file));
 }
 
-const executablePath = fallbackChromium();
-const chrome = {
-  ...devices['Desktop Chrome'],
-  launchOptions: executablePath ? { executablePath } : {},
-};
-
 const DEV_URL = 'http://localhost:5173';
 const PROD_URL = 'http://localhost:3000';
 const PAGES_PORT = 3001;
 // Set PAGES_URL (e.g. https://sholtomaud.github.io/latex-emulator/) to run the
 // pages suite against a live deployment instead of a local Pages build.
-const LIVE_PAGES_URL = process.env.PAGES_URL;
+// An empty PAGES_URL (e.g. passed through by the Docker wrapper) means unset.
+const LIVE_PAGES_URL = process.env.PAGES_URL || undefined;
 const PAGES_URL =
   LIVE_PAGES_URL ?? `http://localhost:${PAGES_PORT}/latex-emulator/`;
+
+/*
+ * Hardening the test browser (ADR 0017). Its Chromium can lag behind
+ * security fixes, so:
+ *  - Network guard: every request goes through a proxy that does not exist
+ *    (port 1 on loopback refuses connections), except localhost and the
+ *    live Pages host. A test can never load content from the internet;
+ *    page.route mocks (doi.org, Zotero) answer before the proxy.
+ *    Checked by e2e/specs/network-guard.spec.ts.
+ *  - Sandbox: Playwright turns Chromium's sandbox off by default. Turn it
+ *    on unless running as root (the CI and Docker containers run as root,
+ *    where Chromium's sandbox cannot start). PW_CHROMIUM_NO_SANDBOX=1 opts
+ *    out where the host forbids it (e.g. AppArmor blocking user namespaces).
+ */
+const allowedHosts = [
+  'localhost',
+  '127.0.0.1',
+  '[::1]',
+  ...(LIVE_PAGES_URL ? [new URL(LIVE_PAGES_URL).hostname] : []),
+];
+const runningAsRoot = process.getuid?.() === 0;
+const executablePath = fallbackChromium();
+const chrome = {
+  ...devices['Desktop Chrome'],
+  launchOptions: {
+    ...(executablePath ? { executablePath } : {}),
+    proxy: { server: 'http://127.0.0.1:1', bypass: allowedHosts.join(',') },
+    chromiumSandbox:
+      !runningAsRoot && process.env.PW_CHROMIUM_NO_SANDBOX !== '1',
+  },
+};
 
 export default defineConfig({
   fullyParallel: true,

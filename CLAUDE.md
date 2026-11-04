@@ -45,8 +45,9 @@ with AGENTS.md, AGENTS.md wins; fix the conflict in the same change.
 npm run dev                  # Vite dev server
 npm test                     # unit (fast inner TDD loop)
 npm run check                # typecheck + lint + coverage gate + build
-npm run e2e:smoke            # smoke suite
-npm run e2e                  # functional e2e (dev + prod)
+npm run e2e:smoke            # smoke suite (pinned Docker image)
+npm run e2e                  # functional e2e (dev + prod, pinned Docker image)
+npm run e2e:host             # the same on the host (also e2e:smoke:host, e2e:pages:host)
 npm run e2e:visual           # visual snapshots in the pinned Docker image
 npm run e2e:visual:update    # regenerate baselines (intended visual changes only)
 npm run e2e:pages            # GitHub Pages build under /latex-emulator/

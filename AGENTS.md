@@ -528,15 +528,22 @@ npm run lint                 # oxlint + prettier --check
 npm run audit                # no high/critical advisories in runtime deps
 npm run test:coverage        # unit tests + coverage gate
 npm run build                # vite build
-npm run e2e:smoke            # smoke
-npm run e2e                  # functional e2e, dev + prod
-npm run e2e:visual           # visual snapshots (Docker, pinned image)
-npm run e2e:pages            # Pages build served under /latex-emulator/
+npm run e2e:smoke            # smoke (Docker, pinned image)
+npm run e2e                  # functional e2e, dev + prod (Docker)
+npm run e2e:visual           # visual snapshots (Docker)
+npm run e2e:pages            # Pages build served under /latex-emulator/ (Docker)
 npm run check:projects       # project folders compile in pdflatex (needs TeX Live)
 # when crates/ exists:
 cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 npm run build:wasm           # wasm-bindgen → src/wasm/ (also regenerates ts-rs bindings)
 ```
+
+The e2e scripts run in the pinned Playwright container (`scripts/playwright-docker.sh`);
+`e2e:host`, `e2e:smoke:host` and `e2e:pages:host` run on the host for quick
+iteration. Either way the test browser cannot reach the internet: every
+request outside localhost (and the live Pages host) goes to a dead proxy,
+and Chromium's sandbox is on except as root (ADR 0017). Mock outside
+services with `page.route`; never let a test depend on the network.
 
 Where Chromium/Playwright browsers are preinstalled, do not reinstall them;
 `playwright.config.ts` falls back to the newest installed Chromium. Otherwise

@@ -42,9 +42,15 @@ npm test                 # unit tests
 npm run test:coverage    # unit tests + coverage gate
 npm run e2e:smoke        # smoke tests (production build)
 npm run e2e              # functional e2e (dev + production)
-npm run e2e:visual       # visual snapshots (needs Docker)
+npm run e2e:visual       # visual snapshots
 npm run e2e:pages        # GitHub Pages build under /latex-emulator/
 ```
+
+The Playwright suites run in the pinned Playwright Docker image, as CI does
+(ADR 0017). `npm run e2e:host`, `e2e:smoke:host` and `e2e:pages:host` run
+them on your machine instead. The test browser can only reach localhost, and
+its sandbox is on unless you run as root; set `PW_CHROMIUM_NO_SANDBOX=1` if
+your system refuses Chromium's sandbox ("No usable sandbox!").
 
 ## Contributing
 
