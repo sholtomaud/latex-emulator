@@ -31,6 +31,11 @@ Nothing: step 10 (code: `listings`, ADR 0014; pseudocode, ADR 0016) is done.
 
 ## Deferred follow-ups (from ADRs and PRs)
 
+- Test browser (ADR 0017): run the Playwright container as the image's
+  non-root `pwuser` with a seccomp profile that lets Chromium's sandbox
+  start; bump Playwright as soon as a release ships a Chromium with the
+  current security fixes (`@playwright/test` and `playwright` together).
+
 - Pseudocode (ADR 0016): `\listofalgorithms`; the package's numbering
   options (`section`, …); the older `algorithmic` package (`\STATE`);
   `\algdef`/`\algnewcommand`; `algorithm2e`; comments too wide for their
