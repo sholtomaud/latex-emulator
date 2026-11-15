@@ -2,6 +2,11 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert';
 import { createHash } from 'node:crypto';
 import {
+  labelMessage,
+  VERSION_LABELS,
+  labelSlug,
+  normalizeLabel,
+  stampHeading,
   versionSavedMessage,
   bumpVersion,
   compareVersions,
@@ -79,6 +84,55 @@ describe('versionSavedMessage', () => {
     assert.strictEqual(
       versionSavedMessage({ version: '0.2.0', created: false }, 'patch'),
       'No changes since 0.2.0, so there is nothing new to save as a patch. To mark the same text as a new release, choose Minor or Major.'
+    );
+  });
+});
+
+describe('version labels', () => {
+  test('the suggested labels follow a paper from draft to publication', () => {
+    assert.deepStrictEqual(VERSION_LABELS, [
+      'draft',
+      'preprint',
+      'submitted',
+      'under review',
+      'revised',
+      'accepted',
+      'published',
+    ]);
+  });
+
+  test('a label is trimmed, single-spaced and at most 40 characters; empty is none', () => {
+    assert.strictEqual(normalizeLabel('  under   review '), 'under review');
+    assert.strictEqual(normalizeLabel('   '), null);
+    assert.strictEqual(normalizeLabel('x'.repeat(50)), 'x'.repeat(40));
+  });
+
+  test('in a file name a label is lower-case letters, digits and hyphens', () => {
+    assert.strictEqual(labelSlug('Under Review'), 'under-review');
+    assert.strictEqual(
+      labelSlug('Submitted to J. Ecol. (2nd)'),
+      'submitted-to-j-ecol-2nd'
+    );
+    assert.strictEqual(labelSlug('Écrit à la main'), 'ecrit-a-la-main');
+    assert.strictEqual(labelSlug('?!'), '');
+  });
+
+  test('the stamp starts with the label, or "Preprint" without one', () => {
+    assert.strictEqual(stampHeading(undefined), 'Preprint');
+    assert.strictEqual(stampHeading('under review'), 'Under review');
+    assert.strictEqual(stampHeading('preprint'), 'Preprint');
+  });
+});
+
+describe('labelMessage', () => {
+  test('says what the status of a version now is', () => {
+    assert.strictEqual(
+      labelMessage('1.0.0', 'submitted'),
+      'Marked v1.0.0 as “submitted”.'
+    );
+    assert.strictEqual(
+      labelMessage('1.0.0', null),
+      'Removed the status of v1.0.0.'
     );
   });
 });

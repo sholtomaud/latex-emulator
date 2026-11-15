@@ -7,22 +7,15 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing. Done most recently: per-document `.bib` subsets (ADR 0020).
-Exports and folder saves write only the cited entries, and opening a
-folder merges its `.bib` into the library. Before that: saving to a folder
-(ADR 0015 phase B) and keeping documents safe in the browser (ADR 0019).
+Nothing. Done most recently: version status labels (ADR 0006). Before
+that: per-document `.bib` subsets (ADR 0020), saving to a folder (ADR 0015
+phase B) and keeping documents safe in the browser (ADR 0019).
 
 ## Next
 
 In this order (agreed November 2026):
 
-1. **Version status labels.** A label per version (draft, preprint,
-   submitted, under review, accepted, published, or your own), separate
-   from the version number: in semver, `1.0.0-submitted` sorts _before_
-   1.0.0. The label is shown as a chip ("v1.0.0 · submitted") and goes in
-   download names (`paper-v1.0.0-submitted.tex`) and the preprint stamp. It
-   can be changed later, so the same text can move from submitted to
-   published without a new version.
+1. ~~Version status labels~~ (done).
 2. **Activity bar (VS Code style).** A column of icons on the left, each
    opening its own view in place of the current one:
    - Explorer (the default): each document as a folder, laid out like its
@@ -90,6 +83,40 @@ In this order (agreed November 2026):
    kept; both are encrypted in local storage. Custom endpoints mean a wider
    `connect-src` (all HTTPS hosts), recorded in the ADR. It uses the Zotero
    plugin's tools.
+   - **Readiness checks ("traffic lights").** Each check shows green, amber
+     or red with details:
+     - spelling, and the lint rules (AGENTS §8, language worker);
+     - grammar;
+     - the conventions of the genre (academic, fiction…);
+     - flow;
+     - signs of generated text (unusually low perplexity, em-dash
+       density…).
+
+     Checks that need no model run locally: spelling, lint, em-dash and
+     sentence-length statistics. The rest are assistant checks. Findings
+     become Monaco markers with hover explanations, plus a comments pane.
+
+   - **Argument checking with Z3** (its own ADR). A button asks the
+     assistant to state each argument's premises and conclusion in formal
+     logic, linked to the sentences they come from. Z3 then checks it:
+     - **consistency:** are the premises satisfiable together;
+     - **validity:** premises with the conclusion negated is unsat;
+     - **unused premises:** the unsat core;
+     - **counterexamples:** the model, when the argument is invalid.
+
+     Results come back as markers with hovers on the sentences, and as
+     comments. Modal logic goes through the standard (Kripke) translation,
+     with the frame axioms for K, T, S4 and S5. Points to settle:
+     - `z3-solver` would be a second runtime dependency. AGENTS §2 needs a
+       justification for it, and it is a large WASM file loaded only on
+       demand, in a worker.
+     - Its threaded build needs cross-origin isolation (COOP/COEP headers),
+       which GitHub Pages can't send. Prefer a single-threaded build in a
+       worker over a header-injecting service worker.
+     - The weak link is the formalisation, not the solver. Show the
+       premises and conclusion beside their sentences for the author to
+       accept or correct before trusting "valid" or "invalid", and say
+       that a result concerns the formalisation.
 6. **OneDrive and Google Drive** (ADR 0015 phases C and D, below).
    Sign-in, then backup and sync of project folders. The owner must first
    create the Microsoft Entra ID and Google Cloud app registrations.

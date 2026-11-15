@@ -211,6 +211,7 @@ export async function readBackup(files: ZipFile[]): Promise<Result> {
       createdAt: num(v, 'createdAt'),
       sha256: sha(v, 'sha256'),
       source: str(v, 'source'),
+      ...(v.label === undefined ? {} : { label: str(v, 'label') }),
     }));
     const bibFiles: BibFile[] = list(m.bibFiles).map((b) => ({
       name: safe(b, 'name'),

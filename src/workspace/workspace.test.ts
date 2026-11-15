@@ -343,6 +343,47 @@ describe('Workspace versions', () => {
     assert.strictEqual(workspace.preprintOf('nope'), null);
   });
 
+  test('a version can be labelled, relabelled and unlabelled; the label is stored', async () => {
+    const { workspace, last, repo } = setup();
+    await workspace.init(SAMPLE);
+    const v = await workspace.saveVersion('major');
+    await workspace.setVersionLabel(v.id, '  submitted ');
+    assert.strictEqual(last().versions[0].label, 'submitted');
+    assert.strictEqual(
+      (await repo.listVersions('doc-1'))[0].label,
+      'submitted'
+    );
+    // The text and its hash don't change: same version, new status.
+    await workspace.setVersionLabel(v.id, 'published');
+    assert.strictEqual(last().versions[0].label, 'published');
+    assert.strictEqual(last().versions[0].sha256, v.sha256);
+    await workspace.setVersionLabel(v.id, '');
+    assert.strictEqual(last().versions[0].label, undefined);
+    assert.strictEqual((await repo.listVersions('doc-1'))[0].label, undefined);
+    // Unknown versions are ignored.
+    await workspace.setVersionLabel('nope', 'x');
+  });
+
+  test('a label goes in the download name, the preprint title and stamp', async () => {
+    const { workspace } = setup();
+    await workspace.init(SAMPLE);
+    const v = await workspace.saveVersion('major');
+    await workspace.setVersionLabel(v.id, 'Under Review');
+    assert.strictEqual(
+      workspace.exportVersion(v.id)!.fileName,
+      'a-short-example-v1.0.0-under-review.tex'
+    );
+    const p = workspace.preprintOf(v.id)!;
+    assert.strictEqual(p.title, 'a-short-example-v1.0.0-under-review');
+    assert.strictEqual(p.stamp.label, 'Under Review');
+    // "preprint" isn't said twice.
+    await workspace.setVersionLabel(v.id, 'preprint');
+    assert.strictEqual(
+      workspace.preprintOf(v.id)!.title,
+      'a-short-example-v1.0.0-preprint'
+    );
+  });
+
   test('deleting a document deletes its versions', async () => {
     const { workspace, repo } = setup();
     await workspace.init(SAMPLE);

@@ -12,7 +12,7 @@ import { readPref, writePref } from '../util/browser-prefs.ts';
 import { downloadText } from '../util/download.ts';
 import { requestPrint } from '../store/print-requests.ts';
 import type { Bump } from './versions.ts';
-import { versionSavedMessage } from './versions.ts';
+import { labelMessage, versionSavedMessage } from './versions.ts';
 import { BibLibrary } from './bib-library.ts';
 import { bibStore } from '../store/bib-store.ts';
 import { SAMPLE_REFERENCES } from '../store/sample-references.ts';
@@ -539,6 +539,18 @@ export const workspaceActions = {
       workspaceStore.setState({
         versionStatus: versionSavedMessage(saved, bump),
       });
+    }),
+  /** Label a version ("submitted"…); an empty label removes it. */
+  setVersionLabel: (versionId: string, label: string) =>
+    act(async (w) => {
+      await w.setVersionLabel(versionId, label);
+      const v = workspaceStore
+        .getState()
+        .versions.find((x) => x.id === versionId);
+      if (v)
+        workspaceStore.setState({
+          versionStatus: labelMessage(v.version, v.label ?? null),
+        });
     }),
   downloadVersion: (versionId: string) =>
     act((w) => {

@@ -3,7 +3,12 @@ import type {
   StoredDocument,
   VersionRecord,
 } from '../storage/types.ts';
-import { nextVersion, sha256Hex } from './versions.ts';
+import {
+  labelSlug,
+  nextVersion,
+  normalizeLabel,
+  sha256Hex,
+} from './versions.ts';
 import type { Bump } from './versions.ts';
 import { fileNameFor, nameFromFileName, uniqueName } from './names.ts';
 
@@ -34,6 +39,8 @@ export interface VersionMeta {
   version: string;
   createdAt: number;
   sha256: string;
+  /** A status such as "submitted" (ADR 0006). */
+  label?: string;
 }
 
 export interface SavedVersion extends VersionMeta {
@@ -47,6 +54,8 @@ export interface PreprintStamp {
   /** Version creation time (ms since epoch). */
   date: number;
   sha256: string;
+  /** The version's label, which heads the stamp instead of "Preprint". */
+  label?: string;
 }
 
 export interface Preprint {
@@ -201,7 +210,7 @@ export class Workspace {
     const doc = v && this.docs.get(v.documentId);
     if (!v || !doc) return null;
     return {
-      fileName: fileNameFor(doc.name).replace(/\.tex$/, `-v${v.version}.tex`),
+      fileName: `${versionStem(doc.name, v)}.tex`,
       text: v.source,
     };
   }
@@ -213,9 +222,28 @@ export class Workspace {
     if (!v || !doc) return null;
     return {
       source: v.source,
-      stamp: { version: v.version, date: v.createdAt, sha256: v.sha256 },
-      title: `${fileNameFor(doc.name, '')}-v${v.version}-preprint`,
+      stamp: {
+        version: v.version,
+        date: v.createdAt,
+        sha256: v.sha256,
+        ...(v.label ? { label: v.label } : {}),
+      },
+      // "-preprint" unless the label already says what this is.
+      title: v.label
+        ? versionStem(doc.name, v)
+        : `${versionStem(doc.name, v)}-preprint`,
     };
+  }
+
+  /** Label a version ("submitted"…), or with '' remove its label. */
+  async setVersionLabel(versionId: string, label: string): Promise<void> {
+    const i = this.versions.findIndex((v) => v.id === versionId);
+    if (i < 0) return;
+    const value = normalizeLabel(label);
+    await this.repo.setVersionLabel(versionId, value);
+    const { label: _old, ...rest } = this.versions[i];
+    this.versions[i] = value === null ? rest : { ...rest, label: value };
+    this.publish();
   }
 
   /** Any document as a downloadable .tex file. */
@@ -270,6 +298,18 @@ export class Workspace {
   }
 }
 
-function meta({ id, version, createdAt, sha256 }: VersionRecord): VersionMeta {
-  return { id, version, createdAt, sha256 };
+function meta({
+  id,
+  version,
+  createdAt,
+  sha256,
+  label,
+}: VersionRecord): VersionMeta {
+  return { id, version, createdAt, sha256, ...(label ? { label } : {}) };
+}
+
+/** "a-short-example-v1.0.0", plus "-submitted" for a labelled version. */
+function versionStem(name: string, v: VersionRecord): string {
+  const slug = v.label ? labelSlug(v.label) : '';
+  return `${fileNameFor(name, '')}-v${v.version}${slug ? `-${slug}` : ''}`;
 }

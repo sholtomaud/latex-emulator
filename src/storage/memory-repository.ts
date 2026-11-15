@@ -42,6 +42,12 @@ export class MemoryRepository implements DocumentRepository {
   async addVersion(version: VersionRecord): Promise<void> {
     this.versions.push({ ...version });
   }
+  async setVersionLabel(id: string, label: string | null): Promise<void> {
+    const i = this.versions.findIndex((v) => v.id === id);
+    if (i < 0) return;
+    const { label: _old, ...rest } = this.versions[i];
+    this.versions[i] = label === null ? rest : { ...rest, label };
+  }
 
   async deleteVersions(documentId: string): Promise<void> {
     this.versions = this.versions.filter((v) => v.documentId !== documentId);

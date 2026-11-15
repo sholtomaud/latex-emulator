@@ -55,6 +55,23 @@ describe('MemoryRepository', () => {
     assert.deepStrictEqual(await repo.listVersions('a'), []);
     assert.strictEqual((await repo.listVersions('b')).length, 1);
   });
+
+  test('a version’s label can be set and cleared', async () => {
+    const repo = new MemoryRepository();
+    await repo.addVersion({
+      id: '1',
+      documentId: 'a',
+      version: '1.0.0',
+      createdAt: 1,
+      sha256: 'x',
+      source: 's',
+    });
+    await repo.setVersionLabel('1', 'submitted');
+    assert.strictEqual((await repo.listVersions('a'))[0].label, 'submitted');
+    await repo.setVersionLabel('1', null);
+    assert.strictEqual('label' in (await repo.listVersions('a'))[0], false);
+    await repo.setVersionLabel('nope', 'x');
+  });
 });
 
 describe('MemoryRepository .bib files', () => {

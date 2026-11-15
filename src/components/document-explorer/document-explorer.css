@@ -432,3 +432,37 @@
 :host .version-status:empty {
   display: none;
 }
+
+:host .version-tag {
+  margin-top: 0.125rem;
+  align-self: flex-start;
+  width: 9rem;
+  max-width: 11rem;
+  /* Chromium: as wide as the text (others keep the width above). */
+  field-sizing: content;
+  min-width: 6rem;
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0 0.375rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--boba-text);
+}
+
+/* A set status reads as a chip; an empty one is a quiet placeholder. */
+:host .version-tag:not(:placeholder-shown) {
+  border-color: var(--boba-border);
+  background: var(--boba-bg);
+  font-weight: 600;
+}
+
+:host .version-tag::placeholder {
+  color: var(--boba-text-muted);
+}
+
+:host .version-tag:focus {
+  outline: 2px solid var(--boba-accent);
+  outline-offset: -1px;
+  border-color: transparent;
+}

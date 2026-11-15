@@ -58,3 +58,47 @@ export async function sha256Hex(text: string): Promise<string> {
 export function shortHash(sha256: string): string {
   return sha256.slice(0, 16);
 }
+
+/**
+ * Status labels a version can carry (ADR 0006), separate from its number:
+ * in semver `1.0.0-submitted` would sort before 1.0.0. These are offered;
+ * any other text is allowed.
+ */
+export const VERSION_LABELS = [
+  'draft',
+  'preprint',
+  'submitted',
+  'under review',
+  'revised',
+  'accepted',
+  'published',
+] as const;
+
+/** A label as stored: trimmed, single-spaced, at most 40 characters; null if empty. */
+export function normalizeLabel(label: string): string | null {
+  const s = label.trim().replace(/\s+/g, ' ').slice(0, 40).trim();
+  return s || null;
+}
+
+/** A label in a file name: "Under Review" → "under-review". */
+export function labelSlug(label: string): string {
+  return label
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** The first words of a preprint stamp: the label, capitalised, or "Preprint". */
+export function stampHeading(label: string | undefined): string {
+  const s = label ? normalizeLabel(label) : null;
+  return s ? s[0].toUpperCase() + s.slice(1) : 'Preprint';
+}
+
+/** What setting a version's status did, for the Versions panel. */
+export function labelMessage(version: string, label: string | null): string {
+  return label
+    ? `Marked v${version} as “${label}”.`
+    : `Removed the status of v${version}.`;
+}
