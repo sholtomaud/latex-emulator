@@ -73,6 +73,16 @@ export function scanCitations(body: Node[]): CitationScan {
   return scan;
 }
 
+/** The keys the document cites, \\nocite included ("*" kept), in order. */
+export function citedKeys(src: string): string[] {
+  const root = parse(src).root;
+  const doc = root.children.find(
+    (n): n is EnvironmentNode =>
+      n.kind === 'environment' && n.name === 'document'
+  );
+  return scanCitations(doc ? doc.children : root.children).keys;
+}
+
 /** The files (without .bib) the document's \\bibliography lists. */
 export function bibliographyFiles(src: string): string[] {
   const root = parse(src).root;

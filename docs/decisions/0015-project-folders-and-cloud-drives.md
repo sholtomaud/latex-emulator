@@ -46,7 +46,8 @@ a-short-example/
   `images/` subfolder would break that.
 - Only the `.bib` files the document's `\bibliography` lists are written.
   The `.bib` library is shared by all documents (ADR 0007), so each
-  project gets its own copy of those files.
+  project gets its own copy of those files, holding only the entries the
+  document cites (ADR 0020).
 - The `.bst` styles we ship are TeX Live's standard ones. pdflatex finds
   them itself, so they are not copied.
 - The folder and `.tex` names come from the document name, as `.tex`
@@ -132,10 +133,11 @@ Built as follows:
     `\graphicspath` and graphicx's extension order, at the same paths.
     The compiled PDF and unrelated files are ignored.
 
-  The document then saves back into that folder. A `.bib` file that the
-  library already has with different text is kept as the library's (the
-  library is shared, ADR 0007). It is not taken as the baseline, so the
-  next save asks before replacing the folder's copy.
+  The document then saves back into that folder. Its `.bib` files are
+  merged into the library (ADR 0020): entries the library lacks are added;
+  for a key in both the library's copy is kept and reported, and that file
+  is not taken as the baseline, so the next save asks before replacing the
+  folder's copy.
 
 - **Tests.** The e2e tests replace the picker with folders in the origin
   private file system. These are real `FileSystemDirectoryHandle`s, so

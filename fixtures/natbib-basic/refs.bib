@@ -26,3 +26,12 @@
   year      = {2014},
   url       = {https://example.org/eroi}
 }
+
+% Not cited by input.tex: the exported project's refs.bib leaves it out
+% (ADR 0020), and CI's pdflatex + bibtex check still has every citation.
+@book{uncited_2001,
+  author    = {Nobody, Anne},
+  title     = {A Book This Document Never Cites},
+  publisher = {Nowhere Press},
+  year      = {2001}
+}

@@ -50,6 +50,10 @@ test('Download project saves the .tex, its .bib file and its images as a zip', a
   expect(files.get('a-short-example/references.bib')!.toString()).toContain(
     'odum_environmental_1996'
   );
+  // Only what the document cites (ADR 0020): the rest of the library stays out.
+  expect(files.get('a-short-example/references.bib')!.toString()).not.toContain(
+    'knuth_texbook_1984'
+  );
   expect(
     files
       .get('a-short-example/plot.png')!

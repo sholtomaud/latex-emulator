@@ -1,11 +1,13 @@
-import { bibliographyFiles } from '../render/bibliography.ts';
+import { bibliographyFiles, citedKeys } from '../render/bibliography.ts';
+import { subsetBib } from '../references/bib-subset.ts';
 import { fileNameFor } from './names.ts';
 import type { ZipFile } from '../util/zip.ts';
 
 /**
  * A document as the folder pdflatex needs (ADR 0015): its .tex, the .bib
- * files its \bibliography lists, and its Images next to the .tex at the
- * names \includegraphics uses, which is where ADR 0013 resolves them. The
+ * files its \bibliography lists (only the entries it cites, ADR 0020), and
+ * its Images next to the .tex at the names \includegraphics uses, which is
+ * where ADR 0013 resolves them. The
  * folder compiles with pdflatex + bibtex as it is (checked in CI by
  * scripts/check-projects.sh). The shipped .bst styles are TeX Live's own,
  * so they are not copied. Pure: the zip download and, later, the folder
@@ -42,10 +44,16 @@ export function buildProject(input: ProjectInput): Project {
     { path: `${folder}/${folder}.tex`, bytes: encode(input.source) },
   ];
   const missingBibs: string[] = [];
+  // Each listed file holds just the entries this document cites (ADR 0020).
+  const cited = citedKeys(input.source);
   for (const name of new Set(bibliographyFiles(input.source))) {
     const source = input.bibFiles[name];
     if (source === undefined || !SAFE.test(name)) missingBibs.push(name);
-    else files.push({ path: `${folder}/${name}.bib`, bytes: encode(source) });
+    else
+      files.push({
+        path: `${folder}/${name}.bib`,
+        bytes: encode(subsetBib(source, cited)),
+      });
   }
   const images = [...input.images].sort((a, b) => a.name.localeCompare(b.name));
   for (const image of images)

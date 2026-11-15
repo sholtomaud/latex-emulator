@@ -73,6 +73,7 @@ const SOURCE = [
   '\\usepackage{graphicx}',
   '\\begin{document}',
   '\\includegraphics{plot}',
+  '\\citep{odum_environmental_1996}',
   '\\bibliography{references}',
   '\\end{document}',
 ].join('\n');
@@ -95,9 +96,10 @@ test('Save to folder writes the project folder, then only what changed', async (
   expect(
     await readDisk(page, 'Papers/a-short-example/a-short-example.tex')
   ).toBe(SOURCE);
-  expect(
-    await readDisk(page, 'Papers/a-short-example/references.bib')
-  ).toContain('@');
+  // Just the cited entry (ADR 0020).
+  const bib = await readDisk(page, 'Papers/a-short-example/references.bib');
+  expect(bib).toContain('odum_environmental_1996');
+  expect(bib).not.toContain('knuth_texbook_1984');
   expect(
     await readDisk(page, 'Papers/a-short-example/plot.png')
   ).not.toBeNull();
@@ -182,6 +184,7 @@ test('Open folder reads a project into a new document, with its images and .bib 
     '\\graphicspath{{figs/}}',
     '\\begin{document}',
     '\\includegraphics{plot}',
+    '\\cite{t}',
     '\\bibliography{thesis-refs}',
     '\\end{document}',
   ].join('\n');
@@ -259,4 +262,39 @@ test('in Brave without the flag, the panel says how to turn it on', async ({
     'Brave blocks saving to folders by default.'
   );
   await expect(panel(page)).toContainText('brave://flags');
+});
+
+test('Open folder merges the folder’s .bib into the library, keeping the library’s copy of a key in both', async ({
+  page,
+}) => {
+  await fakePicker(page, 'shared');
+  await openExplorer(page);
+  const bib = page.getByRole('region', { name: 'Bibliography' });
+  await expect(bib).toContainText('5 entries');
+  await writeDisk(
+    page,
+    'shared/paper.tex',
+    [
+      '\\begin{document}',
+      '\\citep{new_2024,hall_eroi_2014}',
+      '\\bibliography{references}',
+      '\\end{document}',
+    ].join('\n')
+  );
+  await writeDisk(
+    page,
+    'shared/references.bib',
+    [
+      '@misc{new_2024, author = {New, A.}, title = {Only In The Folder}, year = 2024}',
+      '@article{hall_eroi_2014, title = {Edited Elsewhere}, year = 2014}',
+    ].join('\n\n')
+  );
+  await panel(page).getByRole('button', { name: 'Open folder…' }).click();
+  await expect(panel(page)).toContainText(
+    'Added 1 entry to references.bib from the folder.'
+  );
+  await expect(panel(page)).toContainText(
+    'hall_eroi_2014 differs in the folder’s references.bib; your library’s copy was kept.'
+  );
+  await expect(bib).toContainText('6 entries');
 });

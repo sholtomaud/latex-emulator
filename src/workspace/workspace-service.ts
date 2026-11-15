@@ -46,6 +46,7 @@ import { folderStore } from '../store/folder-store.ts';
 import { directoryOf } from './fs-access.ts';
 import type { DirectoryHandle } from './fs-access.ts';
 import { readProject } from './folder-save.ts';
+import { mergeBib } from '../references/bib-subset.ts';
 import type { Project } from './project.ts';
 
 /**
@@ -388,26 +389,36 @@ export const folderActions = {
         await images.add(image.name, image.bytes as Uint8Array<ArrayBuffer>, {
           keepPath: true,
         });
-      // The library's .bib files are shared by every document (ADR 0007):
-      // a differing one is never replaced by opening a folder.
-      const kept: string[] = [];
+      // The library is the one store of entries (ADR 0020): the folder's
+      // .bib (a subset written for this document) adds what the library
+      // lacks; a key in both keeps the library's copy, and is reported.
+      const notes = [`Opened ${p.texPath} from ${handle.name}/.`];
       const saved = { ...p.saved };
       for (const bib of p.bibFiles) {
+        const file = `${bib.name}.bib`;
         const mine = bibStore.getState().sources[bib.name];
-        if (mine === undefined)
-          await library.importFile(`${bib.name}.bib`, bib.source);
-        else if (mine !== bib.source) {
-          kept.push(`${bib.name}.bib`);
+        if (mine === undefined) {
+          await library.importFile(file, bib.source);
+          continue;
+        }
+        const merge = mergeBib(mine, bib.source);
+        if (merge.added.length) {
+          await library.importFile(file, merge.text);
+          const n = merge.added.length;
+          notes.push(
+            `Added ${n} ${n === 1 ? 'entry' : 'entries'} to ${file} from the folder.`
+          );
+        }
+        if (merge.differing.length) {
+          const one = merge.differing.length === 1;
+          notes.push(
+            `${merge.differing.join(', ')} ${one ? 'differs' : 'differ'} in the folder’s ${file}; your library’s copy was kept.`
+          );
           // Not a baseline: saving asks before replacing the folder's copy.
-          delete saved[`${bib.name}.bib`];
+          delete saved[file];
         }
       }
       await folders.link(id, handle, { texPath: p.texPath, saved });
-      const notes = [`Opened ${p.texPath} from ${handle.name}/.`];
-      if (kept.length)
-        notes.push(
-          `Your library already has a different ${kept.join(', ')}; it was kept. Import the folder’s copy from Bibliography to replace it.`
-        );
       if (p.missing.length)
         notes.push(`Not in the folder: ${p.missing.join(', ')}.`);
       folders.say(notes.join(' '));
