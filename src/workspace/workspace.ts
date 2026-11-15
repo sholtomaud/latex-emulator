@@ -36,6 +36,11 @@ export interface VersionMeta {
   sha256: string;
 }
 
+export interface SavedVersion extends VersionMeta {
+  /** False when nothing new was saved (a patch of unchanged text). */
+  created: boolean;
+}
+
 /** What a preprint PDF is stamped with. */
 export interface PreprintStamp {
   version: string;
@@ -165,13 +170,17 @@ export class Workspace {
    * unchanged text as a patch returns the latest version instead of
    * duplicating it; minor/major always create a release.
    */
-  async saveVersion(bump: Bump = 'patch'): Promise<VersionMeta> {
+  /**
+   * Snapshot the open document. A patch of unchanged text saves nothing
+   * and returns the latest version with `created: false`.
+   */
+  async saveVersion(bump: Bump = 'patch'): Promise<SavedVersion> {
     const doc = this.activeId ? this.docs.get(this.activeId) : undefined;
     if (!doc) throw new Error('No open document');
     const sha256 = await sha256Hex(doc.source);
     const latest = this.versions[0];
     if (latest && latest.sha256 === sha256 && bump === 'patch')
-      return meta(latest);
+      return { ...meta(latest), created: false };
     const record: VersionRecord = {
       id: this.options.newId(),
       documentId: doc.id,
@@ -183,7 +192,7 @@ export class Workspace {
     await this.repo.addVersion(record);
     this.versions = [record, ...this.versions];
     this.publish();
-    return meta(record);
+    return { ...meta(record), created: true };
   }
 
   /** A version of the active document as `<name>-v<version>.tex`. */

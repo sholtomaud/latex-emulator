@@ -660,9 +660,9 @@ chosen branch.
    hover messages (ADR 0004).
 4. ✅ Documents: VS Code-style explorer (Ctrl/⌘+B), new/open/rename/delete,
    autosave to IndexedDB, `.tex` import and download (ADR 0005).
-5. ✅ Versions and preprints. Semantic-version snapshots (0.1.0 first; patch
-   by default, minor/major on request), a version history, version `.tex`
-   downloads, and Download Preprint with a footer stamp of version, date and
+5. ✅ Versions and preprints. Semantic-version snapshots (patch by
+   default, minor/major on request; the first follows the bump, 0.0.1 for
+   a patch), a version history, version `.tex` downloads, and Download Preprint with a footer stamp of version, date and
    SHA-256 of the exact `.tex` source (ADR 0006).
 6. Citations and bibliography. ✅ natbib (`\cite`, `\citep`, `\citet`,
    `\citeauthor`, `\citeyear`, `[pre][post]` notes), a `.bib` library in

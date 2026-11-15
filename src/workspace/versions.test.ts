@@ -2,7 +2,7 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert';
 import { createHash } from 'node:crypto';
 import {
-  FIRST_VERSION,
+  versionSavedMessage,
   bumpVersion,
   compareVersions,
   nextVersion,
@@ -29,9 +29,8 @@ describe('semantic versions', () => {
     assert.throws(() => bumpVersion('x', 'patch'));
   });
 
-  test('the first version is 0.1.0, or 1.0.0 for a major release', () => {
-    assert.strictEqual(FIRST_VERSION, '0.1.0');
-    assert.strictEqual(nextVersion(undefined, 'patch'), '0.1.0');
+  test('the first version follows the bump asked for, counting from 0.0.0', () => {
+    assert.strictEqual(nextVersion(undefined, 'patch'), '0.0.1');
     assert.strictEqual(nextVersion(undefined, 'minor'), '0.1.0');
     assert.strictEqual(nextVersion(undefined, 'major'), '1.0.0');
     assert.strictEqual(nextVersion('0.1.0', 'patch'), '0.1.1');
@@ -64,6 +63,22 @@ describe('SHA-256', () => {
     assert.strictEqual(
       shortHash('ba7816bf8f01cfea414140de5dae2223'),
       'ba7816bf8f01cfea'
+    );
+  });
+});
+
+describe('versionSavedMessage', () => {
+  test('a new version is named', () => {
+    assert.strictEqual(
+      versionSavedMessage({ version: '0.2.1', created: true }, 'patch'),
+      'Saved version 0.2.1.'
+    );
+  });
+
+  test('an unchanged patch says why nothing was saved, and what to do', () => {
+    assert.strictEqual(
+      versionSavedMessage({ version: '0.2.0', created: false }, 'patch'),
+      'No changes since 0.2.0, so there is nothing new to save as a patch. To mark the same text as a new release, choose Minor or Major.'
     );
   });
 });

@@ -262,27 +262,29 @@ describe('Workspace', () => {
 });
 
 describe('Workspace versions', () => {
-  test('the first saved version is 0.1.0 with the hash of the exact source', async () => {
+  test('the first saved patch is 0.0.1, with the hash of the exact source', async () => {
     const { workspace, last } = setup();
     await workspace.init(SAMPLE);
     const v = await workspace.saveVersion();
-    assert.strictEqual(v.version, '0.1.0');
+    assert.strictEqual(v.version, '0.0.1');
+    assert.strictEqual(v.created, true);
     assert.strictEqual(
       v.sha256,
       createHash('sha256').update(SAMPLE.source, 'utf8').digest('hex')
     );
     assert.deepStrictEqual(
       last().versions.map((x) => x.version),
-      ['0.1.0']
+      ['0.0.1']
     );
   });
 
-  test('saving unchanged text as a patch reuses the latest version', async () => {
+  test('saving unchanged text as a patch reuses the latest version, and says so', async () => {
     const { workspace, last } = setup();
     await workspace.init(SAMPLE);
     const a = await workspace.saveVersion();
     const b = await workspace.saveVersion('patch');
     assert.strictEqual(b.id, a.id);
+    assert.strictEqual(b.created, false);
     assert.strictEqual(last().versions.length, 1);
   });
 
@@ -297,14 +299,14 @@ describe('Workspace versions', () => {
     await workspace.saveVersion('major');
     assert.deepStrictEqual(
       last().versions.map((x) => x.version),
-      ['1.0.0', '0.2.0', '0.1.1', '0.1.0']
+      ['1.0.0', '0.1.0', '0.0.2', '0.0.1']
     );
   });
 
   test('versions belong to their document and load when it opens', async () => {
     const { workspace, last } = setup();
     await workspace.init(SAMPLE);
-    await workspace.saveVersion();
+    await workspace.saveVersion('minor');
     await workspace.create();
     assert.deepStrictEqual(last().versions, []);
     await workspace.open('doc-1');
@@ -317,7 +319,7 @@ describe('Workspace versions', () => {
   test('a version exports as a .tex file named with its version', async () => {
     const { workspace } = setup();
     await workspace.init(SAMPLE);
-    const v = await workspace.saveVersion();
+    const v = await workspace.saveVersion('minor');
     await workspace.save('later edit');
     assert.deepStrictEqual(workspace.exportVersion(v.id), {
       fileName: 'a-short-example-v0.1.0.tex',
@@ -329,7 +331,7 @@ describe('Workspace versions', () => {
   test('a preprint of a version carries its source, stamp and file title', async () => {
     const { workspace } = setup();
     await workspace.init(SAMPLE);
-    const v = await workspace.saveVersion();
+    const v = await workspace.saveVersion('minor');
     const p = workspace.preprintOf(v.id)!;
     assert.strictEqual(p.source, SAMPLE.source);
     assert.strictEqual(p.title, 'a-short-example-v0.1.0-preprint');

@@ -12,6 +12,7 @@ import { readPref, writePref } from '../util/browser-prefs.ts';
 import { downloadText } from '../util/download.ts';
 import { requestPrint } from '../store/print-requests.ts';
 import type { Bump } from './versions.ts';
+import { versionSavedMessage } from './versions.ts';
 import { BibLibrary } from './bib-library.ts';
 import { bibStore } from '../store/bib-store.ts';
 import { SAMPLE_REFERENCES } from '../store/sample-references.ts';
@@ -111,7 +112,12 @@ export async function startWorkspace(): Promise<void> {
     },
     publish: (state) => {
       const switched = state.activeId !== workspaceStore.getState().activeId;
-      workspaceStore.setState({ ...state, ready: true });
+      workspaceStore.setState({
+        ...state,
+        ready: true,
+        // A message about another document's versions would mislead.
+        ...(switched ? { versionStatus: '' } : {}),
+      });
       if (switched) documentStore.setState({ source: state.activeSource });
     },
   });
@@ -517,7 +523,12 @@ export const workspaceActions = {
       );
     }),
   saveVersion: (bump: Bump = 'patch') =>
-    act((w) => w.saveVersion(bump).then(() => {})),
+    act(async (w) => {
+      const saved = await w.saveVersion(bump);
+      workspaceStore.setState({
+        versionStatus: versionSavedMessage(saved, bump),
+      });
+    }),
   downloadVersion: (versionId: string) =>
     act((w) => {
       const file = w.exportVersion(versionId);
@@ -529,7 +540,12 @@ export const workspaceActions = {
    */
   preprint: (versionId?: string) =>
     act(async (w) => {
-      const id = versionId ?? (await w.saveVersion('patch')).id;
+      // The first version of a document a preprint is made from is a minor
+      // release (0.1.0), not a patch; later ones are patches.
+      const bump = workspaceStore.getState().versions.length
+        ? 'patch'
+        : 'minor';
+      const id = versionId ?? (await w.saveVersion(bump)).id;
       const p = w.preprintOf(id);
       if (p) requestPrint({ source: p.source, title: p.title, stamp: p.stamp });
     }),
