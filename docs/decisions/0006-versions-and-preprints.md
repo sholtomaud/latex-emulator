@@ -45,6 +45,22 @@ markup inside the document.
   `Preprint · v0.1.0 · October 31, 2026   1   SHA-256 8f042c51e87fa114`, and
   `sha256sum` of the fixture source starts `8f042c51e87fa114`.
 
+- **Status labels** (added November 2026). A version can carry one label,
+  such as draft, preprint, submitted, under review, revised, accepted or
+  published (suggested in a list), or any other text up to 40 characters.
+  - It is **not part of the version number.** In semver, `1.0.0-submitted`
+    is a pre-release that sorts _before_ 1.0.0, and `-published` would
+    rank a published version below the plain one.
+  - It is set on the version itself, in the Versions panel, and can change
+    later. The same text can go from submitted to published without a new
+    version; the text and its SHA-256 don't change.
+  - Downloads are named `<name>-v1.0.0-submitted.tex`. The preprint stamp
+    starts with the label instead of "Preprint" ("Submitted · v1.0.0 ·
+    date"). The print title drops the `-preprint` suffix when there is a
+    label.
+  - It is stored as an optional `label` on the version record, so
+    IndexedDB needs no new version. Backups carry it (ADR 0019).
+
 ## Consequences
 
 - The PDF shows a 64-bit prefix of the hash, like a git short hash. The full

@@ -665,7 +665,9 @@ chosen branch.
    autosave to IndexedDB, `.tex` import and download (ADR 0005).
 5. ✅ Versions and preprints. Semantic-version snapshots (patch by
    default, minor/major on request; the first follows the bump, 0.0.1 for
-   a patch), a version history, version `.tex` downloads, and Download Preprint with a footer stamp of version, date and
+   a patch), status labels (submitted, published…) kept apart from the
+   number, a version history, version `.tex` downloads, and Download
+   Preprint with a footer stamp of label or "Preprint", version, date and
    SHA-256 of the exact `.tex` source (ADR 0006).
 6. Citations and bibliography. ✅ natbib (`\cite`, `\citep`, `\citet`,
    `\citeauthor`, `\citeyear`, `[pre][post]` notes), a `.bib` library in

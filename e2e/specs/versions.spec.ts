@@ -179,4 +179,61 @@ test.describe('versions and preprints', () => {
       'v0.1.1'
     );
   });
+
+  test('a version gets a status that shows in the list, its download and its preprint', async ({
+    page,
+  }) => {
+    await openExplorer(page);
+    await versions(page)
+      .getByRole('combobox', { name: 'Version bump' })
+      .selectOption('major');
+    await versions(page).getByRole('button', { name: 'Save version' }).click();
+    const status = versions(page).getByRole('combobox', {
+      name: 'Status of v1.0.0',
+    });
+    await status.fill('submitted');
+    await status.press('Enter');
+    await expect(versions(page).getByRole('status')).toHaveText(
+      'Marked v1.0.0 as “submitted”.'
+    );
+
+    // It is stored: still there after a reload.
+    await page.reload();
+    await openExplorer(page);
+    await expect(
+      versions(page).getByRole('combobox', { name: 'Status of v1.0.0' })
+    ).toHaveValue('submitted');
+
+    const downloadPromise = page.waitForEvent('download');
+    await versions(page)
+      .getByRole('button', { name: 'Download v1.0.0 .tex' })
+      .click();
+    expect((await downloadPromise).suggestedFilename()).toBe(
+      'a-short-example-v1.0.0-submitted.tex'
+    );
+
+    await recordPrints(page);
+    await versions(page)
+      .getByRole('button', { name: 'Preprint v1.0.0' })
+      .click();
+    await expect.poll(() => prints(page)).toHaveLength(1);
+    const [p] = await prints(page);
+    expect(p.title).toBe('a-short-example-v1.0.0-submitted');
+    expect(p.stamp).toContain('Submitted · v1.0.0 · ');
+
+    // Clearing it removes it.
+    const again = versions(page).getByRole('combobox', {
+      name: 'Status of v1.0.0',
+    });
+    await again.fill('');
+    await again.press('Enter');
+    await expect(versions(page).getByRole('status')).toHaveText(
+      'Removed the status of v1.0.0.'
+    );
+    await page.reload();
+    await openExplorer(page);
+    await expect(
+      versions(page).getByRole('combobox', { name: 'Status of v1.0.0' })
+    ).toHaveValue('');
+  });
 });

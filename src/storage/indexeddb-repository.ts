@@ -109,6 +109,14 @@ export class IndexedDbRepository implements DocumentRepository {
     await request(this.store('readwrite', VERSIONS).add(version));
   }
 
+  async setVersionLabel(id: string, label: string | null): Promise<void> {
+    const store = this.store('readwrite', VERSIONS);
+    const v = (await request(store.get(id))) as VersionRecord | undefined;
+    if (!v) return;
+    const { label: _old, ...rest } = v;
+    await request(store.put(label === null ? rest : { ...rest, label }));
+  }
+
   async deleteVersions(documentId: string): Promise<void> {
     const store = this.store('readwrite', VERSIONS);
     const keys = await request(

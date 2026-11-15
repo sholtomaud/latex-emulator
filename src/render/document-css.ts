@@ -1,6 +1,7 @@
 import type { ArticleGeometry, SizeName } from '../latex/classes/article.ts';
 import { toBp } from '../latex/classes/article.ts';
 import { formatToday } from './typeset-text.ts';
+import { stampHeading } from '../workspace/versions.ts';
 
 /**
  * Latin Modern's typographic ascent/descent (OS/2 sTypo, 806/194 per 1000).
@@ -262,6 +263,8 @@ export interface PreprintStampInput {
   /** ms since the epoch */
   date: number;
   sha256: string;
+  /** Heads the stamp instead of "Preprint" (e.g. "Submitted"). */
+  label?: string;
 }
 
 /** A CSS string literal; quotes, backslashes and newlines escaped. */
@@ -288,7 +291,7 @@ export function preprintCss(
     font-size: ${pt(fontSize)};
     line-height: ${pt(baselineskip)};
     white-space: nowrap;`;
-  const left = `Preprint · v${stamp.version} · ${formatToday(new Date(stamp.date))}`;
+  const left = `${stampHeading(stamp.label)} · v${stamp.version} · ${formatToday(new Date(stamp.date))}`;
   const right = `SHA-256 ${stamp.sha256.slice(0, 16)}`;
   return `@page {
   @bottom-left {${box(left, 'var(--rm-family), serif')}

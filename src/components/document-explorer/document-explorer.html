@@ -61,6 +61,7 @@
     </p>
     <p class="version-status" role="status"></p>
     <ul class="version-list"></ul>
+    <datalist id="version-status-options"></datalist>
   </section>
   <template class="version-item-template">
     <li class="version-item">
@@ -69,6 +70,15 @@
         <span class="version-meta"
           ><time></time> · <code class="version-hash"></code
         ></span>
+        <input
+          class="version-tag"
+          type="text"
+          list="version-status-options"
+          maxlength="40"
+          placeholder="Add a status…"
+          autocomplete="off"
+          spellcheck="false"
+        />
       </span>
       <span class="version-actions">
         <button type="button" class="icon-button version-download">

@@ -137,6 +137,13 @@ describe('preprintCss', () => {
     );
   });
 
+  test('a labelled version is stamped with its label', () => {
+    assert.match(
+      preprintCss({ ...stamp, label: 'under review' }, g11),
+      /content: "Under review · v0\.1\.1 · October 31, 2026"/
+    );
+  });
+
   test('sits on the same baseline as the page number', () => {
     const page = geometryCss(g11).match(
       /@bottom-center \{[^}]*padding-top: ([\d.]+)pt/

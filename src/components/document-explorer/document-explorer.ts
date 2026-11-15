@@ -4,7 +4,7 @@ import type { WorkspaceStoreState } from '../../store/workspace-store.ts';
 import { workspaceActions } from '../../workspace/workspace-service.ts';
 import type { DocumentMeta, VersionMeta } from '../../workspace/workspace.ts';
 import type { Bump } from '../../workspace/versions.ts';
-import { shortHash } from '../../workspace/versions.ts';
+import { VERSION_LABELS, shortHash } from '../../workspace/versions.ts';
 import { bibStore } from '../../store/bib-store.ts';
 import type { BibStoreState } from '../../store/bib-store.ts';
 import type { BibFileMeta } from '../../workspace/bib-library.ts';
@@ -41,6 +41,14 @@ export class DocumentExplorerComponent extends BaseComponent {
     this.versionTemplate = this.querySelector('.version-item-template')!;
     this.versionsEmpty = this.querySelector('.versions-empty')!;
     const bump = this.querySelector<HTMLSelectElement>('.version-bump')!;
+    // Suggested statuses; any other text is allowed (ADR 0006).
+    this.querySelector('#version-status-options')!.replaceChildren(
+      ...VERSION_LABELS.map((label) => {
+        const option = document.createElement('option');
+        option.value = label;
+        return option;
+      })
+    );
     this.querySelector('.save-version')!.addEventListener('click', () =>
       workspaceActions.saveVersion(bump.value as Bump)
     );
@@ -109,9 +117,12 @@ export class DocumentExplorerComponent extends BaseComponent {
       this.renderItem(doc, doc.id === activeId)
     );
     this.list.replaceChildren(...items);
-    this.versionList.replaceChildren(
-      ...versions.map((v) => this.renderVersion(v))
-    );
+    // Don't rebuild the list under a status being typed (autosave publishes).
+    const typing = this.versionList.contains(document.activeElement);
+    if (!typing)
+      this.versionList.replaceChildren(
+        ...versions.map((v) => this.renderVersion(v))
+      );
     this.versionsEmpty.hidden = versions.length > 0;
   }
 
@@ -254,6 +265,21 @@ export class DocumentExplorerComponent extends BaseComponent {
       timeStyle: 'short',
     });
     li.querySelector('.version-hash')!.textContent = shortHash(v.sha256);
+    const status = li.querySelector<HTMLInputElement>('.version-tag')!;
+    status.value = v.label ?? '';
+    status.setAttribute('aria-label', `Status of v${v.version}`);
+    status.title =
+      'A status such as submitted or published: shown here, in download names and on the preprint stamp';
+    status.addEventListener('change', () => {
+      status.blur();
+      void workspaceActions.setVersionLabel(v.id, status.value);
+    });
+    status.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        status.value = v.label ?? '';
+        status.blur();
+      }
+    });
     const download = li.querySelector<HTMLButtonElement>('.version-download')!;
     download.setAttribute('aria-label', `Download v${v.version} .tex`);
     download.title = 'Download this version as .tex';

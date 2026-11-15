@@ -178,6 +178,25 @@ describe('readBackup', () => {
     }
   });
 
+  test('a version’s label survives a backup; a malformed one is refused', async () => {
+    const s = snapshot();
+    s.versions[0].label = 'submitted';
+    const r = await readBackup(backupFiles(s, CREATED));
+    assert.ok(r.ok);
+    assert.strictEqual(r.backup.versions[0].label, 'submitted');
+    const files = backupFiles(s, CREATED);
+    const m = json(files);
+    m.versions[0].label = 7;
+    const bad = await readBackup([
+      {
+        path: 'workspace.json',
+        bytes: new TextEncoder().encode(JSON.stringify(m)),
+      },
+      ...files.slice(1),
+    ]);
+    assert.strictEqual(bad.ok, false);
+  });
+
   test('refuses a version whose hash does not match its source', async () => {
     const s = snapshot();
     s.versions[0].source = 'changed';

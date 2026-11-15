@@ -20,6 +20,8 @@ export interface VersionRecord {
   /** SHA-256 of the UTF-8 source, lower-case hex. */
   sha256: string;
   source: string;
+  /** A status such as "submitted" (ADR 0006); absent when there is none. */
+  label?: string;
 }
 
 /** A .bib file in the references library, named as \bibliography{name} reads it. */
@@ -57,6 +59,8 @@ export interface DocumentRepository {
   /** A document's versions, newest first. */
   listVersions(documentId: string): Promise<VersionRecord[]>;
   addVersion(version: VersionRecord): Promise<void>;
+  /** Set (or with null, remove) a version's label. Unknown ids are ignored. */
+  setVersionLabel(id: string, label: string | null): Promise<void>;
   deleteVersions(documentId: string): Promise<void>;
   listBibFiles(): Promise<BibFile[]>;
   /** Adds or replaces the file with this name. */
