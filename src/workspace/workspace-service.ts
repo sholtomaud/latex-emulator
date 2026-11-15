@@ -38,6 +38,14 @@ import {
   restoreSummary,
 } from './backup.ts';
 import type { WorkspaceSnapshot } from './backup.ts';
+import { FolderSync, MemoryFolderLinks } from './folder-sync.ts';
+import type { FolderLinkStore } from './folder-sync.ts';
+import { IndexedDbFolderLinks } from '../storage/folder-links.ts';
+import { folderStore } from '../store/folder-store.ts';
+import { directoryOf } from './fs-access.ts';
+import type { DirectoryHandle } from './fs-access.ts';
+import { readProject } from './folder-save.ts';
+import type { Project } from './project.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -49,6 +57,8 @@ let workspace: Workspace | null = null;
 let library: BibLibrary | null = null;
 let images: ImageLibrary | null = null;
 let repository: DocumentRepository | null = null;
+let folders: FolderSync | null = null;
+let folderLinks: FolderLinkStore | null = null;
 /** Persistent storage is asked for once a session, after the first save. */
 let persistAsked = false;
 /** The Zotero web API key: this session only, never stored (like budget-app's ADR 0020). */
@@ -137,6 +147,8 @@ export async function startWorkspace(): Promise<void> {
   openImages();
   workspaceStore.addEventListener('change', openImages);
 
+  await startFolders();
+
   const saveLater = debounce(() => void flush(), AUTOSAVE_MS);
   documentStore.addEventListener('change', ((_e: CustomEvent<DocumentState>) =>
     saveLater()) as EventListener);
@@ -168,6 +180,7 @@ async function flush(): Promise<void> {
   if (uiStore.getState().notice === SAVE_FAILED)
     uiStore.setState({ notice: '' });
   refreshStorageLater();
+  if (folders?.wantsAutoSave()) saveToFolderLater();
   if (!persistAsked) {
     persistAsked = true;
     void requestPersistence();
@@ -278,6 +291,123 @@ async function storageTask(fn: (repo: DocumentRepository) => Promise<string>) {
   await refreshStorage();
 }
 
+/**
+ * The open document as a pdflatex project folder (ADR 0015). A
+ * \bibliography file missing from the library is left out; the editor
+ * already flags it (ref/missing-bib-file).
+ */
+async function openProject(): Promise<Project | null> {
+  const { activeId: id, documents } = workspaceStore.getState();
+  const doc = documents.find((d) => d.id === id);
+  if (!id || !doc || !images) return null;
+  return buildProject({
+    name: doc.name,
+    source: documentStore.getState().source,
+    bibFiles: bibStore.getState().sources,
+    images: await images.filesOf(id),
+  });
+}
+
+type PickerWindow = {
+  showDirectoryPicker?: (options: {
+    id?: string;
+    mode: 'readwrite';
+  }) => Promise<DirectoryHandle>;
+};
+
+/** The browser's folder picker; null when cancelled. */
+async function pickFolder(): Promise<DirectoryHandle | null> {
+  const picker = (window as unknown as PickerWindow).showDirectoryPicker;
+  if (!picker) return null;
+  try {
+    return await picker({ id: 'latex-projects', mode: 'readwrite' });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') return null;
+    throw e;
+  }
+}
+
+/** Folders on this computer (ADR 0015 phase B), where the browser has the API. */
+async function startFolders(): Promise<void> {
+  try {
+    folderLinks = await IndexedDbFolderLinks.open();
+  } catch {
+    folderLinks = new MemoryFolderLinks();
+  }
+  folders = new FolderSync(folderLinks, {
+    supported:
+      typeof (window as unknown as PickerWindow).showDirectoryPicker ===
+      'function',
+    pick: pickFolder,
+    now: () => Date.now(),
+    publish: (state) => folderStore.setState({ ...state }),
+  });
+  const follow = () => {
+    const id = workspaceStore.getState().activeId;
+    if (id && id !== folderStore.getState().documentId) void folders?.open(id);
+  };
+  follow();
+  workspaceStore.addEventListener('change', follow);
+}
+
+const saveToFolderLater = debounce(async () => {
+  if (!folders?.wantsAutoSave()) return;
+  const project = await openProject();
+  if (project) await folders.autoSave(project);
+}, 1500);
+
+export const folderActions = {
+  /** Save the open document's project to its folder (picking one the first time). */
+  save: (overwrite = false) =>
+    act(async () => {
+      const project = await openProject();
+      if (project) await folders?.save(project, { overwrite });
+    }),
+  cancel: () => folders?.cancel(),
+  setAuto: (on: boolean) => folders?.setAuto(on),
+  unlink: () => folders?.unlink(),
+  /** Open a project folder as a new document, and save back into it. */
+  open: () =>
+    act(async (w) => {
+      if (!folders || !images || !library) return;
+      const handle = await pickFolder().catch(() => null);
+      if (!handle) return;
+      const read = await readProject(directoryOf(handle));
+      if (!read.ok) return folders.say(read.message);
+      const p = read.project;
+      await w.importFile(p.texPath, p.source);
+      const id = workspaceStore.getState().activeId!;
+      await images.open(id);
+      for (const image of p.images)
+        await images.add(image.name, image.bytes as Uint8Array<ArrayBuffer>, {
+          keepPath: true,
+        });
+      // The library's .bib files are shared by every document (ADR 0007):
+      // a differing one is never replaced by opening a folder.
+      const kept: string[] = [];
+      const saved = { ...p.saved };
+      for (const bib of p.bibFiles) {
+        const mine = bibStore.getState().sources[bib.name];
+        if (mine === undefined)
+          await library.importFile(`${bib.name}.bib`, bib.source);
+        else if (mine !== bib.source) {
+          kept.push(`${bib.name}.bib`);
+          // Not a baseline: saving asks before replacing the folder's copy.
+          delete saved[`${bib.name}.bib`];
+        }
+      }
+      await folders.link(id, handle, { texPath: p.texPath, saved });
+      const notes = [`Opened ${p.texPath} from ${handle.name}/.`];
+      if (kept.length)
+        notes.push(
+          `Your library already has a different ${kept.join(', ')}; it was kept. Import the folder’s copy from Bibliography to replace it.`
+        );
+      if (p.missing.length)
+        notes.push(`Not in the folder: ${p.missing.join(', ')}.`);
+      folders.say(notes.join(' '));
+    }),
+};
+
 export const storageActions = {
   /** The whole workspace as one zip (ADR 0019). */
   backup: () =>
@@ -362,6 +492,7 @@ export const workspaceActions = {
     act(async (w) => {
       await w.delete(id);
       await images?.deleteDocument(id);
+      await folderLinks?.delete(id).catch(() => {});
     }),
   importFile: (file: File) =>
     act(async (w) => w.importFile(file.name, await file.text())),
@@ -377,15 +508,8 @@ export const workspaceActions = {
    */
   downloadProject: () =>
     act(async () => {
-      const { activeId: id, documents } = workspaceStore.getState();
-      const doc = documents.find((d) => d.id === id);
-      if (!id || !doc || !images) return;
-      const project = buildProject({
-        name: doc.name,
-        source: documentStore.getState().source,
-        bibFiles: bibStore.getState().sources,
-        images: await images.filesOf(id),
-      });
+      const project = await openProject();
+      if (!project) return;
       const bytes = await zip(project.files, new Date());
       downloadBlob(
         project.fileName,

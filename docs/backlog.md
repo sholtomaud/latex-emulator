@@ -7,23 +7,45 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing. Done most recently: keeping documents safe in the browser (ADR 0019):
-persistent storage, the storage status, workspace backup and restore, and
-the stale-tab and failed-save fixes.
+Nothing. Done most recently: saving to a folder on this computer (ADR 0015
+phase B): save, open, save as you type, conflicts never overwritten
+silently. Before that, keeping documents safe in the browser (ADR 0019).
 
 ## Next
 
 In this order (agreed after documents were lost on the Pages site):
 
-1. **Save to a folder** (ADR 0015 phase B, below).
-2. **OneDrive and Google Drive** (phases C and D, below): sign-in, then
-   backup and sync of documents and project zips.
-3. **Zotero MCP bridge**, with its own ADR. A local MCP server (streamable
-   HTTP, CORS only for our origin, `Origin` check plus a paired token)
-   that talks to Zotero, which refuses web pages but not local programs
-   (ADR 0009). Our own small JSON-RPC client, not the SDK, and
-   `connect-src` for its address.
-4. **Editorial assistant panel**, with its own ADR. It changes AGENTS §9:
+1. **OneDrive and Google Drive** (ADR 0015 phases C and D, below):
+   sign-in, then backup and sync of documents and project zips.
+2. **Zotero MCP bridge**, with its own ADR. Design notes so far:
+   - **Writes need code inside Zotero.** Zotero's local API (port 23119)
+     is read-only and refuses web pages (ADR 0009). Writes go through the
+     web API (with a key, then sync) or code running inside Zotero.
+     Writing `zotero.sqlite` while Zotero runs risks corrupting it: never.
+   - **Proposal: a Zotero 7 plugin** (an `.xpi` installed from Zotero's
+     Add-ons) that serves MCP over streamable HTTP on localhost.
+     - It needs no Python or Node install.
+     - It has Zotero's own API: items, notes, collections, related-item
+       relations, tags, annotations and the full-text index.
+     - It serves CORS only for our origin, checks `Origin`, and requires
+       a token paired once with the app.
+
+     Check the existing Zotero MCP servers first: extend one if it can
+     write, otherwise build our own.
+
+   - **Tools:**
+     - search and read items, with Better BibTeX keys;
+     - store a document version as a `preprint` item with its `.tex` and
+       SHA-256 attached. The PDF comes from the browser's print dialog, so
+       the app cannot attach it itself.
+     - Zettelkasten: create a permanent note (standalone note in a
+       Zettelkasten collection, Luhmann ID plus a declarative title);
+       link and unlink notes (Related), tag, list by ID prefix, follow
+       links, and build literature notes from annotations.
+   - **The app's side:** our own small JSON-RPC client (not the SDK), and
+     `connect-src` for the plugin's address. The assistant (3) calls the
+     same tools.
+3. **Editorial assistant panel**, with its own ADR. It changes AGENTS §9:
    document content goes to a model only on an explicit, per-message
    action, with the provider named. Two API shapes: Anthropic Messages, and
    OpenAI-compatible chat (OpenRouter, DeepSeek, Qwen, Gemini's compatible
@@ -31,6 +53,15 @@ In this order (agreed after documents were lost on the Pages site):
    or, on opt-in, kept; both are encrypted in local storage. Custom
    endpoints mean a wider `connect-src` (all HTTPS hosts), recorded in the
    ADR. It uses the Zotero MCP tools for research.
+4. **Back-filling zettels with a local model** (llama.cpp), a resumable
+   job over the Zotero library:
+   - **Per item:** the metadata, abstract, annotations and child notes,
+     within a context budget sized for a model that fits in 32 GB RAM.
+     Full text only through map-reduce over chunks, when needed.
+   - **Output:** draft zettels tagged for review (e.g. `zk/draft`,
+     `zk/llm`), never silently made permanent.
+   - **Running it:** idempotent (processed items are marked), checkpointed,
+     rate-limited, with a dry run first.
 
 - **elsarticle phase B (ADR 0018):** `review` (1.5 line spacing); `1p` and
   `3p` (elsarticle.cls's geometry values, two-sided); the class's list
@@ -40,12 +71,8 @@ In this order (agreed after documents were lost on the Pages site):
   fixture.
 
 - **Project folders and cloud drives (ADR 0015).** Each phase is its own
-  PR. Phase A is done: the project folder (`src/workspace/project.ts`) as
-  a zip download, and `npm run check:projects` compiling it with real
-  pdflatex and bibtex in CI.
-  - B. Save to a folder on this computer with the File System Access API
-    (Chromium; zip elsewhere). A folder synced by the OneDrive or Google
-    Drive desktop app puts the project in the cloud with no sign-in.
+  PR. Phases A (zip download, `npm run check:projects`) and B (save to a
+  folder, open a folder, save as you type) are done.
   - C. OneDrive: PKCE sign-in in a popup, `Files.ReadWrite.AppFolder`,
     explicit save and open, the version check before overwriting. Needs a
     Microsoft Entra ID app registration.
@@ -59,6 +86,10 @@ In this order (agreed after documents were lost on the Pages site):
 
 ## Deferred follow-ups (from ADRs and PRs)
 
+- Folders (ADR 0015 B): save versions into a `versions/` subfolder;
+  "Back up all" into a chosen folder on a schedule; detect a folder's
+  `.tex` changed elsewhere and offer to load it (today a save just
+  reports the conflict).
 - Origin (ADR 0019): every `sholtomaud.github.io/*` site shares one
   storage origin, so clearing one clears all, and their scripts can read
   ours. Give the app its own origin (a custom domain for Pages). Data

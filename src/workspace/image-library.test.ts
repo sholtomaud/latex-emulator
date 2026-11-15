@@ -144,6 +144,24 @@ describe('ImageLibrary', () => {
     assert.equal(new Set(entries.map((e) => e.sha256)).size, 2);
   });
 
+  test('a project folder’s image keeps its path, so \\includegraphics still finds it', async () => {
+    const { library, last } = setup();
+    await library.open('doc-1');
+    assert.deepEqual(
+      await library.add('figs/sub/energy.png', png(2, 2), { keepPath: true }),
+      { ok: true, name: 'figs/sub/energy.png' }
+    );
+    // An unsafe path falls back to the plain file name.
+    assert.deepEqual(
+      await library.add('../evil plot.png', png(2, 2, 1), { keepPath: true }),
+      { ok: true, name: 'evil-plot.png' }
+    );
+    assert.deepEqual(
+      last().images.map((i) => i.name),
+      ['evil-plot.png', 'figs/sub/energy.png']
+    );
+  });
+
   test('images elsewhere can be reused without copying', async () => {
     const { library, repo, last } = setup();
     await library.init();
