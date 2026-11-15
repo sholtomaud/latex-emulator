@@ -1,0 +1,34 @@
+<section class="storage" aria-label="Storage">
+  <div class="explorer-header">
+    <h2 class="explorer-title">Storage</h2>
+  </div>
+  <p class="storage-health">
+    <span class="storage-where">Stored in this browser only.</span>
+    <span class="storage-protection"></span>
+    <span class="storage-usage"></span>
+    <span class="storage-backup"></span>
+  </p>
+  <div class="storage-actions">
+    <button
+      type="button"
+      class="storage-button backup-all"
+      title="Download every document, version, .bib file and image as one .zip"
+    >
+      Back up all
+    </button>
+    <button
+      type="button"
+      class="storage-button restore"
+      title="Merge a backup into this browser: the newer copy of each item is kept"
+    >
+      Restore…
+    </button>
+    <input
+      class="restore-input"
+      type="file"
+      accept=".zip,application/zip"
+      hidden
+    />
+  </div>
+  <p class="storage-status" role="status"></p>
+</section>

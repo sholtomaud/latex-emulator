@@ -118,6 +118,7 @@ export class ImageLibrary {
   }
 
   async init(): Promise<void> {
+    this.entries.clear();
     for (const e of await this.repo.listImages()) this.entries.set(e.id, e);
   }
 

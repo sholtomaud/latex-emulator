@@ -87,6 +87,18 @@ describe('Workspace', () => {
     assert.strictEqual(last().activeId, 'y');
   });
 
+  test('init again re-reads storage: documents removed there are gone', async () => {
+    const { workspace, repo, last } = setup();
+    await workspace.init(SAMPLE);
+    await workspace.create();
+    await repo.delete('doc-1');
+    await workspace.init(SAMPLE);
+    assert.deepStrictEqual(
+      last().documents.map((d) => d.id),
+      ['doc-2']
+    );
+  });
+
   test('documents are listed most recently edited first', async () => {
     const { workspace, last } = setup();
     await workspace.init(SAMPLE);
@@ -122,6 +134,19 @@ describe('Workspace', () => {
     const count = states.length;
     await workspace.save('new text');
     assert.strictEqual(states.length, count);
+  });
+
+  test('a failed save is not mistaken for a saved one: the next save writes again', async () => {
+    const { workspace, repo } = setup();
+    await workspace.init(SAMPLE);
+    const put = repo.put.bind(repo);
+    repo.put = async () => {
+      throw new Error('The database connection is closing.');
+    };
+    await assert.rejects(workspace.save('edited'), /closing/);
+    repo.put = put;
+    await workspace.save('edited');
+    assert.strictEqual((await repo.get('doc-1'))?.source, 'edited');
   });
 
   test('rename trims, keeps names unique, and ignores empty names', async () => {

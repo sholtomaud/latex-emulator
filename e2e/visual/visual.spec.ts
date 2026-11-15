@@ -26,6 +26,20 @@ async function openApp(page: Page, width = 1280, height = 800) {
 }
 
 test.describe('visual', () => {
+  // The storage status quotes the browser's usage, which changes run to
+  // run: pin what navigator.storage says so snapshots stay exact.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      const fixed = {
+        estimate: async () => ({ usage: 75_000, quota: 4 * 1024 ** 3 }),
+        persisted: async () => false,
+        persist: async () => false,
+      };
+      for (const [name, value] of Object.entries(fixed))
+        Object.defineProperty(navigator.storage, name, { value });
+    });
+  });
+
   test('app shell, desktop', async ({ page }) => {
     await openApp(page);
     await expect(page).toHaveScreenshot('app-shell-desktop.png');

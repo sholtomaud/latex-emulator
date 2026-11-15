@@ -7,9 +7,30 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing: step 10 (code: `listings`, ADR 0014; pseudocode, ADR 0016) is done.
+Nothing. Done most recently: keeping documents safe in the browser (ADR 0019):
+persistent storage, the storage status, workspace backup and restore, and
+the stale-tab and failed-save fixes.
 
 ## Next
+
+In this order (agreed after documents were lost on the Pages site):
+
+1. **Save to a folder** (ADR 0015 phase B, below).
+2. **OneDrive and Google Drive** (phases C and D, below): sign-in, then
+   backup and sync of documents and project zips.
+3. **Zotero MCP bridge**, with its own ADR. A local MCP server (streamable
+   HTTP, CORS only for our origin, `Origin` check plus a paired token)
+   that talks to Zotero, which refuses web pages but not local programs
+   (ADR 0009). Our own small JSON-RPC client, not the SDK, and
+   `connect-src` for its address.
+4. **Editorial assistant panel**, with its own ADR. It changes AGENTS §9:
+   document content goes to a model only on an explicit, per-message
+   action, with the provider named. Two API shapes: Anthropic Messages, and
+   OpenAI-compatible chat (OpenRouter, DeepSeek, Qwen, Gemini's compatible
+   endpoint, llama.cpp, Ollama, LM Studio). Keys are held for the session
+   or, on opt-in, kept; both are encrypted in local storage. Custom
+   endpoints mean a wider `connect-src` (all HTTPS hosts), recorded in the
+   ADR. It uses the Zotero MCP tools for research.
 
 - **elsarticle phase B (ADR 0018):** `review` (1.5 line spacing); `1p` and
   `3p` (elsarticle.cls's geometry values, two-sided); the class's list
@@ -37,6 +58,15 @@ Nothing: step 10 (code: `listings`, ADR 0014; pseudocode, ADR 0016) is done.
   worker and the rest).
 
 ## Deferred follow-ups (from ADRs and PRs)
+
+- Origin (ADR 0019): every `sholtomaud.github.io/*` site shares one
+  storage origin, so clearing one clears all, and their scripts can read
+  ours. Give the app its own origin (a custom domain for Pages). Data
+  doesn't follow a move: announce it and point users to Back up all /
+  Restore first.
+- Storage (ADR 0019): a reminder to back up when the app closes with
+  unbacked-up edits; `QuotaExceededError` named in the save-failed notice;
+  backup of the Zotero and other preferences.
 
 - Text rendering (ADR 0018): try `text-rendering: geometricPrecision` on
   the whole document. On the elsarticle addresses it made the CI image
