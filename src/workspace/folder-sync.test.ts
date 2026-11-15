@@ -1,6 +1,10 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FolderSync, MemoryFolderLinks } from './folder-sync.ts';
+import {
+  FolderSync,
+  MemoryFolderLinks,
+  unsupportedMessage,
+} from './folder-sync.ts';
 import type { FolderState } from './folder-sync.ts';
 import { FakeDir, FakeFile } from '../test-support/fake-directory.ts';
 import type { DirectoryHandle } from './fs-access.ts';
@@ -296,5 +300,21 @@ describe('FolderSync', () => {
     };
     await sync.save(project('v2'));
     assert.equal(last().status, 'Saving to the folder failed: disk full');
+  });
+});
+
+describe('unsupportedMessage', () => {
+  test('Brave has the API but blocks it unless the user turns it on', () => {
+    assert.equal(
+      unsupportedMessage({ brave: true }),
+      'Brave blocks saving to folders by default. On desktop you can turn it on in brave://flags (search for “File System Access”), then reload. Until then, use Download .zip.'
+    );
+  });
+
+  test('other browsers: Chrome, Edge or Brave', () => {
+    assert.equal(
+      unsupportedMessage({ brave: false }),
+      'Saving to a folder needs Chrome, Edge or Brave (with its flag on). Use Download .zip instead.'
+    );
   });
 });

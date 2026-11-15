@@ -69,6 +69,17 @@ export interface FolderSyncOptions {
   publish: (state: FolderState) => void;
 }
 
+/**
+ * Why there is no "Save to folder" here. Brave is Chromium, but blocks the
+ * File System Access pickers by default (brave-browser#11407); the app
+ * tests for the API itself, so Brave with it turned on just works.
+ */
+export function unsupportedMessage(browser: { brave: boolean }): string {
+  return browser.brave
+    ? 'Brave blocks saving to folders by default. On desktop you can turn it on in brave://flags (search for “File System Access”), then reload. Until then, use Download .zip.'
+    : 'Saving to a folder needs Chrome, Edge or Brave (with its flag on). Use Download .zip instead.';
+}
+
 const list = (items: string[]) =>
   items.length === 1
     ? items[0]

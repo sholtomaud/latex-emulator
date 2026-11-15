@@ -91,8 +91,12 @@ permission prompt (`requestPermission`), not a new pick.
 - This needs no sign-in, no app registration and no CSP change.
 - If the user picks a folder that the OneDrive or Google Drive desktop app
   syncs, the project is in their cloud drive.
-- It is Chromium only (Chrome, Edge). Elsewhere the panel says so and
-  points to the zip download (§7's browser policy).
+- It works in Chrome and Edge, and in Brave once the user turns it on:
+  Brave is Chromium but blocks the pickers by default
+  (brave-browser#11407), so the panel tells Brave users where to enable
+  it. The app tests for the API, not the browser, so nothing else is
+  needed. Elsewhere the panel points to the zip download (§7's browser
+  policy).
 
 Built as follows:
 
