@@ -27,7 +27,17 @@ import { ImageLibrary } from './image-library.ts';
 import { imageStore } from '../store/image-store.ts';
 import { downloadBlob } from '../util/download.ts';
 import { buildProject } from './project.ts';
-import { zip } from '../util/zip.ts';
+import { zip, unzip } from '../util/zip.ts';
+import { storageHealth } from '../storage/storage-health.ts';
+import { storageStore } from '../store/storage-store.ts';
+import {
+  backupFileName,
+  backupFiles,
+  planRestore,
+  readBackup,
+  restoreSummary,
+} from './backup.ts';
+import type { WorkspaceSnapshot } from './backup.ts';
 
 /**
  * Browser wiring for the Workspace: IndexedDB, autosave, file import/export.
@@ -38,6 +48,9 @@ const AUTOSAVE_MS = 400;
 let workspace: Workspace | null = null;
 let library: BibLibrary | null = null;
 let images: ImageLibrary | null = null;
+let repository: DocumentRepository | null = null;
+/** Persistent storage is asked for once a session, after the first save. */
+let persistAsked = false;
 /** The Zotero web API key: this session only, never stored (like budget-app's ADR 0020). */
 let zoteroKey = '';
 
@@ -51,9 +64,12 @@ async function openRepository(): Promise<DocumentRepository> {
       versionChange: () => {
         // Starts the save transaction before the connection closes.
         void flush();
+        // This connection closes now, so later edits could not be saved:
+        // stop taking them rather than lose them (ADR 0019).
         uiStore.setState({
+          readOnly: true,
           notice:
-            'A newer version of LaTeX Emulator was opened in another tab. Reload this tab to keep working.',
+            'A newer version of LaTeX Emulator was opened in another tab. This tab is now read-only: reload it to keep working.',
         });
       },
     });
@@ -75,6 +91,7 @@ export async function startWorkspace(): Promise<void> {
     )) as EventListener);
 
   const repo = await openRepository();
+  repository = repo;
   workspace = new Workspace(repo, {
     now: () => Date.now(),
     newId: () => crypto.randomUUID(),
@@ -128,11 +145,206 @@ export async function startWorkspace(): Promise<void> {
     if (document.visibilityState === 'hidden') void flush();
   });
   window.addEventListener('pagehide', () => void flush());
+
+  void refreshStorage();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void refreshStorage();
+  });
 }
+
+const SAVE_FAILED =
+  'Your latest changes could not be saved in this browser. Copy your text somewhere safe, then reload the page.';
 
 /** Save the editor's text to the open document now. */
 async function flush(): Promise<void> {
-  await workspace?.save(documentStore.getState().source);
+  if (!workspace) return;
+  try {
+    await workspace.save(documentStore.getState().source);
+  } catch (error) {
+    console.error('Saving failed.', error);
+    if (!uiStore.getState().readOnly) uiStore.setState({ notice: SAVE_FAILED });
+    return;
+  }
+  if (uiStore.getState().notice === SAVE_FAILED)
+    uiStore.setState({ notice: '' });
+  refreshStorageLater();
+  if (!persistAsked) {
+    persistAsked = true;
+    void requestPersistence();
+  }
+}
+
+/**
+ * Ask the browser not to clear our storage under pressure. Chrome decides
+ * by itself (installed or often-used sites); Firefox asks the user, which
+ * is why this waits for the first save rather than the first visit.
+ */
+async function requestPersistence(): Promise<void> {
+  try {
+    if (navigator.storage?.persist && !(await navigator.storage.persisted()))
+      await navigator.storage.persist();
+  } catch {
+    // Not available here: the status line says so.
+  }
+  await refreshStorage();
+}
+
+async function persisted(): Promise<boolean | null> {
+  try {
+    return navigator.storage?.persisted
+      ? await navigator.storage.persisted()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Gather the browser's storage facts and publish the status line. */
+async function refreshStorage(): Promise<void> {
+  let docs: { updatedAt: number; createdAt: number }[] = [];
+  try {
+    docs = (await repository?.list()) ?? [];
+  } catch {
+    // The connection closed (a newer version took over): no dates.
+  }
+  let estimate: StorageEstimate = {};
+  try {
+    estimate = (await navigator.storage?.estimate?.()) ?? {};
+  } catch {
+    // No estimate: the usage line is left out.
+  }
+  const lastBackup = Number(readPref('last-backup'));
+  storageStore.setState({
+    health: storageHealth({
+      persisted: await persisted(),
+      usage: estimate.usage ?? null,
+      quota: estimate.quota ?? null,
+      lastBackupAt: lastBackup > 0 ? lastBackup : null,
+      lastEditAt: docs.length
+        ? Math.max(...docs.map((d) => d.updatedAt))
+        : null,
+      firstCreatedAt: docs.length
+        ? Math.min(...docs.map((d) => d.createdAt))
+        : null,
+      now: Date.now(),
+    }),
+  });
+}
+const refreshStorageLater = debounce(() => void refreshStorage(), 1500);
+
+/** Everything in the repository, for a backup. */
+async function snapshot(repo: DocumentRepository): Promise<WorkspaceSnapshot> {
+  const documents = await repo.list();
+  const versions = (
+    await Promise.all(documents.map((d) => repo.listVersions(d.id)))
+  ).flat();
+  const entries = await repo.listImages();
+  const blobs: WorkspaceSnapshot['blobs'] = [];
+  for (const sha256 of new Set(entries.map((e) => e.sha256))) {
+    const blob = await repo.getImageBlob(sha256);
+    if (blob)
+      blobs.push({
+        sha256,
+        bytes: new Uint8Array(await blob.blob.arrayBuffer()),
+      });
+  }
+  return {
+    documents,
+    versions,
+    bibFiles: await repo.listBibFiles(),
+    images: entries.filter((e) => blobs.some((b) => b.sha256 === e.sha256)),
+    blobs,
+  };
+}
+
+/** Run a backup or restore with the buttons disabled and errors reported. */
+async function storageTask(fn: (repo: DocumentRepository) => Promise<string>) {
+  const repo = repository;
+  if (!repo || storageStore.getState().busy) return;
+  if (uiStore.getState().readOnly) {
+    storageStore.setState({ status: 'Reload this tab first.' });
+    return;
+  }
+  storageStore.setState({ busy: true, status: '' });
+  let status: string;
+  try {
+    await flush();
+    status = await fn(repo);
+  } catch (error) {
+    console.error(error);
+    status = error instanceof Error ? error.message : String(error);
+  }
+  storageStore.setState({ busy: false, status });
+  await refreshStorage();
+}
+
+export const storageActions = {
+  /** The whole workspace as one zip (ADR 0019). */
+  backup: () =>
+    storageTask(async (repo) => {
+      const now = new Date();
+      const files = backupFiles(await snapshot(repo), now.getTime());
+      downloadBlob(
+        backupFileName(now),
+        new Blob([await zip(files, now)], { type: 'application/zip' })
+      );
+      writePref('last-backup', String(now.getTime()));
+      void requestPersistence();
+      return `Backed up to ${backupFileName(now)}. Keep it somewhere other than this browser.`;
+    }),
+  /** Merge a backup into this browser: the newer copy of each item wins. */
+  restore: (file: File) =>
+    storageTask(async (repo) => {
+      const read = await readBackup(
+        await unzip(new Uint8Array(await file.arrayBuffer()))
+      );
+      if (!read.ok) return read.message;
+      const now = await snapshot(repo);
+      const plan = planRestore(
+        {
+          documents: now.documents,
+          versionIds: new Set(now.versions.map((v) => v.id)),
+          bibFiles: now.bibFiles,
+          images: now.images,
+          blobShas: new Set(now.blobs.map((b) => b.sha256)),
+          untouched: {
+            documents: new Set(
+              now.documents
+                .filter((d) => d.source === SAMPLE_DOCUMENT)
+                .map((d) => d.id)
+            ),
+            bibFiles: new Set(
+              now.bibFiles
+                .filter((b) => b.source === SAMPLE_REFERENCES)
+                .map((b) => b.name)
+            ),
+          },
+        },
+        read.backup
+      );
+      for (const id of plan.remove) {
+        await repo.delete(id);
+        await repo.deleteVersions(id);
+        await repo.deleteImages(id);
+      }
+      for (const d of plan.documents) await repo.put(d);
+      for (const v of plan.versions) await repo.addVersion(v);
+      for (const b of plan.bibFiles) await repo.putBibFile(b);
+      for (const i of plan.images) await repo.putImage(i.entry, i.blob);
+      await reload();
+      return restoreSummary(plan);
+    }),
+};
+
+/** Re-read everything from storage (after a restore). */
+async function reload(): Promise<void> {
+  if (!workspace) return;
+  await workspace.init({ name: 'A Short Example', source: SAMPLE_DOCUMENT });
+  documentStore.setState({ source: workspaceStore.getState().activeSource });
+  await library?.init();
+  await images?.init();
+  const id = workspaceStore.getState().activeId;
+  if (id) await images?.open(id);
 }
 
 /** Every action saves pending edits first, so switching never loses text. */

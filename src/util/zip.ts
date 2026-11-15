@@ -4,6 +4,11 @@
  * CompressionStream('deflate-raw'); a file is stored instead when deflating
  * doesn't make it smaller (PNG and JPEG are already compressed). No ZIP64:
  * a project is far below 4 GB and 65,535 files. Pure: runs in Node tests.
+ *
+ * unzip() reads such archives back (a workspace backup, ADR 0019), and the
+ * plain stored/deflated archives other tools write. Its input is untrusted:
+ * paths are checked as zip() checks them, every file's CRC-32 and size must
+ * match the central directory, and inflating stops at the declared size.
  */
 
 export interface ZipFile {
@@ -135,4 +140,95 @@ export async function zip(
     p += part.length;
   }
   return out;
+}
+
+async function inflateRaw(data: Uint8Array, size: number): Promise<Uint8Array> {
+  const reader = new Blob([data as Uint8Array<ArrayBuffer>])
+    .stream()
+    .pipeThrough(new DecompressionStream('deflate-raw'))
+    .getReader();
+  const out = new Uint8Array(size);
+  let n = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (n + value.length > size) throw new Error('too long');
+      out.set(value, n);
+      n += value.length;
+    }
+  } catch {
+    await reader.cancel().catch(() => {});
+    throw new Error('The zip is damaged: a file does not inflate to its size.');
+  }
+  if (n !== size)
+    throw new Error('The zip is damaged: a file does not inflate to its size.');
+  return out;
+}
+
+/** The files in an archive, in central-directory order. */
+export async function unzip(archive: Uint8Array): Promise<ZipFile[]> {
+  const view = new DataView(
+    archive.buffer,
+    archive.byteOffset,
+    archive.byteLength
+  );
+  // The end record is the last 22 bytes plus a comment of up to 64 KB.
+  let eocd = -1;
+  for (
+    let p = archive.length - 22;
+    p >= Math.max(0, archive.length - 22 - 0xffff);
+    p--
+  )
+    if (view.getUint32(p, true) === 0x06054b50) {
+      eocd = p;
+      break;
+    }
+  if (eocd < 0) throw new Error('This is not a zip file.');
+  const count = view.getUint16(eocd + 10, true);
+  let p = view.getUint32(eocd + 16, true);
+  const decoder = new TextDecoder('utf-8', { fatal: true });
+  const files: ZipFile[] = [];
+  const damaged = () => new Error('The zip is damaged.');
+  for (let i = 0; i < count; i++) {
+    if (p + 46 > archive.length || view.getUint32(p, true) !== 0x02014b50)
+      throw damaged();
+    const method = view.getUint16(p + 10, true);
+    const crc = view.getUint32(p + 16, true);
+    const compressed = view.getUint32(p + 20, true);
+    const size = view.getUint32(p + 24, true);
+    const nameLen = view.getUint16(p + 28, true);
+    const extraLen = view.getUint16(p + 30, true);
+    const commentLen = view.getUint16(p + 32, true);
+    const local = view.getUint32(p + 42, true);
+    const path = decoder.decode(archive.subarray(p + 46, p + 46 + nameLen));
+    p += 46 + nameLen + extraLen + commentLen;
+    if (path.endsWith('/')) continue; // a folder entry
+    checkPath(path);
+    if (
+      local + 30 > archive.length ||
+      view.getUint32(local, true) !== 0x04034b50
+    )
+      throw damaged();
+    const start =
+      local +
+      30 +
+      view.getUint16(local + 26, true) +
+      view.getUint16(local + 28, true);
+    if (start + compressed > archive.length) throw damaged();
+    const data = archive.subarray(start, start + compressed);
+    let bytes: Uint8Array;
+    if (method === 0) bytes = data.slice();
+    else if (method === 8) bytes = await inflateRaw(data, size);
+    else
+      throw new Error(
+        `${path} uses a zip compression method this app can't read.`
+      );
+    if (bytes.length !== size || crc32(bytes) !== crc)
+      throw new Error(
+        `The zip is damaged: ${path} doesn't match its checksum.`
+      );
+    files.push({ path, bytes });
+  }
+  return files;
 }

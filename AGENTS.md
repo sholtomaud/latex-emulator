@@ -168,7 +168,8 @@ src/
 ├── store/                        # app stores: document, diagnostics, workspace, ui, print,
 │                                 #   bib, images
 ├── storage/                      # DocumentRepository (documents + versions):
-│                                 #   IndexedDB + in-memory
+│                                 #   IndexedDB + in-memory; pure storage-status
+│                                 #   logic (ADR 0019)
 ├── images/                       # pure: image headers (pdfTeX natural size),
 │                                 #   graphicx name resolution (ADR 0013)
 ├── references/                   # pure: DOI/URL input, CSL-JSON → BibTeX, citation
@@ -181,6 +182,7 @@ src/
 │   ├── latex-preview/            # iframe preview + print trigger
 │   ├── document-explorer/        # left-hand document list (Ctrl/⌘+B)
 │   ├── image-panel/              # the open document's images (in the explorer)
+│   ├── storage-panel/            # storage status, backup and restore (ADR 0019)
 │   ├── diagnostics-panel/        # problems list
 │   └── outline-panel/            # section tree
 ├── latex/                        # PURE TS — no DOM access, runs in Node tests
@@ -594,11 +596,16 @@ chosen branch.
   ADRs 0005, 0007 and 0013), falling back to
   memory when IndexedDB is unavailable. The app may be open in several tabs
   across a schema upgrade: every connection closes on `versionchange`
-  (after saving), and a blocked upgrade shows a notice instead of hanging
-  (`e2e/specs/upgrade.spec.ts`). `localStorage` holds only small
-  preferences (open document, explorer state). Open and save `.tex` files
-  with `<input type=file>` and a download link; the File System Access API is
-  a later progressive enhancement.
+  (after saving, then the tab turns read-only), and a blocked upgrade shows
+  a notice instead of hanging (`e2e/specs/upgrade.spec.ts`).
+- Browser storage is never the only copy (ADR 0019). The app asks for
+  persistent storage (`navigator.storage.persist()`) after the first save,
+  shows the storage status in the explorer, and backs up and restores the
+  whole workspace as one zip. A restore merges and never overwrites newer
+  work. A failed save is reported, never silent. `localStorage` holds only
+  small preferences (open document, explorer state, last backup time).
+  Open and save `.tex` files with `<input type=file>` and a download link;
+  the File System Access API is a later progressive enhancement.
 
 ---
 

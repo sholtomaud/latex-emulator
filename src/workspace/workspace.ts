@@ -91,6 +91,7 @@ export class Workspace {
 
   /** Load documents; on first run create `sample`. Opens the remembered one. */
   async init(sample: { name: string; source: string }): Promise<void> {
+    this.docs.clear();
     for (const d of await this.repo.list()) this.docs.set(d.id, d);
     if (this.docs.size === 0) {
       await this.add(sample.name, sample.source);
@@ -122,8 +123,10 @@ export class Workspace {
     const doc = this.activeId ? this.docs.get(this.activeId) : undefined;
     if (!doc || doc.source === source) return;
     const updated = { ...doc, source, updatedAt: this.options.now() };
-    this.docs.set(doc.id, updated);
+    // Only once it is stored: a failed write must not look saved, or the
+    // next save of the same text would skip it (ADR 0019).
     await this.repo.put(updated);
+    this.docs.set(doc.id, updated);
     this.publish();
   }
 
@@ -134,8 +137,8 @@ export class Workspace {
       .filter((d) => d.id !== id)
       .map((d) => d.name);
     const updated = { ...doc, name: uniqueName(name, others) };
-    this.docs.set(id, updated);
     await this.repo.put(updated);
+    this.docs.set(id, updated);
     this.publish();
   }
 
@@ -226,8 +229,8 @@ export class Workspace {
       createdAt: now,
       updatedAt: now,
     };
-    this.docs.set(doc.id, doc);
     await this.repo.put(doc);
+    this.docs.set(doc.id, doc);
     await this.setActive(doc.id);
   }
 

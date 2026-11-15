@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { editorReady } from '../support/editor.ts';
+import { editorInput, editorReady, setSource } from '../support/editor.ts';
 
 /**
  * The app open in two tabs (or a tab and the installed window) while the
@@ -82,5 +82,60 @@ test.describe('database upgrades with the app open elsewhere', () => {
     );
     expect(opened).toBe('opened');
     await expect(notice(page)).toContainText('newer version');
+  });
+
+  test('after a newer version takes the database, this tab saves what it had and stops taking edits', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await setSource(page, 'Typed before the update.');
+    const newer = await page.context().newPage();
+    await newer.goto('/favicon.svg');
+    await newer.evaluate(
+      (name) =>
+        new Promise<void>((resolve) => {
+          const r = indexedDB.open(name, 1000);
+          r.onsuccess = () => {
+            r.result.close();
+            resolve();
+          };
+        }),
+      DB
+    );
+    await expect(notice(page)).toContainText('read-only');
+    // Edits now could never be stored, so the editor refuses them.
+    await editorInput(page).focus();
+    await page.keyboard.type('lost?');
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (
+              document.querySelector('latex-editor') as unknown as {
+                value: string;
+              }
+            ).value
+        )
+      )
+      .toBe('Typed before the update.');
+    // What was typed before the update reached the database.
+    const stored = await newer.evaluate(
+      (name) =>
+        new Promise<string[]>((resolve) => {
+          const r = indexedDB.open(name);
+          r.onsuccess = () => {
+            const all = r.result
+              .transaction('documents')
+              .objectStore('documents')
+              .getAll();
+            all.onsuccess = () =>
+              resolve(
+                (all.result as { source: string }[]).map((d) => d.source)
+              );
+          };
+        }),
+      DB
+    );
+    expect(stored).toContain('Typed before the update.');
   });
 });

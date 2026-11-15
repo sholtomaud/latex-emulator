@@ -211,6 +211,7 @@ export interface LatexEditor {
   setValue(value: string): void;
   setDiagnostics(source: string, diagnostics: Diagnostic[]): void;
   focus(): void;
+  setReadOnly(readOnly: boolean): void;
 }
 
 export function createLatexEditor(
@@ -246,6 +247,7 @@ export function createLatexEditor(
     getValue: () => model.getValue(),
     setValue: (v) => model.setValue(v),
     focus: () => editor.focus(),
+    setReadOnly: (readOnly) => editor.updateOptions({ readOnly }),
     setDiagnostics(source, diagnostics) {
       // Stale results (computed for older text) are dropped.
       if (source !== model.getValue()) return;

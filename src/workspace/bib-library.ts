@@ -61,6 +61,7 @@ export class BibLibrary {
 
   /** Load the files; with `seed`, add it when the library is empty. */
   async init(seed?: { name: string; source: string }): Promise<void> {
+    this.files.clear();
     for (const f of await this.repo.listBibFiles()) this.files.set(f.name, f);
     if (seed && this.files.size === 0) await this.put(seed.name, seed.source);
     else this.publish();

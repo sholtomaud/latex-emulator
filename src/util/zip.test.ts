@@ -1,7 +1,8 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { crc32, inflateRawSync } from 'node:zlib';
-import { zip } from './zip.ts';
+import { zip, unzip } from './zip.ts';
+import { deflateRawSync } from 'node:zlib';
 
 /** A minimal reader, written from the spec (APPNOTE 4.3), to check what zip() writes. */
 function read(archive: Uint8Array) {
@@ -143,5 +144,109 @@ describe('zip', () => {
       ]),
       /twice/
     );
+  });
+});
+
+/** A one-file archive made by hand, so unzip() can be fed what zip() never writes. */
+function handMade(
+  name: string,
+  data: Uint8Array,
+  o: {
+    method?: number;
+    size?: number;
+    crc?: number;
+    compressed?: Uint8Array;
+  } = {}
+) {
+  const enc = new TextEncoder().encode(name);
+  const body = o.compressed ?? data;
+  const local = new Uint8Array(30 + enc.length);
+  const lv = new DataView(local.buffer);
+  lv.setUint32(0, 0x04034b50, true);
+  lv.setUint16(8, o.method ?? 0, true);
+  lv.setUint32(14, o.crc ?? crc32(data), true);
+  lv.setUint32(18, body.length, true);
+  lv.setUint32(22, o.size ?? data.length, true);
+  lv.setUint16(26, enc.length, true);
+  local.set(enc, 30);
+  const central = new Uint8Array(46 + enc.length);
+  const cv = new DataView(central.buffer);
+  cv.setUint32(0, 0x02014b50, true);
+  cv.setUint16(10, o.method ?? 0, true);
+  cv.setUint32(16, o.crc ?? crc32(data), true);
+  cv.setUint32(20, body.length, true);
+  cv.setUint32(24, o.size ?? data.length, true);
+  cv.setUint16(28, enc.length, true);
+  central.set(enc, 46);
+  const end = new Uint8Array(22);
+  const ev = new DataView(end.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, 1, true);
+  ev.setUint16(10, 1, true);
+  ev.setUint32(12, central.length, true);
+  ev.setUint32(16, local.length + body.length, true);
+  const out = new Uint8Array(local.length + body.length + central.length + 22);
+  out.set(local, 0);
+  out.set(body, local.length);
+  out.set(central, local.length + body.length);
+  out.set(end, local.length + body.length + central.length);
+  return out;
+}
+
+describe('unzip', () => {
+  const text = (s: string) => new TextEncoder().encode(s);
+
+  test('reads back what zip() writes, stored and deflated', async () => {
+    const files = [
+      { path: 'a.tex', bytes: text('hello '.repeat(200)) },
+      { path: 'images/x.png', bytes: new Uint8Array([137, 80, 78, 71]) },
+      { path: 'empty.txt', bytes: new Uint8Array() },
+    ];
+    const back = await unzip(await zip(files));
+    assert.deepStrictEqual(
+      back.map((f) => [f.path, [...f.bytes]]),
+      files.map((f) => [f.path, [...f.bytes]])
+    );
+  });
+
+  test('reads a deflated file from another writer', async () => {
+    const data = text('abc'.repeat(100));
+    const archive = handMade('x.txt', data, {
+      method: 8,
+      compressed: new Uint8Array(deflateRawSync(data)),
+    });
+    const [f] = await unzip(archive);
+    assert.strictEqual(new TextDecoder().decode(f.bytes), 'abc'.repeat(100));
+  });
+
+  test('refuses what is not a zip, a bad CRC, a wrong size and unsafe paths', async () => {
+    await assert.rejects(unzip(text('not a zip at all')), /not a zip/i);
+    const data = text('hello');
+    await assert.rejects(unzip(handMade('a.txt', data, { crc: 1 })), /damaged/);
+    await assert.rejects(
+      unzip(
+        handMade('a.txt', data, {
+          method: 8,
+          size: 2,
+          compressed: new Uint8Array(deflateRawSync(data)),
+        })
+      ),
+      /damaged/
+    );
+    await assert.rejects(unzip(handMade('../evil', data)), /path/);
+    await assert.rejects(
+      unzip(handMade('a.txt', data, { method: 12 })),
+      /method/
+    );
+  });
+
+  test('stops inflating a file that grows past its declared size (zip bomb)', async () => {
+    const big = new Uint8Array(4 * 1024 * 1024);
+    const archive = handMade('bomb', big, {
+      method: 8,
+      size: 100,
+      compressed: new Uint8Array(deflateRawSync(big)),
+    });
+    await assert.rejects(unzip(archive), /damaged/);
   });
 });

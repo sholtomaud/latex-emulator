@@ -1,5 +1,7 @@
 import { BaseComponent } from '../../core/base-component.ts';
 import { documentStore } from '../../store/document-store.ts';
+import { uiStore } from '../../store/ui-store.ts';
+import type { UiState } from '../../store/ui-store.ts';
 import { diagnosticsStore } from '../../store/diagnostics-store.ts';
 import type { DiagnosticsState } from '../../store/diagnostics-store.ts';
 import type { LatexEditor } from '../../language/monaco.ts';
@@ -35,6 +37,11 @@ export class LatexEditorComponent extends BaseComponent {
       citationServices
     );
     host.removeAttribute('data-loading');
+    // A tab whose edits can no longer be saved stops taking them (ADR 0019).
+    const lock = ({ readOnly }: UiState) => this.editor?.setReadOnly(readOnly);
+    lock(uiStore.getState());
+    uiStore.addEventListener('change', ((e: CustomEvent<UiState>) =>
+      lock(e.detail)) as EventListener);
 
     // Another document was opened: show its text.
     documentStore.addEventListener('change', ((e: CustomEvent) => {
