@@ -104,13 +104,13 @@ test.describe('versions and preprints', () => {
       .selectOption('minor');
     await versions(page).getByRole('button', { name: 'Save version' }).click();
     await expect(versions(page).getByRole('listitem').first()).toContainText(
-      'v0.2.0'
+      'v0.1.0'
     );
     await page.reload();
     await openExplorer(page);
     await expect(versions(page).getByRole('listitem')).toHaveCount(2);
     await expect(versions(page).getByRole('listitem').nth(1)).toContainText(
-      'v0.1.0'
+      'v0.0.1'
     );
   });
 
@@ -123,9 +123,9 @@ test.describe('versions and preprints', () => {
     await expect(item).toContainText(sha256(sample).slice(0, 16));
     const shown = await item.getAttribute('title');
     const downloadPromise = page.waitForEvent('download');
-    await item.getByRole('button', { name: 'Download v0.1.0 .tex' }).click();
+    await item.getByRole('button', { name: 'Download v0.0.1 .tex' }).click();
     const download = await downloadPromise;
-    expect(download.suggestedFilename()).toBe('a-short-example-v0.1.0.tex');
+    expect(download.suggestedFilename()).toBe('a-short-example-v0.0.1.tex');
     const text = fs.readFileSync((await download.path())!, 'utf8');
     expect(text).toBe(sample);
     expect(shown).toContain(sha256(text));
@@ -142,10 +142,41 @@ test.describe('versions and preprints', () => {
       .locator('header.maketitle .title');
     await expect(title).toHaveText('Changed Since');
     await versions(page)
-      .getByRole('button', { name: 'Preprint v0.1.0' })
+      .getByRole('button', { name: 'Preprint v0.0.1' })
       .click();
     await expect.poll(() => prints(page)).toHaveLength(1);
     expect((await prints(page))[0].heading).toBe('A Short Example');
     await expect(title).toHaveText('Changed Since');
+  });
+
+  test('patch, minor, then patch again: each says what it did', async ({
+    page,
+  }) => {
+    await openExplorer(page);
+    const bump = versions(page).getByRole('combobox', { name: 'Version bump' });
+    const save = versions(page).getByRole('button', { name: 'Save version' });
+    const status = versions(page).getByRole('status');
+
+    await save.click();
+    await expect(status).toHaveText('Saved version 0.0.1.');
+    await bump.selectOption('minor');
+    await save.click();
+    await expect(status).toHaveText('Saved version 0.1.0.');
+
+    // Nothing changed since 0.1.0: a patch saves nothing, and says why.
+    await bump.selectOption('patch');
+    await save.click();
+    await expect(status).toContainText(
+      'No changes since 0.1.0, so there is nothing new to save as a patch.'
+    );
+    await expect(versions(page).getByRole('listitem')).toHaveCount(2);
+
+    // After an edit the patch is saved.
+    await setSource(page, sample.replace('A Short Example', 'Edited'));
+    await save.click();
+    await expect(status).toHaveText('Saved version 0.1.1.');
+    await expect(versions(page).getByRole('listitem').first()).toContainText(
+      'v0.1.1'
+    );
   });
 });

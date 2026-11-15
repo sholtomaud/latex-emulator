@@ -98,7 +98,13 @@ export class DocumentExplorerComponent extends BaseComponent {
     ) => this.render(e.detail)) as EventListener);
   }
 
-  render({ documents, activeId, versions }: WorkspaceStoreState) {
+  render({
+    documents,
+    activeId,
+    versions,
+    versionStatus,
+  }: WorkspaceStoreState) {
+    this.querySelector('.version-status')!.textContent = versionStatus;
     const items = documents.map((doc) =>
       this.renderItem(doc, doc.id === activeId)
     );

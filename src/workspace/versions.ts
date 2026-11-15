@@ -2,9 +2,6 @@
 
 export type Bump = 'patch' | 'minor' | 'major';
 
-/** Drafts start at 0.1.0 (semver: 0.x means "not yet stable"). */
-export const FIRST_VERSION = '0.1.0';
-
 const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
 export function parseVersion(v: string): [number, number, number] | null {
@@ -21,10 +18,22 @@ export function bumpVersion(v: string, bump: Bump): string {
   return `${major}.${minor}.${patch + 1}`;
 }
 
-/** The version after `latest` (or the first version, if there is none). */
+/**
+ * The version after `latest`. The first one counts from 0.0.0, so it
+ * follows the bump asked for: patch 0.0.1, minor 0.1.0, major 1.0.0.
+ */
 export function nextVersion(latest: string | undefined, bump: Bump): string {
-  if (!latest) return bump === 'major' ? '1.0.0' : FIRST_VERSION;
-  return bumpVersion(latest, bump);
+  return bumpVersion(latest ?? '0.0.0', bump);
+}
+
+/** What saving a version did, in words for the Versions panel. */
+export function versionSavedMessage(
+  saved: { version: string; created: boolean },
+  bump: Bump
+): string {
+  if (saved.created) return `Saved version ${saved.version}.`;
+  // Only a patch reuses a version: unchanged text has nothing to patch.
+  return `No changes since ${saved.version}, so there is nothing new to save as a ${bump}. To mark the same text as a new release, choose Minor or Major.`;
 }
 
 export function compareVersions(a: string, b: string): number {

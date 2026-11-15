@@ -13,17 +13,22 @@ markup inside the document.
   `{ id, documentId, version, createdAt, sha256, source }`. They live in a
   second IndexedDB store, `versions` (database version 2), indexed by
   document. Deleting a document deletes its versions.
-- **Semantic versioning.** The first version is **0.1.0** (semver: 0.x means
-  "draft"), or 1.0.0 if the first save is a major release.
+- **Semantic versioning.** The first version counts from 0.0.0, so it
+  follows the bump chosen: a patch gives **0.0.1**, a minor 0.1.0, a major
+  1.0.0 (semver: 0.x means "draft"). Until November 2026 the first version
+  was always 0.1.0, which made a first patch look like a minor release.
   - **Save version** bumps the patch by default; minor and major are chosen
     in the explorer.
   - Saving unchanged text as a patch returns the latest version instead of
-    duplicating it. Minor and major always create a release.
+    duplicating it, and the Versions panel says so ("No changes since
+    0.2.0 …"), because a silent no-op looked like a broken button. Minor and
+    major always create a release, so the same text can be marked as one.
 - **Checksum:** SHA-256 (Web Crypto) of the exact UTF-8 bytes of the
   version's `.tex`, identical to `shasum -a 256 <file>.tex`. The explorer
   shows the first 16 hex digits and the full hash on hover. A version
   downloads as `<name>-v<version>.tex`.
-- **Download Preprint** saves a patch version if the text changed, then
+- **Download Preprint** saves a version if the text changed (a minor
+  release, 0.1.0, when the document has none yet; a patch after that), then
   prints that snapshot. Older versions can be printed from the history; the
   preview shows the snapshot while printing and is restored afterwards. The
   stamp is app-level CSS in `@page` margin boxes, never written into the
@@ -35,6 +40,7 @@ markup inside the document.
   Both are in `\footnotesize`, on the page number's baseline (`\footskip`
   below the text). The PDF's default name is
   `<name>-v<version>-preprint.pdf`.
+
 - **Verified** with a real Chromium-printed PDF: the footer reads
   `Preprint · v0.1.0 · October 31, 2026   1   SHA-256 8f042c51e87fa114`, and
   `sha256sum` of the fixture source starts `8f042c51e87fa114`.
