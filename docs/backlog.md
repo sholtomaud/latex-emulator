@@ -7,61 +7,92 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing. Done most recently: saving to a folder on this computer (ADR 0015
-phase B): save, open, save as you type, conflicts never overwritten
-silently. Before that, keeping documents safe in the browser (ADR 0019).
+Nothing. Done most recently: per-document `.bib` subsets (ADR 0020).
+Exports and folder saves write only the cited entries, and opening a
+folder merges its `.bib` into the library. Before that: saving to a folder
+(ADR 0015 phase B) and keeping documents safe in the browser (ADR 0019).
 
 ## Next
 
-In this order (agreed after documents were lost on the Pages site):
+In this order (agreed November 2026):
 
-1. **OneDrive and Google Drive** (ADR 0015 phases C and D, below):
-   sign-in, then backup and sync of documents and project zips.
-2. **Zotero MCP bridge**, with its own ADR. Design notes so far:
+1. **Version status labels.** A label per version (draft, preprint,
+   submitted, under review, accepted, published, or your own), separate
+   from the version number: in semver, `1.0.0-submitted` sorts _before_
+   1.0.0. The label is shown as a chip ("v1.0.0 · submitted") and goes in
+   download names (`paper-v1.0.0-submitted.tex`) and the preprint stamp. It
+   can be changed later, so the same text can move from submitted to
+   published without a new version.
+2. **Activity bar (VS Code style).** A column of icons on the left, each
+   opening its own view in place of the current one:
+   - Explorer (the default): each document as a folder, laid out like its
+     project folder: `.tex`, images, generated `.bib`;
+   - Versions;
+   - References: the library, Add by DOI, Zotero and the plugin button;
+   - Storage: backup and restore, the folder;
+   - later Assistant, Outline and Problems.
+
+   It needs an ADR first; the visual baselines change.
+
+3. **Zotero plugin** (our own; its own ADR). Decisions so far:
    - **Writes need code inside Zotero.** Zotero's local API (port 23119)
-     is read-only and refuses web pages (ADR 0009). Writes go through the
-     web API (with a key, then sync) or code running inside Zotero.
-     Writing `zotero.sqlite` while Zotero runs risks corrupting it: never.
-   - **Proposal: a Zotero 7 plugin** (an `.xpi` installed from Zotero's
-     Add-ons) that serves MCP over streamable HTTP on localhost.
-     - It needs no Python or Node install.
-     - It has Zotero's own API: items, notes, collections, related-item
-       relations, tags, annotations and the full-text index.
-     - It serves CORS only for our origin, checks `Origin`, and requires
-       a token paired once with the app.
-
-     Check the existing Zotero MCP servers first: extend one if it can
-     write, otherwise build our own.
-
+     is read-only and refuses web pages (ADR 0009). Never write
+     `zotero.sqlite` directly: it corrupts libraries while Zotero runs.
+   - **A Zotero 7 plugin (`.xpi`)** serving MCP over streamable HTTP on
+     localhost. No Python or Node to install. CORS only for our origin, an
+     `Origin` check, and a token paired once with the app. The app writes
+     its own small JSON-RPC client (no SDK) and adds the plugin's address
+     to `connect-src`.
+   - **Install:** a "Get the Zotero plugin" button downloads the `.xpi`,
+     with the steps for installing it from a file in Zotero's plugins
+     menu, and a "Check connection" button pairs the app with it. A web
+     page cannot install it in one click.
+   - **Why not `54yyyu/zotero-mcp`:** it is a Python server (local API
+     for reads, web API for writes) with an optional embedding index, and
+     has no Zettelkasten tools.
    - **Tools:**
      - search and read items, with Better BibTeX keys;
-     - store a document version as a `preprint` item with its `.tex` and
-       SHA-256 attached. The PDF comes from the browser's print dialog, so
-       the app cannot attach it itself.
-     - Zettelkasten: create a permanent note (standalone note in a
-       Zettelkasten collection, Luhmann ID plus a declarative title);
-       link and unlink notes (Related), tag, list by ID prefix, follow
-       links, and build literature notes from annotations.
-   - **The app's side:** our own small JSON-RPC client (not the SDK), and
-     `connect-src` for the plugin's address. The assistant (3) calls the
-     same tools.
-3. **Editorial assistant panel**, with its own ADR. It changes AGENTS §9:
+     - Zettelkasten: create permanent notes (standalone notes in a
+       Zettelkasten collection, a Luhmann ID and a declarative title),
+       link and unlink them (Related), tag, list by ID prefix, follow
+       links, and build literature notes from annotations;
+     - snapshots: a labelled version (1) becomes or updates a `preprint`
+       item with that version's project zip, and the PDF if the user adds
+       it. The app can't attach the PDF itself; it comes from the print
+       dialog.
+     - linked files: the item links to the project folder's files (ADR
+       0015 B) rather than copying them. The document stores the item's
+       key (a `zotero://select/…` link) and the item links back to the
+       app.
+   - **Zotero is not the working copy.** Autosave every few seconds,
+     Zotero having to run, and zotero.org's attachment quota rule that
+     out. The working copy stays in the browser and the project folder.
+   - **No vector index at first.** Agents start from Zotero's full-text
+     and keyword search, scan declarative zettel titles, follow Related
+     links and Luhmann sequences, and only then read annotations and PDF
+     pages. If entry points prove hard to find, embed only the zettels (a
+     few thousand short notes) with `llama-server --embedding`, not
+     chunked PDFs. That index lives in the plugin's own file.
+4. **Back-filling zettels with a local model** (llama.cpp's
+   `llama-server`, not Ollama), a resumable job over the library:
+   - per item: metadata, abstract, annotations and child notes, within a
+     context budget for a model that fits in 32 GB RAM; full text only by
+     map-reduce when needed;
+   - output: draft zettels tagged for review (e.g. `zk/draft`, `zk/llm`),
+     never silently made permanent;
+   - idempotent (processed items are marked), checkpointed,
+     rate-limited, with a dry run first.
+5. **Editorial assistant panel**, with its own ADR. It changes AGENTS §9:
    document content goes to a model only on an explicit, per-message
    action, with the provider named. Two API shapes: Anthropic Messages, and
    OpenAI-compatible chat (OpenRouter, DeepSeek, Qwen, Gemini's compatible
-   endpoint, llama.cpp, Ollama, LM Studio). Keys are held for the session
-   or, on opt-in, kept; both are encrypted in local storage. Custom
-   endpoints mean a wider `connect-src` (all HTTPS hosts), recorded in the
-   ADR. It uses the Zotero MCP tools for research.
-4. **Back-filling zettels with a local model** (llama.cpp), a resumable
-   job over the Zotero library:
-   - **Per item:** the metadata, abstract, annotations and child notes,
-     within a context budget sized for a model that fits in 32 GB RAM.
-     Full text only through map-reduce over chunks, when needed.
-   - **Output:** draft zettels tagged for review (e.g. `zk/draft`,
-     `zk/llm`), never silently made permanent.
-   - **Running it:** idempotent (processed items are marked), checkpointed,
-     rate-limited, with a dry run first.
+   endpoint, llama.cpp). Keys are held for the session or, on opt-in,
+   kept; both are encrypted in local storage. Custom endpoints mean a wider
+   `connect-src` (all HTTPS hosts), recorded in the ADR. It uses the Zotero
+   plugin's tools.
+6. **OneDrive and Google Drive** (ADR 0015 phases C and D, below).
+   Sign-in, then backup and sync of project folders. The owner must first
+   create the Microsoft Entra ID and Google Cloud app registrations.
 
 - **elsarticle phase B (ADR 0018):** `review` (1.5 line spacing); `1p` and
   `3p` (elsarticle.cls's geometry values, two-sided); the class's list

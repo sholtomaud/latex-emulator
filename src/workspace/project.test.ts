@@ -45,9 +45,38 @@ describe('buildProject', () => {
       ]
     );
     assert.strictEqual(decode(project.files[0].bytes), SOURCE);
-    assert.strictEqual(decode(project.files[1].bytes), '@book{a, title={A}}');
+    // Nothing is cited, so the listed file is written with no entries
+    // (bibtex needs the file to exist; ADR 0020).
+    assert.strictEqual(decode(project.files[1].bytes), '');
     assert.deepStrictEqual(project.files[4].bytes, png);
     assert.deepStrictEqual(project.missingBibs, []);
+  });
+
+  test('each .bib holds only the entries the document cites (ADR 0020)', () => {
+    const project = buildProject({
+      name: 'Paper',
+      source: [
+        '\\begin{document}',
+        'See \\citet{a} and \\citep[p.~2]{C}.',
+        '\\nocite{b2}',
+        '\\bibliography{references,extra}',
+        '\\end{document}',
+      ].join('\n'),
+      bibFiles: {
+        references:
+          '@book{a, title={A}}\n\n@book{b, title={B}}\n\n@book{c, title={C}}\n',
+        extra: '@book{b2, title={B2}}\n\n@book{z, title={Z}}\n',
+      },
+      images: [],
+    });
+    assert.strictEqual(
+      decode(project.files[1].bytes),
+      '@book{a, title={A}}\n\n@book{c, title={C}}\n'
+    );
+    assert.strictEqual(
+      decode(project.files[2].bytes),
+      '@book{b2, title={B2}}\n'
+    );
   });
 
   test('reports listed .bib files the library does not have', () => {

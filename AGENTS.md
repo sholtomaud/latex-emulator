@@ -173,7 +173,8 @@ src/
 ├── images/                       # pure: image headers (pdfTeX natural size),
 │                                 #   graphicx name resolution (ADR 0013)
 ├── references/                   # pure: DOI/URL input, CSL-JSON → BibTeX, citation
-│                                 #   keys, .bib cleaning (ADR 0008)
+│                                 #   keys, .bib cleaning (ADR 0008), per-document
+│                                 #   .bib subsets and merging (ADR 0020)
 ├── workspace/                    # documents: pure Workspace logic, names, and the
 │                                 #   browser wiring (autosave, import/export)
 ├── components/
@@ -608,7 +609,9 @@ chosen branch.
   Open and save `.tex` files with `<input type=file>` and a download link.
   In Chromium, a document's project folder can be saved to and opened from
   a folder on disk with the File System Access API (ADR 0015 phase B); a
-  change made in the folder is never overwritten without asking.
+  change made in the folder is never overwritten without asking. A project
+  folder's `.bib` files hold only the entries the document cites; the
+  browser's library is the one store of entries (ADR 0020).
 
 ---
 
