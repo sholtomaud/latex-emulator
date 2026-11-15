@@ -1,7 +1,7 @@
 # 0015: Project folders, and saving them to OneDrive and Google Drive
 
-Status: accepted; phase A (the zip download and its pdflatex check) is
-built, phases B–D are not. The maintainer agreed the direction and the
+Status: accepted; phases A (the zip download and its pdflatex check) and
+B (save to a folder) are built, C and D are not. The maintainer agreed the direction and the
 order of the phases. The points marked **verify** are
 what is believed about the providers today, to be confirmed against them
 in the phase that needs them.
@@ -91,8 +91,53 @@ permission prompt (`requestPermission`), not a new pick.
 - This needs no sign-in, no app registration and no CSP change.
 - If the user picks a folder that the OneDrive or Google Drive desktop app
   syncs, the project is in their cloud drive.
-- It is Chromium only (Chrome, Edge). Elsewhere the button falls back to
-  the zip download (§7's browser policy).
+- It is Chromium only (Chrome, Edge). Elsewhere the panel says so and
+  points to the zip download (§7's browser policy).
+
+Built as follows:
+
+- **Where.** The Storage panel (ADR 0019) has a "This document’s folder"
+  block: Save to folder…, Open folder…, "Save there as I type", and Stop
+  saving to this folder.
+- **First save.** It picks a folder (`showDirectoryPicker`, read/write) and
+  creates the project folder inside it. The handle goes in a small
+  database of its own (`latex-emulator-folders`), so the documents
+  database keeps its version and open tabs aren't made read-only. Handles
+  are tied to this browser, so workspace backups leave them out.
+- **Later saves** write only files whose content changed
+  (`src/workspace/folder-save.ts`, pure). The `.tex` keeps the name it
+  first had in the folder, so renaming the document doesn't leave a
+  second `.tex`. Files no longer in the project (a deleted image) are left
+  alone: we never delete the user's files.
+- **Changes made in the folder are never overwritten silently.** We keep
+  each file's SHA-256 from the last save. A file that is different now (an
+  edit in another editor, a sync from another machine) is a conflict. The
+  save then writes nothing and offers Overwrite or Cancel. The first save
+  into a folder that already holds a different project of that name is a
+  conflict too.
+- **Permission.** Browsers forget folder permission between visits. A save
+  by hand asks again; automatic saves never ask, they wait for a click.
+- **Saving as you type** is opt-in per document. It runs after an autosave
+  (1.5 s debounce), stops at a conflict, and resumes after a save by hand
+  succeeds (`src/workspace/folder-sync.ts`).
+- **Open folder…** reads a project folder into a new document:
+  - the `.tex` at the top level (the one named after the folder, else the
+    one with `\begin{document}`);
+  - the `.bib` files its `\bibliography` lists;
+  - only the images its `\includegraphics` resolve to, with
+    `\graphicspath` and graphicx's extension order, at the same paths.
+    The compiled PDF and unrelated files are ignored.
+
+  The document then saves back into that folder. A `.bib` file that the
+  library already has with different text is kept as the library's (the
+  library is shared, ADR 0007). It is not taken as the baseline, so the
+  next save asks before replacing the folder's copy.
+
+- **Tests.** The e2e tests replace the picker with folders in the origin
+  private file system. These are real `FileSystemDirectoryHandle`s, so
+  writes go through the same API. The Chromium build on some hosts closes
+  the page when such a handle is read back from IndexedDB; the pinned
+  image's does not. Run `e2e/specs/folder.spec.ts` in the container.
 
 **C. OneDrive (Microsoft Graph).**
 
@@ -199,3 +244,6 @@ interface.
   `versions/` subfolder could come later.
 - Firefox and Safari get the zip download and, after C and D, the drives,
   but not "save to folder".
+- A folder synced by the OneDrive or Google Drive desktop app gives cloud
+  storage today, with no sign-in. C and D remain for machines without the
+  desktop app, and for Firefox and Safari.

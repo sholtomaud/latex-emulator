@@ -182,7 +182,8 @@ src/
 │   ├── latex-preview/            # iframe preview + print trigger
 │   ├── document-explorer/        # left-hand document list (Ctrl/⌘+B)
 │   ├── image-panel/              # the open document's images (in the explorer)
-│   ├── storage-panel/            # storage status, backup and restore (ADR 0019)
+│   ├── storage-panel/            # storage status, backup/restore (ADR 0019),
+│   │                             #   the document's folder (ADR 0015 B)
 │   ├── diagnostics-panel/        # problems list
 │   └── outline-panel/            # section tree
 ├── latex/                        # PURE TS — no DOM access, runs in Node tests
@@ -604,8 +605,10 @@ chosen branch.
   whole workspace as one zip. A restore merges and never overwrites newer
   work. A failed save is reported, never silent. `localStorage` holds only
   small preferences (open document, explorer state, last backup time).
-  Open and save `.tex` files with `<input type=file>` and a download link;
-  the File System Access API is a later progressive enhancement.
+  Open and save `.tex` files with `<input type=file>` and a download link.
+  In Chromium, a document's project folder can be saved to and opened from
+  a folder on disk with the File System Access API (ADR 0015 phase B); a
+  change made in the folder is never overwritten without asking.
 
 ---
 

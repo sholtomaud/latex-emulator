@@ -129,10 +129,15 @@ export class ImageLibrary {
     this.publish();
   }
 
-  /** Import a file into the open document's folder. */
+  /**
+   * Import a file into the open document's folder. `keepPath` keeps a safe
+   * relative path (a file read from a project folder, ADR 0015 phase B), so
+   * the document's \includegraphics names still resolve.
+   */
   async add(
     fileName: string | null,
-    bytes: Uint8Array<ArrayBuffer>
+    bytes: Uint8Array<ArrayBuffer>,
+    options: { keepPath?: boolean } = {}
   ): Promise<ImageResult> {
     const documentId = this.documentId;
     if (documentId === null)
@@ -149,7 +154,14 @@ export class ImageLibrary {
     const sha256 = await sha256Bytes(bytes);
     const same = this.mine().find((e) => e.sha256 === sha256);
     if (same) return { ok: true, name: same.name, existing: true };
-    const name = uniqueName(imageName(fileName, info.type), this.names());
+    const kept =
+      options.keepPath && fileName && SAFE_PATH.test(fileName)
+        ? withExtension(fileName, info.type)
+        : null;
+    const name = uniqueName(
+      kept ?? imageName(fileName, info.type),
+      this.names()
+    );
     const known =
       this.blobs.get(sha256) ?? (await this.repo.getImageBlob(sha256));
     const blob: ImageBlob = known ?? {
