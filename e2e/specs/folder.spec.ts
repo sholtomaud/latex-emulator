@@ -237,9 +237,26 @@ test('without the File System Access API the panel points to the zip download', 
   });
   await openExplorer(page);
   await expect(panel(page)).toContainText(
-    'Saving to a folder needs Chrome or Edge. Use Download .zip instead.'
+    'Saving to a folder needs Chrome, Edge or Brave (with its flag on). Use Download .zip instead.'
   );
   await expect(
     panel(page).getByRole('button', { name: 'Save to folder…' })
   ).toHaveCount(0);
+});
+
+test('in Brave without the flag, the panel says how to turn it on', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    delete (window as unknown as { showDirectoryPicker?: unknown })
+      .showDirectoryPicker;
+    Object.defineProperty(navigator, 'brave', {
+      value: { isBrave: async () => true },
+    });
+  });
+  await openExplorer(page);
+  await expect(panel(page)).toContainText(
+    'Brave blocks saving to folders by default.'
+  );
+  await expect(panel(page)).toContainText('brave://flags');
 });

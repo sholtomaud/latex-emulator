@@ -7,6 +7,7 @@ import {
 } from '../../workspace/workspace-service.ts';
 import { folderStore } from '../../store/folder-store.ts';
 import type { FolderState } from '../../workspace/folder-sync.ts';
+import { unsupportedMessage } from '../../workspace/folder-sync.ts';
 import template from './storage-panel.html?raw';
 import style from './storage-panel.css?raw';
 
@@ -63,6 +64,10 @@ export class StoragePanelComponent extends BaseComponent {
     const q = <T extends HTMLElement>(cls: string) =>
       this.querySelector<T>(cls)!;
     q('.folder-unsupported').hidden = state.supported;
+    // Brave exposes navigator.brave (its documented detection).
+    q('.folder-unsupported').textContent = unsupportedMessage({
+      brave: 'brave' in navigator,
+    });
     q('.folder-controls').hidden = !state.supported;
     if (!state.supported) return;
     q('.folder-where').textContent = folderWhere(state);
