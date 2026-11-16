@@ -2,18 +2,15 @@
  * API keys for the assistant's providers (ADR 0023).
  *
  * A key lives in memory for the session. When the user asks to remember
- * it, it goes to the browser's own password manager through the
- * Credential Management API (Chromium's PasswordCredential): encrypted by
- * the operating system with the user's other passwords, and never in
- * IndexedDB, localStorage, backups or project folders. All remembered keys
- * are saved as one password (a JSON object), because the API hands back
- * one credential per site, not one per name. Browsers without the API keep
- * keys for the session only.
+ * it, it goes to the app's vault (src/storage/vault.ts): the browser's own
+ * password manager where it has one, else encrypted on this device. Never
+ * localStorage, backups or project folders. The keys are saved together
+ * as one JSON object, a section of the vault.
  */
 import type { ProviderId } from './providers.ts';
 import { PROVIDER_IDS } from './providers.ts';
 
-/** The browser's password manager, reduced to what the store needs. */
+/** Where remembered keys go (a section of the vault), as the store needs it. */
 export interface PasswordManager {
   /** The saved password, or null. May ask the user to choose or confirm. */
   load(): Promise<string | null>;
@@ -32,7 +29,7 @@ export class KeyStore extends EventTarget {
     this.manager = manager;
   }
 
-  /** Keys can be kept in the browser's password manager. */
+  /** Keys can be remembered (in the password manager or encrypted). */
   get canRemember(): boolean {
     return this.manager !== null;
   }

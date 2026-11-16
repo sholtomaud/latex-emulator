@@ -1,12 +1,13 @@
 /**
  * Browser wiring for the Zotero plugin (ADR 0024): pairing, the status
- * check, and where the token is kept (secret-store.ts: this session only,
- * or remembered encrypted on this device if the user ticks Remember).
- * Nothing reaches 127.0.0.1 until the user opens the plugin section or
- * clicks Connect, so the browser's local-network prompt follows a click.
+ * check, and where the token is kept. It lasts for the session unless the
+ * user ticks Remember; then it goes to the app's vault (vault.ts): the
+ * browser's password manager where there is one, else encrypted on this
+ * device. Nothing reaches 127.0.0.1 until the user opens the plugin
+ * section or clicks Connect, so the browser's local-network prompt
+ * follows a click.
  */
-import { SecretStore } from '../storage/secret-store.ts';
-import { secretDb } from '../storage/secret-db.ts';
+import { appVault } from '../storage/app-vault.ts';
 import { zoteroPluginStore } from '../store/zotero-plugin-store.ts';
 import type { PluginStatus } from './zotero-plugin.ts';
 import {
@@ -18,10 +19,38 @@ import {
 import type { ZoteroSearch } from './zotero.ts';
 
 const TOKEN = 'zotero-plugin-token';
-const secrets = new SecretStore(secretDb, crypto.subtle);
+/** This session's token; the vault holds it only if remembered. */
+let sessionToken: string | null = null;
+let rememberedInVault = false;
 let checked = false;
 
+/**
+ * A remembered token, read only if that can't make the browser ask:
+ * search() also serves the citation typeahead, which runs while the user
+ * types. Encrypted storage reads silently; the password manager may show
+ * its picker, so it is used only once the plugin section has read it.
+ */
+async function savedTokenSilently(): Promise<string | null> {
+  const token =
+    appVault.how === 'encrypted'
+      ? await appVault.get(TOKEN).catch(() => null)
+      : (appVault.cached(TOKEN) ?? null);
+  if (token) sessionToken = token;
+  return token;
+}
+
 const show = (status: PluginStatus) => zoteroPluginStore.setState({ status });
+
+async function forget(): Promise<void> {
+  sessionToken = null;
+  if (rememberedInVault) {
+    rememberedInVault = false;
+    // Only write when there is something to remove: each write to the
+    // password manager may make the browser ask.
+    await appVault.put(TOKEN, null).catch(() => {});
+  }
+  zoteroPluginStore.setState({ remember: false });
+}
 
 async function refresh(token: string): Promise<void> {
   show({ state: 'checking' });
@@ -35,7 +64,7 @@ async function refresh(token: string): Promise<void> {
     return;
   }
   // Removed in Zotero: this token will never work again.
-  if (info.failure === 'unpaired') await secrets.forget(TOKEN);
+  if (info.failure === 'unpaired') await forget();
   show({ state: 'failed', failure: info.failure });
 }
 
@@ -44,9 +73,11 @@ export const zoteroPluginActions = {
   async check(): Promise<void> {
     if (checked) return;
     checked = true;
-    const remembered = await secrets.remembered(TOKEN);
-    zoteroPluginStore.setState({ remember: remembered });
-    const token = await secrets.get(TOKEN);
+    zoteroPluginStore.setState({ how: appVault.how });
+    const saved = await appVault.get(TOKEN);
+    rememberedInVault = saved !== null;
+    zoteroPluginStore.setState({ remember: rememberedInVault });
+    const token = sessionToken ?? saved;
     if (token) await refresh(token);
   },
   setRemember(remember: boolean) {
@@ -60,11 +91,18 @@ export const zoteroPluginActions = {
       show({ state: 'failed', failure: paired.failure });
       return;
     }
-    await secrets
-      .set(TOKEN, paired.token, zoteroPluginStore.getState().remember)
-      .catch(() => {
-        // Storage refused (e.g. private mode): the session copy still works.
-      });
+    sessionToken = paired.token;
+    if (zoteroPluginStore.getState().remember)
+      await appVault.put(TOKEN, paired.token).then(
+        () => (rememberedInVault = true),
+        // Refused (the user said no, or storage is blocked): the session
+        // copy still works.
+        () => zoteroPluginStore.setState({ remember: false })
+      );
+    else if (rememberedInVault) {
+      rememberedInVault = false;
+      await appVault.put(TOKEN, null).catch(() => {});
+    }
     await refresh(paired.token);
   },
   /**
@@ -73,12 +111,12 @@ export const zoteroPluginActions = {
    * action, like opening the section.
    */
   async search(query: string): Promise<ZoteroSearch | null> {
-    const token = await secrets.get(TOKEN).catch(() => null);
+    const token = sessionToken ?? (await savedTokenSilently());
     if (!token) return null;
     return searchViaPlugin(fetch, token, query);
   },
   async disconnect(): Promise<void> {
-    await secrets.forget(TOKEN);
+    await forget();
     show({ state: 'idle' });
   },
 };
