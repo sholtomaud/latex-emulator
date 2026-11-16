@@ -5,6 +5,7 @@ import {
   pairWithZotero,
   zoteroPluginInfo,
   pluginStatusText,
+  searchViaPlugin,
 } from './zotero-plugin.ts';
 import type { FetchLike } from './zotero-plugin.ts';
 
@@ -215,4 +216,117 @@ test('status lines say what is happening and what to do', () => {
       }),
       text
     );
+});
+
+const ODUM_CSL = {
+  type: 'book',
+  title: 'Environmental Accounting',
+  author: [{ family: 'Odum', given: 'Howard T.' }],
+  issued: { 'date-parts': [[1996]] },
+};
+
+test('search: search_items with include_csl and the token; hits from the CSL', async () => {
+  const { fetch, seen } = fakeFetch(() => ({
+    status: 200,
+    json: {
+      jsonrpc: '2.0',
+      id: 1,
+      result: {
+        content: [{ type: 'text', text: '…' }],
+        structuredContent: {
+          items: [
+            {
+              key: 'ABCD2345',
+              title: 'Environmental Accounting',
+              csl: ODUM_CSL,
+            },
+          ],
+        },
+      },
+    },
+  }));
+  const r = await searchViaPlugin(fetch, 'tok', '  odum ');
+  assert.deepStrictEqual(seen[0].body.method, 'tools/call');
+  assert.deepStrictEqual(seen[0].body.params.name, 'search_items');
+  assert.deepStrictEqual(seen[0].body.params.arguments, {
+    query: 'odum',
+    limit: 25,
+    include_csl: true,
+  });
+  assert.strictEqual(
+    seen[0].body.params._meta['latex-emulator/token'] ??
+      Object.values(seen[0].body.params._meta)[0],
+    'tok'
+  );
+  assert.deepStrictEqual(r, {
+    ok: true,
+    hits: [
+      {
+        title: 'Environmental Accounting',
+        creators: 'Odum',
+        year: '1996',
+        csl: ODUM_CSL,
+      },
+    ],
+  });
+});
+
+test('search: an older plugin (no include_csl) says to update it; failures say why', async () => {
+  const old = fakeFetch(() => ({
+    status: 200,
+    json: {
+      jsonrpc: '2.0',
+      id: 1,
+      result: {
+        content: [
+          {
+            type: 'text',
+            text: 'Invalid arguments: include_csl is not a known argument.',
+          },
+        ],
+        isError: true,
+      },
+    },
+  }));
+  const r1 = await searchViaPlugin(old.fetch, 'tok', 'odum');
+  assert.strictEqual(r1.ok, false);
+  assert.match(!r1.ok ? r1.message : '', /Update the LaTeX Emulator plugin/);
+
+  const noCsl = fakeFetch(() => ({
+    status: 200,
+    json: {
+      jsonrpc: '2.0',
+      id: 1,
+      result: { structuredContent: { items: [{ key: 'X' }] } },
+    },
+  }));
+  const r2 = await searchViaPlugin(noCsl.fetch, 'tok', 'odum');
+  assert.match(!r2.ok ? r2.message : '', /Update the LaTeX Emulator plugin/);
+
+  const other = fakeFetch(() => ({
+    status: 200,
+    json: {
+      jsonrpc: '2.0',
+      id: 1,
+      result: {
+        content: [{ type: 'text', text: 'Zotero could not do that: busy' }],
+        isError: true,
+      },
+    },
+  }));
+  const r3 = await searchViaPlugin(other.fetch, 'tok', 'odum');
+  assert.deepStrictEqual(r3, {
+    ok: false,
+    message: 'Zotero could not do that: busy',
+  });
+
+  const down = fakeFetch(() => new TypeError('Failed to fetch'));
+  const r4 = await searchViaPlugin(down.fetch, 'tok', 'odum');
+  assert.match(!r4.ok ? r4.message : '', /^Zotero didn’t answer/);
+
+  const empty = await searchViaPlugin(down.fetch, 'tok', '  ');
+  assert.deepStrictEqual(empty, {
+    ok: false,
+    message: 'Type something to search for.',
+  });
 });

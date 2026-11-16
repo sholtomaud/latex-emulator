@@ -178,15 +178,15 @@ So:
 
 **Read** (`read` scope):
 
-| Tool              | Does                                                                                         |
-| ----------------- | -------------------------------------------------------------------------------------------- |
-| `search_items`    | Zotero quick search; each hit with its citation key, title, creators, year, `zotero://` link |
-| `get_item`        | metadata, BibTeX (Better BibTeX's key if installed, else ours, ADR 0008), attachments        |
-| `get_annotations` | an item's PDF annotations with page labels                                                   |
-| `get_fulltext`    | an attachment's indexed text, by page range                                                  |
-| `zettel_list`     | zettels by ID prefix (`1a` → the whole branch), in Luhmann order                             |
-| `zettel_get`      | one zettel with its links, sources and neighbours in the sequence                            |
-| `zettel_search`   | full-text search within the Zettelkasten only                                                |
+| Tool              | Does                                                                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `search_items`    | Zotero quick search; each hit with its citation key, title, creators, year, `zotero://` link (and its CSL-JSON with `include_csl`) |
+| `get_item`        | metadata, BibTeX (Better BibTeX's key if installed, else ours, ADR 0008), attachments                                              |
+| `get_annotations` | an item's PDF annotations with page labels                                                                                         |
+| `get_fulltext`    | an attachment's indexed text, by page range                                                                                        |
+| `zettel_list`     | zettels by ID prefix (`1a` → the whole branch), in Luhmann order                                                                   |
+| `zettel_get`      | one zettel with its links, sources and neighbours in the sequence                                                                  |
+| `zettel_search`   | full-text search within the Zettelkasten only                                                                                      |
 
 **Write** (`write-notes` scope):
 
@@ -305,8 +305,22 @@ the app's client, and published as MCP `inputSchema`/`outputSchema`.
 
 2. **Zettelkasten.** Luhmann IDs, the zettel tools and literature
    notes; the inbox tag.
-3. **App integration.** Zotero search and typeahead through the plugin;
-   `collection_from_keys`.
+3. **App integration.** ✅ Zotero search and typeahead through the
+   plugin (brought forward, November 2026: with the plugin paired, the
+   app still searched through Zotero's local API, which drops requests
+   from web pages, so the typeahead paused):
+   - `search_items` takes `include_csl` (plugin 0.2.0): each item's
+     CSL-JSON, so hits become `.bib` entries exactly as the web API's do
+     (ADR 0009). Off by default, to keep agents' results short. A
+     boolean joined the schema checker.
+   - In the app, "This computer" searches (the References search and the
+     opt-in typeahead) go through the plugin whenever a connection token
+     is stored; without one they take the old route, whose message now
+     points to the plugin. The zotero.org web library is unchanged. A
+     change of connection resets a paused typeahead.
+   - Plugin 0.1.0 rejects `include_csl`: the app says to update the
+     plugin in Zotero (Plugins → Check for Updates; `updates.json`).
+   - Still to do: `collection_from_keys`.
 4. **Preprint versions.** `preprint_save_version` and linked project
    files.
 

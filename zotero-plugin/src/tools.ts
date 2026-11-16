@@ -35,6 +35,11 @@ export const TOOLS: Tool[] = [
       properties: {
         query: { type: 'string', minLength: 1, maxLength: 200 },
         limit: { type: 'integer', minimum: 1, maximum: 50 },
+        include_csl: {
+          type: 'boolean',
+          description:
+            'Also return each item’s CSL-JSON (for making .bib entries). Off by default: it is long.',
+        },
       },
       required: ['query'],
       additionalProperties: false,
@@ -43,7 +48,11 @@ export const TOOLS: Tool[] = [
     async run(port, args) {
       const limit = (args.limit as number | undefined) ?? 20;
       const items = await port.search(args.query as string, limit);
-      return { items: items.map(summary) };
+      return {
+        items: items.map((item) =>
+          args.include_csl ? { ...summary(item), csl: item.csl } : summary(item)
+        ),
+      };
     },
   },
   {

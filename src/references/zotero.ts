@@ -101,7 +101,7 @@ const SETTING =
  * Read in Zotero's main branch and seen with Zotero 11.0-beta.3 and Chrome
  * from the Pages site in November 2026 (ADR 0009).
  */
-const LOCAL_UNREACHABLE = `Zotero on this computer can’t be reached from this site: Zotero drops requests from web browsers, so websites can’t read your library. Search your zotero.org web library instead, or export a .bib file from Zotero and import it. (Also check that Zotero is running with ${SETTING}.)`;
+const LOCAL_UNREACHABLE = `Zotero on this computer can’t be reached from this site: Zotero drops requests from web browsers, so websites can’t read your library directly. Connect our Zotero plugin (References → Zotero plugin) to search it from here, or search your zotero.org web library instead, or export a .bib file from Zotero and import it. (Also check that Zotero is running with ${SETTING}.)`;
 
 export async function searchZotero(
   source: ZoteroSource,

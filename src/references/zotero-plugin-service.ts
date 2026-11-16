@@ -12,8 +12,10 @@ import type { PluginStatus } from './zotero-plugin.ts';
 import {
   pairWithZotero,
   pairingCode,
+  searchViaPlugin,
   zoteroPluginInfo,
 } from './zotero-plugin.ts';
+import type { ZoteroSearch } from './zotero.ts';
 
 const TOKEN = 'zotero-plugin-token';
 const secrets = new SecretStore(secretDb, crypto.subtle);
@@ -64,6 +66,16 @@ export const zoteroPluginActions = {
         // Storage refused (e.g. private mode): the session copy still works.
       });
     await refresh(paired.token);
+  },
+  /**
+   * Search this computer's library through the plugin, if a connection has
+   * been made (null: none, use another route). A search is the user's own
+   * action, like opening the section.
+   */
+  async search(query: string): Promise<ZoteroSearch | null> {
+    const token = await secrets.get(TOKEN).catch(() => null);
+    if (!token) return null;
+    return searchViaPlugin(fetch, token, query);
   },
   async disconnect(): Promise<void> {
     await secrets.forget(TOKEN);

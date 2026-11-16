@@ -17,6 +17,7 @@ export type Schema =
       maximum?: number;
       description?: string;
     }
+  | { type: 'boolean'; description?: string }
   | { type: 'array'; items: Schema; description?: string }
   | {
       type: 'object';
@@ -62,6 +63,10 @@ function check(schema: Schema, value: unknown, name: string): string[] {
       if (schema.maximum !== undefined && value > schema.maximum)
         return [`${name} must be at most ${schema.maximum}`];
       return [];
+    case 'boolean':
+      return typeof value === 'boolean'
+        ? []
+        : [`${name} must be true or false`];
     case 'array':
       if (!Array.isArray(value)) return [`${name} must be an array`];
       return value.flatMap((v, i) => check(schema.items, v, `${name}[${i}]`));

@@ -21,7 +21,9 @@ import { bibStore } from '../store/bib-store.ts';
 import { SAMPLE_REFERENCES } from '../store/sample-references.ts';
 import { entryFromCsl, lookupReference } from '../references/lookup.ts';
 import { searchZotero } from '../references/zotero.ts';
-import type { ZoteroSource } from '../references/zotero.ts';
+import type { ZoteroSearch, ZoteroSource } from '../references/zotero.ts';
+import { zoteroPluginActions } from '../references/zotero-plugin-service.ts';
+import { zoteroPluginStore } from '../store/zotero-plugin-store.ts';
 import { indexLibrary } from '../references/cite-index.ts';
 import type { CiteEntry } from '../references/cite-index.ts';
 import { createZoteroTypeahead } from '../references/zotero-typeahead.ts';
@@ -651,12 +653,11 @@ export const workspaceActions = {
   searchZotero: async (query: string) => {
     const { source, userId } = bibStore.getState().zotero;
     bibStore.setState({ status: 'Searching Zotero…', zoteroHits: [] });
-    const r = await searchZotero(
+    const r = await searchLibrary(
       source === 'web'
         ? { kind: 'web', userId, apiKey: zoteroKey }
         : { kind: 'local' },
-      query,
-      { fetch: (...args) => fetch(...args) }
+      query
     );
     bibStore.setState(
       r.ok
@@ -752,6 +753,24 @@ export const workspaceActions = {
     uiStore.setState(activateView(uiStore.getState(), view)),
 };
 
+/**
+ * This computer's Zotero is reached through our plugin once it is
+ * connected: Zotero's own local API drops requests from web pages
+ * (ADR 0009, ADR 0024). The web library is searched as before.
+ */
+async function searchLibrary(
+  source: ZoteroSource,
+  query: string
+): Promise<ZoteroSearch> {
+  if (source.kind === 'local') {
+    const viaPlugin = await zoteroPluginActions.search(query);
+    if (viaPlugin) return viaPlugin;
+  }
+  return searchZotero(source, query, { fetch: (...args) => fetch(...args) });
+}
+// Connected, disconnected or reconnected: try suggestions again.
+zoteroPluginStore.addEventListener('change', () => zoteroTypeahead.reset());
+
 function zoteroSource(): ZoteroSource {
   const { source, userId } = bibStore.getState().zotero;
   return source === 'web'
@@ -763,8 +782,7 @@ let indexed: { sources: Record<string, string>; entries: CiteEntry[] } | null =
   null;
 /** Zotero suggestions while typing, paused after a failed search. */
 const zoteroTypeahead = createZoteroTypeahead({
-  search: (source, q) =>
-    searchZotero(source, q, { fetch: (...args) => fetch(...args) }),
+  search: searchLibrary,
   keys: () => library?.keys() ?? new Set(),
   onFailure: (status) => bibStore.setState({ status }),
 });

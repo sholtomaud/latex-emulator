@@ -87,3 +87,15 @@ test('nested objects and non-object schemas are checked too', () => {
     'value must be a string',
   ]);
 });
+
+test('booleans must be true or false', () => {
+  const flag: Schema = {
+    type: 'object',
+    properties: { on: { type: 'boolean' } },
+    additionalProperties: false,
+  };
+  assert.deepStrictEqual(validate(flag, { on: true }), []);
+  assert.deepStrictEqual(validate(flag, { on: 'yes' }), [
+    'on must be true or false',
+  ]);
+});

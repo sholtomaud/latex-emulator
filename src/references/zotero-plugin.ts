@@ -12,6 +12,8 @@ import {
   TOKEN_META_KEY,
   ZOTERO_VERSION_META_KEY,
 } from '../../zotero-plugin/src/protocol.ts';
+import { parseZoteroItems } from './zotero.ts';
+import type { ZoteroSearch } from './zotero.ts';
 
 export type FetchLike = (
   url: string,
@@ -143,4 +145,47 @@ export function pluginStatusText(status: PluginStatus): string {
     case 'failed':
       return FAILURES[status.failure];
   }
+}
+
+const UPDATE_PLUGIN =
+  'Update the LaTeX Emulator plugin in Zotero (Tools → Plugins → ⚙ → Check for Updates) to search your library from here.';
+
+/**
+ * Search the library through the plugin's `search_items`, asking for each
+ * item's CSL-JSON so hits become .bib entries the same way as the web
+ * API's (ADR 0009, ADR 0024). Zotero's own local API drops requests from
+ * web pages; the plugin is how this site reaches the library on this
+ * computer.
+ */
+export async function searchViaPlugin(
+  fetch: FetchLike,
+  token: string,
+  query: string
+): Promise<ZoteroSearch> {
+  const q = query.trim();
+  if (!q) return { ok: false, message: 'Type something to search for.' };
+  const r = await rpc(fetch, 'tools/call', {
+    name: 'search_items',
+    arguments: { query: q, limit: 25, include_csl: true },
+    _meta: { [TOKEN_META_KEY]: token },
+  });
+  if (!r.ok) return { ok: false, message: FAILURES[r.failure] };
+  if (r.result.isError) {
+    const content = r.result.content as { text?: unknown }[] | undefined;
+    const text = String(content?.[0]?.text ?? '');
+    // Plugin 0.1.0 doesn't know include_csl.
+    return {
+      ok: false,
+      message: /include_csl/.test(text)
+        ? UPDATE_PLUGIN
+        : text || FAILURES.error,
+    };
+  }
+  const items = (r.result.structuredContent as { items?: unknown } | undefined)
+    ?.items;
+  if (!Array.isArray(items)) return { ok: false, message: FAILURES.error };
+  const csl = items.map((i) => (i as { csl?: unknown } | null)?.csl);
+  if (items.length && csl.every((c) => c === undefined))
+    return { ok: false, message: UPDATE_PLUGIN };
+  return { ok: true, hits: parseZoteroItems(csl) };
 }

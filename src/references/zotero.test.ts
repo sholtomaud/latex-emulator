@@ -117,6 +117,8 @@ describe('searchZotero', () => {
       message,
       /drops requests from web browsers.*zotero\.org web library.*\.bib/s
     );
+    // Our plugin is the way in (ADR 0024): say where to connect it.
+    assert.match(message, /References → Zotero plugin/);
     // Allowing the browser's local-network prompt can't help, so the
     // message no longer suggests it.
     assert.doesNotMatch(message, /local network/);
