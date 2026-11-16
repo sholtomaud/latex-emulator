@@ -33,7 +33,7 @@ named CTAN packages (§14 rule).
   - one `\bibitem` without an author–year label switches the whole
     document to numerical citations, where `\citet` prints a bold
     `(author?)`.
-  Without natbib, `\cite` gives classic numbered `[1, p. 5]`.
+    Without natbib, `\cite` gives classic numbered `[1, p. 5]`.
 - **Pass 1 like `.aux`.** The renderer first collects cited keys
   (`\nocite{*}` included) and the style, runs the emulator, cleans the
   `.bbl` (drops the `\providecommand` preamble and `\penalty0`), and reads
@@ -53,6 +53,16 @@ named CTAN packages (§14 rule).
   `\@biblabel{#1}`, computed in `ch` (Latin Modern digits are 1ch, brackets
   0.556ch). `\newblock` adds natbib's `.11em` to the interword space. Item
   spacing is `\bibsep`, equal to `\@listi`'s `\itemsep + \parsep`.
+- **A natbib style without natbib** (added November 2026). plainnat,
+  abbrvnat, unsrtnat and elsarticle-harv/-num-names write
+  `\bibitem[Brown and Ulgiati(2004)]{…}`. Without `\usepackage{natbib}`,
+  article's `thebibliography` prints that whole label, as pdflatex does.
+  A label wider than `\labelwidth` is set at its own width with the text
+  following after `\labelsep` (latex.ltx `\@item`), so the CSS label box
+  has a `min-width`, never wraps, and pushes the text along; it used to
+  wrap inside a fixed width and overlap the entry. The style command gets
+  an info diagnostic, `ref/natbib-style-without-natbib`, with a quick fix
+  that adds `\usepackage{natbib}` before `\begin{document}`.
 
 ## Consequences
 

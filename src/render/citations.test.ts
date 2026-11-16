@@ -176,6 +176,44 @@ describe('the bibliography', () => {
 });
 
 describe('classic LaTeX citations (no natbib)', () => {
+  test('a natbib style without natbib hints to load it, with a quick fix', () => {
+    // plainnat writes \bibitem[Odum(1996)]{…}; without natbib, article's
+    // thebibliography prints that whole label and \cite gives [Odum(1996)].
+    const src =
+      '\\documentclass{article}\n\\begin{document}\\cite{odum_energy_1996}\\bibliographystyle{plainnat}\\bibliography{test}\\end{document}';
+    const x = renderDocument(src, { bibFiles: { test: bib }, bstStyles });
+    const hint = x.diagnostics.find(
+      (d) => d.code === 'ref/natbib-style-without-natbib'
+    );
+    assert.ok(hint);
+    assert.strictEqual(hint.severity, 'info');
+    assert.match(hint.message, /plainnat.*\\usepackage\{natbib\}/);
+    const at = src.indexOf('\\begin{document}');
+    assert.deepStrictEqual(hint.fixes, [
+      {
+        title: 'Add \\usepackage{natbib}',
+        edits: [
+          { range: { start: at, end: at }, text: '\\usepackage{natbib}\n' },
+        ],
+      },
+    ]);
+    assert.match(
+      textOf(x.tree.children).replace(/ /g, ' '),
+      /^\[Odum\(1996\)\]/
+    );
+    // Not raised once natbib is loaded, or for a classic style.
+    for (const other of [
+      src.replace('\n', '\\usepackage{natbib}\n'),
+      src.replace('plainnat', 'plain'),
+    ])
+      assert.ok(
+        !renderDocument(other, {
+          bibFiles: { test: bib },
+          bstStyles,
+        }).diagnostics.some((d) => d.code === 'ref/natbib-style-without-natbib')
+      );
+  });
+
   test('a hand-written thebibliography gives numbered citations', () => {
     const src =
       '\\documentclass{article}\\begin{document}See \\cite{b} and \\cite[p.~5]{a}.\\begin{thebibliography}{9}\\bibitem{a} First.\\bibitem{b} Second.\\end{thebibliography}\\end{document}';

@@ -306,6 +306,34 @@ export function renderDocument(
       ? docEnv.range.end - '\\end{document}'.length
       : undefined,
   });
+  // plainnat, abbrvnat, unsrtnat and elsarticle-harv/-num-names expect
+  // natbib: without it article prints the whole \bibitem[Author(Year)]
+  // label, which is rarely what was meant.
+  const style = styleName(scan) ?? '';
+  if (
+    !natbib &&
+    scan.style &&
+    /nat$|^elsarticle-(harv|num-names)$/.test(style) &&
+    docEnv
+  )
+    bibliography.diagnostics.push({
+      range: scan.style.range,
+      severity: 'info',
+      code: 'ref/natbib-style-without-natbib',
+      message: `${style} is a natbib style: without \\usepackage{natbib}, citations and the bibliography show its full [Author(Year)] labels.`,
+      source: 'ref',
+      fixes: [
+        {
+          title: 'Add \\usepackage{natbib}',
+          edits: [
+            {
+              range: { start: docEnv.range.start, end: docEnv.range.start },
+              text: '\\usepackage{natbib}\n',
+            },
+          ],
+        },
+      ],
+    });
   const punctuation = natbibOptions(natbib ?? [], styleName(scan));
   // natbib switches the whole document to numerical citations as soon as one
   // \bibitem has no author–year label.
