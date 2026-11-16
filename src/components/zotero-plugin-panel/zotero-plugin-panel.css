@@ -1,0 +1,70 @@
+/* The Zotero plugin section in References (ADR 0024). */
+:host {
+  display: block;
+}
+
+:host .zotero-plugin {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+:host .zp-intro,
+:host .zp-status {
+  margin: 0 0 0.5rem;
+}
+
+:host .zp-steps {
+  margin: 0 0 0.5rem;
+  padding-left: 1.2rem;
+  color: var(--boba-text-muted);
+}
+
+:host .zp-steps li + li {
+  margin-top: 0.25rem;
+}
+
+:host .zp-get {
+  color: var(--boba-accent, currentColor);
+  font-weight: 600;
+}
+
+:host .zp-status {
+  color: var(--boba-text);
+}
+
+:host .zp-status:empty {
+  display: none;
+}
+
+:host .zp-remember {
+  display: flex;
+  gap: 0.375rem;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  color: var(--boba-text-muted);
+}
+
+:host .zp-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+:host .zp-actions button {
+  font: inherit;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--boba-border);
+  border-radius: 0.25rem;
+  background: var(--boba-bg);
+  color: var(--boba-text);
+  cursor: pointer;
+}
+
+:host .zp-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+:host .zp-actions button[hidden],
+:host .zp-remember[hidden] {
+  display: none;
+}

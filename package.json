@@ -7,8 +7,8 @@
     "node": ">=25.0.0"
   },
   "scripts": {
-    "start": "vite --host",
-    "dev": "vite --host",
+    "start": "node scripts/build-zotero-plugin.ts public && vite --host",
+    "dev": "node scripts/build-zotero-plugin.ts public && vite --host",
     "build": "vite build --base ./ && node scripts/build-zotero-plugin.ts dist && node scripts/precache.ts dist",
     "preview": "vite preview",
     "test": "node --test \"src/**/*.test.ts\" \"zotero-plugin/**/*.test.ts\"",

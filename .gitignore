@@ -32,3 +32,6 @@ Thumbs.db
 
 # Project folders compiled by npm run check:projects
 .projects/
+
+# Built by scripts/build-zotero-plugin.ts for the dev server (ADR 0024)
+public/zotero/

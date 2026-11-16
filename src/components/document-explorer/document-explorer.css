@@ -323,12 +323,14 @@
 }
 
 /* Zotero: search this computer's Zotero or the zotero.org web library. */
-:host .zotero {
+:host .zotero,
+:host .zotero-plugin-details {
   padding: 0 0.5rem 0.75rem 0.75rem;
   font-size: 0.8rem;
 }
 
-:host .zotero summary {
+:host .zotero summary,
+:host .zotero-plugin-details summary {
   cursor: pointer;
   color: var(--boba-text-muted);
   font-weight: 600;

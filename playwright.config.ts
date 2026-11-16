@@ -131,7 +131,9 @@ export default defineConfig({
     ? undefined
     : [
         {
-          command: 'npx vite --port 5173 --strictPort',
+          // The Zotero plugin is a build output; the dev server serves it from public/.
+          command:
+            'node scripts/build-zotero-plugin.ts public && npx vite --port 5173 --strictPort',
           url: DEV_URL,
           reuseExistingServer: !process.env.CI,
         },

@@ -103,6 +103,13 @@ test('pairing returns the token, or why not', async () => {
       'error',
     ],
     [() => ({ status: 200, json: 'nonsense' }), 'error'],
+    [
+      () => ({
+        status: 200,
+        json: { jsonrpc: '2.0', id: 1, error: { code: -32603, message: 'x' } },
+      }),
+      'error',
+    ],
   ];
   for (const [respond, failure] of cases)
     assert.deepStrictEqual(
@@ -137,6 +144,19 @@ test('info: initialize with the token in _meta; versions come back', async () =>
   assert.deepStrictEqual(seen[0].body.params.clientInfo, {
     name: 'latex-emulator',
     version: '1',
+  });
+});
+
+test('a reply that is not JSON is an error, not a crash', async () => {
+  const fetch: FetchLike = async () => ({
+    status: 200,
+    json: async () => {
+      throw new SyntaxError('Unexpected token');
+    },
+  });
+  assert.deepStrictEqual((await pairWithZotero(fetch, '1234')) as unknown, {
+    ok: false,
+    failure: 'error',
   });
 });
 

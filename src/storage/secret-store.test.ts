@@ -93,4 +93,25 @@ test('storage that fails (private mode, blocked) leaves the session copy working
   );
   await store.forget('s'); // doesn't throw
   assert.strictEqual(await store.get('s'), null);
+  // Not remembering never needs storage either.
+  await store.set('t', 'y', false);
+  assert.strictEqual(await store.get('t'), 'y');
+  assert.strictEqual(await store.remembered('t'), false);
+});
+
+test('a stored copy that fails to decrypt is dropped even if deleting fails', async () => {
+  const kv = memoryKv();
+  await new SecretStore(kv, crypto.subtle).set('s', 'secret', true);
+  const row = kv.rows.get('s')!;
+  const stuck: SecretKv = {
+    get: async () => ({ ...row, iv: new Uint8Array(12) }),
+    put: async () => {},
+    delete: async () => {
+      throw new Error('blocked');
+    },
+  };
+  assert.strictEqual(
+    await new SecretStore(stuck, crypto.subtle).get('s'),
+    null
+  );
 });
