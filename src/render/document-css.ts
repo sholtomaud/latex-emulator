@@ -308,7 +308,12 @@ export function preprintCss(
   const mark = stampHeading(stamp.label).toUpperCase();
   const diagonal = toBp(g.textWidth) * Math.SQRT2;
   const markSize = Math.min(72, (0.8 * diagonal) / (0.75 * mark.length));
-  return `@media print {
+  // A published version is the final text: it gets no watermark, only the
+  // footer stamp.
+  const watermark =
+    stampHeading(stamp.label) === 'Published'
+      ? ''
+      : `@media print {
   body::after {
     content: ${cssString(mark)};
     position: fixed;
@@ -327,7 +332,8 @@ export function preprintCss(
     user-select: none;
   }
 }
-@page {
+`;
+  return `${watermark}@page {
   @bottom-left {${box(left, 'var(--rm-family), serif')}
     text-align: left;
   }

@@ -1,0 +1,54 @@
+<section class="setup" aria-label="Assistant setup">
+  <h2 class="setup-title">Assistant setup</h2>
+  <p class="setup-intro">
+    The chat sends your messages to the provider you choose (and the document,
+    only where you allow it). Open the chat with Ctrl/⌘ Alt B.
+  </p>
+  <div class="setup-providers"></div>
+  <p class="setup-keys-note"></p>
+  <button type="button" class="setup-button setup-unlock" hidden>
+    Use saved keys
+  </button>
+  <template class="provider-template">
+    <fieldset class="provider">
+      <legend class="provider-legend">
+        <label class="provider-choice">
+          <input type="radio" name="assistant-provider" class="provider-use" />
+          <span class="provider-name"></span>
+        </label>
+      </legend>
+      <label class="field field-url">
+        <span>Server address</span>
+        <input type="url" class="provider-url" spellcheck="false" />
+      </label>
+      <label class="field">
+        <span class="key-label">API key</span>
+        <input
+          type="password"
+          class="provider-key"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </label>
+      <label class="field-check provider-remember-label">
+        <input type="checkbox" class="provider-remember" />
+        <span>Remember in this browser’s password manager</span>
+      </label>
+      <p class="provider-help"></p>
+      <label class="field">
+        <span>Model</span>
+        <input type="text" class="provider-model" spellcheck="false" />
+      </label>
+      <datalist class="provider-models"></datalist>
+      <div class="provider-actions">
+        <button type="button" class="setup-button provider-load">
+          Load models
+        </button>
+        <button type="button" class="setup-button provider-test">
+          Test connection
+        </button>
+      </div>
+      <p class="provider-status" role="status"></p>
+    </fieldset>
+  </template>
+</section>

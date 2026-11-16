@@ -174,6 +174,14 @@ describe('preprintCss', () => {
     );
   });
 
+  test('a published version is not watermarked; its footer stamp stays', () => {
+    for (const label of ['published', 'Published', ' published ']) {
+      const css = preprintCss({ ...stamp, label }, g11);
+      assert.ok(!css.includes('body::after'), label);
+      assert.match(css, /content: "Published · v0\.1\.1 · October 31, 2026"/);
+    }
+  });
+
   test('a long label gets a smaller watermark that still fits the text block', () => {
     const size = (label?: string) =>
       Number(
