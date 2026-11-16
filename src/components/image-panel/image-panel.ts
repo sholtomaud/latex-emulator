@@ -17,8 +17,11 @@ export class ImagePanelComponent extends BaseComponent {
   static tagName = 'image-panel';
   list!: HTMLUListElement;
   reuseList!: HTMLUListElement;
-  /** Image being renamed; re-renders leave its input alone. */
-  renaming: string | null = null;
+  /** Image being renamed, and the name typed so far: a re-render puts the
+   * box back on the new row with this text, so it isn't lost. */
+  renaming: { name: string; value: string } | null = null;
+  /** True while render() replaces the rows (see the rename box's blur). */
+  replacing = false;
 
   constructor() {
     super(template, style);
@@ -80,7 +83,13 @@ export class ImagePanelComponent extends BaseComponent {
 
   render(state: ImageStoreState) {
     const { images, elsewhere, status, documentId } = state;
-    this.list.replaceChildren(...images.map((m) => this.renderImage(m)));
+    const rows = images.map((m) => this.renderImage(m));
+    this.replacing = true;
+    try {
+      this.list.replaceChildren(...rows);
+    } finally {
+      this.replacing = false;
+    }
     this.querySelector<HTMLElement>('.image-empty')!.hidden =
       images.length > 0 || documentId === null;
     this.querySelector('.image-status')!.textContent = status;
@@ -145,8 +154,13 @@ export class ImagePanelComponent extends BaseComponent {
           void workspaceActions.deleteImage(m.name);
       }
     );
-    if (this.renaming === m.name)
-      queueMicrotask(() => this.startRename(li, m.name));
+    if (this.renaming?.name === m.name) {
+      const value = this.renaming.value;
+      queueMicrotask(() => {
+        if (li.isConnected && this.renaming?.name === m.name)
+          this.startRename(li, m.name, value);
+      });
+    }
     return li;
   }
 
@@ -160,21 +174,25 @@ export class ImagePanelComponent extends BaseComponent {
     }
   }
 
-  startRename(li: HTMLLIElement, name: string) {
-    this.renaming = name;
+  startRename(li: HTMLLIElement, name: string, value = name) {
+    this.renaming = { name, value };
     const template = this.querySelector<HTMLTemplateElement>(
       '.image-rename-template'
     )!;
     const input = (template.content.cloneNode(true) as DocumentFragment)
       .firstElementChild as HTMLInputElement;
-    input.value = name;
+    input.value = value;
     const label = li.querySelector('.image-name')!;
     label.replaceWith(input);
     input.focus();
-    input.setSelectionRange(
-      0,
-      name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') : name.length
-    );
+    if (value === name)
+      input.setSelectionRange(
+        0,
+        name.lastIndexOf('.') > 0 ? name.lastIndexOf('.') : name.length
+      );
+    input.addEventListener('input', () => {
+      if (this.renaming?.name === name) this.renaming.value = input.value;
+    });
     let done = false;
     const finish = async (commit: boolean) => {
       if (done) return;
@@ -188,7 +206,14 @@ export class ImagePanelComponent extends BaseComponent {
       if (e.key === 'Enter') void finish(true);
       if (e.key === 'Escape') void finish(false);
     });
-    input.addEventListener('blur', () => void finish(true));
+    // Chromium fires blur, while the input is still attached, when a
+    // re-render removes it or the Explorer moves this panel (data-moving).
+    // That is not the user leaving the box: our own re-render reopens it
+    // with the text typed so far, and the Explorer puts focus back.
+    input.addEventListener('blur', () => {
+      if (!this.replacing && !this.hasAttribute('data-moving'))
+        void finish(true);
+    });
   }
 }
 
