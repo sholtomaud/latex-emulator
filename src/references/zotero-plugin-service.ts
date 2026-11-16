@@ -13,14 +13,31 @@ import type { PluginStatus } from './zotero-plugin.ts';
 import {
   pairWithZotero,
   pairingCode,
+  searchViaPlugin,
   zoteroPluginInfo,
 } from './zotero-plugin.ts';
+import type { ZoteroSearch } from './zotero.ts';
 
 const TOKEN = 'zotero-plugin-token';
 /** This session's token; the vault holds it only if remembered. */
 let sessionToken: string | null = null;
 let rememberedInVault = false;
 let checked = false;
+
+/**
+ * A remembered token, read only if that can't make the browser ask:
+ * search() also serves the citation typeahead, which runs while the user
+ * types. Encrypted storage reads silently; the password manager may show
+ * its picker, so it is used only once the plugin section has read it.
+ */
+async function savedTokenSilently(): Promise<string | null> {
+  const token =
+    appVault.how === 'encrypted'
+      ? await appVault.get(TOKEN).catch(() => null)
+      : (appVault.cached(TOKEN) ?? null);
+  if (token) sessionToken = token;
+  return token;
+}
 
 const show = (status: PluginStatus) => zoteroPluginStore.setState({ status });
 
@@ -87,6 +104,16 @@ export const zoteroPluginActions = {
       await appVault.put(TOKEN, null).catch(() => {});
     }
     await refresh(paired.token);
+  },
+  /**
+   * Search this computer's library through the plugin, if a connection has
+   * been made (null: none, use another route). A search is the user's own
+   * action, like opening the section.
+   */
+  async search(query: string): Promise<ZoteroSearch | null> {
+    const token = sessionToken ?? (await savedTokenSilently());
+    if (!token) return null;
+    return searchViaPlugin(fetch, token, query);
   },
   async disconnect(): Promise<void> {
     await forget();

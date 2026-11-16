@@ -27,6 +27,8 @@ export interface VaultBackend {
 export class Vault {
   #backend: VaultBackend | null;
   #entries: Promise<Map<string, string>> | null = null;
+  /** The entries once read, for cached(). */
+  #read: Map<string, string> | null = null;
 
   constructor(backend: VaultBackend | null) {
     this.#backend = backend;
@@ -46,13 +48,25 @@ export class Vault {
     if (!this.#entries) {
       const backend = this.#backend;
       this.#entries = backend
-        ? backend.load().then(parse, () => {
-            this.#entries = null;
-            return new Map<string, string>();
-          })
-        : Promise.resolve(new Map());
+        ? backend.load().then(
+            (text) => (this.#read = parse(text)),
+            () => {
+              this.#entries = null;
+              return new Map<string, string>();
+            }
+          )
+        : Promise.resolve((this.#read = new Map()));
     }
     return this.#entries;
+  }
+
+  /**
+   * From what has already been read, without reading: undefined if the
+   * vault hasn't been read yet. For callers that must never make the
+   * password manager ask (the citation typeahead runs while typing).
+   */
+  cached(name: string): string | null | undefined {
+    return this.#read ? (this.#read.get(name) ?? null) : undefined;
   }
 
   async get(name: string): Promise<string | null> {

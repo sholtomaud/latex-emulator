@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 import type { Page, Route } from '@playwright/test';
-import { editorReady } from '../support/editor.ts';
+import { editorReady, setSource } from '../support/editor.ts';
 import { openView } from '../support/views.ts';
 import {
+  credentialReads,
   fakePasswordManager,
   noPasswordManager,
   savedPassword,
@@ -247,4 +248,159 @@ test('a remembered connection removed in Zotero is dropped', async ({
   await editorReady(page);
   await openPanel(page);
   await expect(panel(page)).toContainText('Not connected.');
+});
+
+/** The working plugin, plus search_items (plugin 0.2.0, with include_csl). */
+const searching = (call: Call) =>
+  call.method === 'tools/call'
+    ? (call.params._meta as Record<string, string>)['latex-emulator/token'] ===
+      TOKEN
+      ? {
+          result: {
+            content: [{ type: 'text', text: '…' }],
+            structuredContent: {
+              items: [
+                {
+                  key: 'ABCD2345',
+                  title: 'Systems ecology',
+                  csl: {
+                    type: 'book',
+                    title: 'Systems ecology',
+                    author: [{ family: 'Odum', given: 'Howard T.' }],
+                    issued: { 'date-parts': [[1983]] },
+                  },
+                },
+              ],
+            },
+          },
+        }
+      : { status: 401, error: { code: -32001, message: 'Pair first.' } }
+    : working(call);
+
+test('once connected, Zotero searches and suggestions go through the plugin, not Zotero’s local API', async ({
+  page,
+}) => {
+  const calls = await fakePlugin(page, searching);
+  let localApi = 0;
+  await page.route('http://localhost:23119/api/**', (route) => {
+    localApi++;
+    return route.abort('failed');
+  });
+  await openPanel(page);
+  await panel(page).getByRole('button', { name: 'Connect' }).click();
+  await expect(panel(page)).toContainText('Connected to Zotero');
+
+  // The References search box.
+  const library = page.getByRole('region', { name: 'Bibliography' });
+  await library.getByText('Zotero', { exact: true }).click();
+  await expect(library.getByLabel('Zotero library')).toHaveValue('local');
+  await library.getByRole('searchbox', { name: 'Search Zotero' }).fill('odum');
+  await library.getByRole('button', { name: 'Search' }).click();
+  // The library's status line (the plugin panel above has its own).
+  const status = library.locator('.bib-status');
+  await expect(status).toHaveText('1 item in Zotero.');
+  const search = calls.find((c) => c.method === 'tools/call')!;
+  expect(search.params.name).toBe('search_items');
+  expect(search.params.arguments).toEqual({
+    query: 'odum',
+    limit: 25,
+    include_csl: true,
+  });
+  await expect(
+    library.getByRole('list', { name: 'Zotero results' }).getByRole('listitem')
+  ).toHaveText([/Systems ecology\s*Odum, 1983/]);
+
+  // The citation typeahead.
+  await library
+    .getByLabel('Suggest from Zotero while typing citations')
+    .check();
+  await setSource(page, '');
+  await page.getByRole('textbox', { name: 'LaTeX source' }).focus();
+  await page.keyboard.type('\\citep{syst');
+  // The library's own matches come first; the plugin's hit is among them.
+  await expect(
+    page
+      .locator('latex-editor .suggest-widget .monaco-list-row')
+      .filter({ hasText: 'odum_systems_1983' })
+  ).toContainText('Zotero');
+  expect(localApi).toBe(0);
+});
+
+test('an older plugin without include_csl says to update it', async ({
+  page,
+}) => {
+  await fakePlugin(page, (call) =>
+    call.method === 'tools/call'
+      ? {
+          result: {
+            content: [
+              {
+                type: 'text',
+                text: 'Invalid arguments: include_csl is not a known argument.',
+              },
+            ],
+            isError: true,
+          },
+        }
+      : working(call)
+  );
+  await openPanel(page);
+  await panel(page).getByRole('button', { name: 'Connect' }).click();
+  await expect(panel(page)).toContainText('Connected to Zotero');
+  const library = page.getByRole('region', { name: 'Bibliography' });
+  await library.getByText('Zotero', { exact: true }).click();
+  await library.getByRole('searchbox', { name: 'Search Zotero' }).fill('odum');
+  await library.getByRole('button', { name: 'Search' }).click();
+  await expect(library.locator('.bib-status')).toContainText(
+    'Update the LaTeX Emulator plugin in Zotero'
+  );
+});
+
+test('a remembered connection serves searches after a reload, without asking the password manager while typing', async ({
+  page,
+}) => {
+  for (const mode of ['no password manager', 'password manager'] as const) {
+    await page.unrouteAll({ behavior: 'wait' });
+    if (mode === 'password manager') await fakePasswordManager(page);
+    else await noPasswordManager(page);
+    await page.reload();
+    await editorReady(page);
+    const calls = await fakePlugin(page, searching);
+    await openPanel(page);
+    await panel(page)
+      .getByRole('checkbox', { name: /Remember/ })
+      .check();
+    await panel(page).getByRole('button', { name: 'Connect' }).click();
+    await expect(panel(page)).toContainText('Connected to Zotero');
+
+    await page.reload();
+    await editorReady(page);
+    calls.length = 0;
+    const library = page.getByRole('region', { name: 'Bibliography' });
+    await openView(page, 'References');
+    await library.getByText('Zotero', { exact: true }).click();
+    await library
+      .getByRole('searchbox', { name: 'Search Zotero' })
+      .fill('odum');
+    await library.getByRole('button', { name: 'Search' }).click();
+    if (mode === 'no password manager') {
+      // Encrypted storage reads silently: the remembered token is used.
+      await expect(library.locator('.bib-status')).toHaveText(
+        '1 item in Zotero.'
+      );
+      expect(calls.some((c) => c.method === 'tools/call')).toBe(true);
+    } else {
+      // The password manager may ask, so it isn't read for a search…
+      expect(calls.some((c) => c.method === 'tools/call')).toBe(false);
+      expect(await credentialReads(page)).toBe(0);
+      // …until the plugin section reads it; then searches use it.
+      await openPanel(page);
+      await expect(panel(page)).toContainText('Connected to Zotero');
+      await library.getByRole('button', { name: 'Search' }).click();
+      await expect(library.locator('.bib-status')).toHaveText(
+        '1 item in Zotero.'
+      );
+    }
+    await page.evaluate(() => sessionStorage.clear());
+  }
 });

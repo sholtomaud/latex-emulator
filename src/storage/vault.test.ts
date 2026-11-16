@@ -61,6 +61,22 @@ describe('Vault', () => {
     assert.strictEqual(backend.loads, 1);
   });
 
+  test('cached() answers only from what was already read, never asking', async () => {
+    const backend = memoryBackend(
+      'password-manager',
+      JSON.stringify({ a: '1' })
+    );
+    const vault = new Vault(backend);
+    assert.strictEqual(vault.cached('a'), undefined); // not read yet
+    assert.strictEqual(backend.loads, 0);
+    await vault.get('a');
+    assert.strictEqual(vault.cached('a'), '1');
+    assert.strictEqual(vault.cached('b'), null);
+    await vault.put('b', '2');
+    assert.strictEqual(vault.cached('b'), '2');
+    assert.strictEqual(backend.loads, 1);
+  });
+
   test('says how it remembers, or that it can’t', () => {
     assert.strictEqual(
       new Vault(memoryBackend('password-manager')).how,

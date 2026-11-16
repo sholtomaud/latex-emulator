@@ -48,8 +48,8 @@ In this order (agreed November 2026):
    - ~~skeleton, pairing and read tools, and a CI job with a real
      Zotero~~ (done);
    - Zettelkasten tools;
-   - Zotero search and typeahead through the plugin, and a document's
-     references as a collection;
+   - ~~Zotero search and typeahead through the plugin~~ (done, plugin
+     0.2.0); a document's references as a collection;
    - preprint versions with linked project files.
 
    No vector index at first; if needed, embed only the zettels with
@@ -62,9 +62,10 @@ In this order (agreed November 2026):
    - profiles: several assistants with their own prompts, each task
      routed to its own endpoint (several local servers on their own
      ports);
-   - chat follow-ups: insert a suggested block at the cursor or replace
-     the selection; ask about the selection; send the `.bib` entries
-     cited; a token/cost estimate per message;
+   - ~~chat: insert a suggested block at the cursor or replace the
+     selection; ask about the selection~~ (done, November 2026);
+   - chat follow-ups: send the `.bib` entries cited; a token/cost
+     estimate per message;
    - paragraph checks on pause, structured findings, the cache;
    - audits on demand and the readiness traffic lights;
    - the Z3 logic check (a second runtime dependency, with its own

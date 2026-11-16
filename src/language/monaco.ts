@@ -40,7 +40,7 @@ import {
   latexMonarch,
 } from './latex-language.ts';
 import { fixesAt, toMarkers } from './markers.ts';
-import { createPositionMap } from './positions.ts';
+import { createPositionMap, selectedLines } from './positions.ts';
 import { citeContextAt } from './cite-context.ts';
 import type { CitationServices } from './cite-services.ts';
 import { matchEntries } from '../references/cite-index.ts';
@@ -206,19 +206,36 @@ monaco.languages.registerCodeActionProvider(LATEX_LANGUAGE_ID, {
   },
 });
 
+/** Selected lines (see assistant/context.ts Excerpt). */
+export interface SelectedText {
+  text: string;
+  startLine: number;
+  endLine: number;
+}
+
+export interface EditorHooks {
+  /** The selection changed (null: nothing selected). */
+  onSelection?: (selection: SelectedText | null) => void;
+  /** "Ask the Assistant about the Selection" (Ctrl/⌘+Shift+A). */
+  onAskAboutSelection?: (selection: SelectedText) => void;
+}
+
 export interface LatexEditor {
   getValue(): string;
   setValue(value: string): void;
   setDiagnostics(source: string, diagnostics: Diagnostic[]): void;
   focus(): void;
   setReadOnly(readOnly: boolean): void;
+  /** Insert at the cursor, replacing the selection; one undo step. */
+  insert(text: string): void;
 }
 
 export function createLatexEditor(
   host: HTMLElement,
   value: string,
   onChange: (value: string) => void,
-  citations?: CitationServices
+  citations?: CitationServices,
+  hooks: EditorHooks = {}
 ): LatexEditor {
   services = citations ?? null;
   const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
@@ -243,11 +260,45 @@ export function createLatexEditor(
   model.setEOL(monaco.editor.EndOfLineSequence.LF);
   editor.onDidChangeModelContent(() => onChange(model.getValue()));
 
+  const selected = (): SelectedText | null => {
+    const sel = editor.getSelection();
+    if (!sel || sel.isEmpty()) return null;
+    return {
+      text: model.getValueInRange(sel),
+      ...selectedLines(sel.startLineNumber, sel.endLineNumber, sel.endColumn),
+    };
+  };
+  editor.onDidChangeCursorSelection(() => hooks.onSelection?.(selected()));
+  editor.addAction({
+    id: 'latex.askAssistantAboutSelection',
+    label: 'Ask the Assistant about the Selection',
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyA,
+    ],
+    precondition: 'editorHasSelection',
+    contextMenuGroupId: 'navigation',
+    contextMenuOrder: 0,
+    run: () => {
+      const sel = selected();
+      if (sel) hooks.onAskAboutSelection?.(sel);
+    },
+  });
+
   return {
     getValue: () => model.getValue(),
     setValue: (v) => model.setValue(v),
     focus: () => editor.focus(),
     setReadOnly: (readOnly) => editor.updateOptions({ readOnly }),
+    insert(text) {
+      if (editor.getOption(monaco.editor.EditorOption.readOnly)) return;
+      const range = editor.getSelection() ?? model.getFullModelRange();
+      editor.pushUndoStop();
+      editor.executeEdits('assistant', [
+        { range, text, forceMoveMarkers: true },
+      ]);
+      editor.pushUndoStop();
+      editor.focus();
+    },
     setDiagnostics(source, diagnostics) {
       // Stale results (computed for older text) are dropped.
       if (source !== model.getValue()) return;

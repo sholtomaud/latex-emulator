@@ -223,7 +223,7 @@
 :host .message-code pre {
   margin: 0;
   padding: 0.5rem;
-  padding-right: 3.5rem;
+  padding-top: 1.5rem;
   overflow-x: auto;
   border: 1px solid var(--boba-border);
   border-radius: 0.25rem;
@@ -232,10 +232,48 @@
   line-height: 1.4;
 }
 
-:host .code-copy {
+:host .code-actions {
   position: absolute;
   top: 0.25rem;
   right: 0.375rem;
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0 0.25rem;
+  background: var(--boba-bg);
+}
+
+:host .assistant-link:disabled {
+  color: var(--boba-text-muted);
+  cursor: default;
+  text-decoration: none;
+}
+
+:host .assistant-attach {
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+}
+
+:host .assistant-attach:has(> :not([hidden])) {
+  padding-top: 0.375rem;
+}
+
+:host .assistant-attachment {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.125rem 0.125rem 0.5rem;
+  border: 1px solid var(--boba-accent);
+  border-radius: 0.25rem;
+  color: var(--boba-text);
+}
+
+:host .assistant-attachment-label {
+  flex: 1;
+}
+
+:host .assistant-attachment[hidden],
+:host .assistant-ask-selection[hidden] {
+  display: none;
 }
 
 :host .assistant-error {

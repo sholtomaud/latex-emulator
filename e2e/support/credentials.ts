@@ -35,6 +35,8 @@ export async function fakePasswordManager(page: Page) {
           return c;
         },
         get: async () => {
+          const w = window as unknown as { credentialReads?: number };
+          w.credentialReads = (w.credentialReads ?? 0) + 1;
           const saved = sessionStorage.getItem(KEY);
           return saved ? { type: 'password', ...JSON.parse(saved) } : null;
         },
@@ -55,4 +57,12 @@ export async function noPasswordManager(page: Page) {
   await page.addInitScript(() => {
     delete (window as { PasswordCredential?: unknown }).PasswordCredential;
   });
+}
+
+/** How often this page asked the (fake) password manager for its password. */
+export async function credentialReads(page: Page): Promise<number> {
+  return page.evaluate(
+    () =>
+      (window as unknown as { credentialReads?: number }).credentialReads ?? 0
+  );
 }

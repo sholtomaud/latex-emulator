@@ -466,14 +466,15 @@ on-screen pages, implement our own lightweight paginator in
   they chose (Anthropic, OpenRouter, Gemini or a server on localhost):
   their messages, and the document's source only for a document they
   allowed it to read; and our Zotero plugin on `127.0.0.1:23119`, only
-  after the user opens its section or clicks Connect, carrying the pairing
-  request or the plugin's token (ADR 0024). Secrets (the assistant's API
-  keys, the plugin's token) are kept for the session; if the user ticks
-  Remember, they go to one vault (`src/storage/vault.ts`): the browser's
-  password manager where it has one, else encrypted on this device in
-  their own IndexedDB database. Never `localStorage`, backups or project
-  folders. The plugin checks `Host`, `Origin` and the token on every
-  request. Documents live in
+  after the user opens its section, clicks Connect or searches Zotero
+  (the References search or the opt-in typeahead, with a connection
+  made), carrying the pairing request, the plugin's token and the search
+  text (ADR 0024). Secrets (the assistant's API keys, the plugin's token)
+  are kept for the session; if the user ticks Remember, they go to one
+  vault (`src/storage/vault.ts`): the browser's password manager where it
+  has one, else encrypted on this device in their own IndexedDB database.
+  Never `localStorage`, backups or project folders. The plugin checks
+  `Host`, `Origin` and the token on every request. Documents live in
   OPFS/IndexedDB on the user's device.
 
 ---
@@ -753,6 +754,8 @@ chosen branch.
     OpenRouter, Gemini and local llama.cpp providers, with keys remembered
     in the browser's password manager (else encrypted on this device) and
     the document sent only where allowed.
+    ✅ Insert a suggested block at the cursor (or over the selection) and
+    ask about the selected lines (Ctrl/⌘+Shift+A).
     Next: style rules, profiles, paragraph checks, audits, Z3.
 
 **Rule for every feature above:** the document stays standard LaTeX that
