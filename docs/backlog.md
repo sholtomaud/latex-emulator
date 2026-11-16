@@ -16,19 +16,21 @@ status labels (ADR 0006) and per-document `.bib` subsets (ADR 0020).
 
 In this order (agreed November 2026):
 
-1. ~~Version status labels~~ (done).
-2. **Activity bar (VS Code style).** A column of icons on the left, each
-   opening its own view in place of the current one:
-   - Explorer (the default): each document as a folder, laid out like its
-     project folder: `.tex`, images, generated `.bib`;
-   - Versions;
-   - References: the library, Add by DOI, Zotero and the plugin button;
-   - Storage: backup and restore, the folder;
-   - later Assistant, Outline and Problems.
-
-   It needs an ADR first; the visual baselines change.
-
-3. **Zotero plugin** (our own; its own ADR). Decisions so far:
+1. **Activity bar and side bars** (ADR 0022). Three PRs:
+   - the activity bar and primary side bar, with today's sections moved
+     into Explorer, Versions, References and Storage views;
+   - the Explorer tree: documents as folders with their `.tex`, images and
+     generated `.bib`;
+   - the secondary side bar on the right for the assistant.
+2. **Versions on disk** (ADR 0015 B2, small): with a folder linked, each
+   saved version is written once to `versions/<name>-v1.2.0.tex` and
+   listed in `versions/versions.json` with its label. Working files keep
+   their names and are overwritten by saves.
+3. **Local style rules** (ADR 0023, tier a): lint rules with no model, set
+   by a style profile. They cover `Supervisor++`'s mechanical rules:
+   banned constructions, fillers, the quotation protocol, rhythm, and
+   em-dash density.
+4. **Zotero plugin** (our own; its own ADR). Decisions so far:
    - **Writes need code inside Zotero.** Zotero's local API (port 23119)
      is read-only and refuses web pages (ADR 0009). Never write
      `zotero.sqlite` directly: it corrupts libraries while Zotero runs.
@@ -67,7 +69,15 @@ In this order (agreed November 2026):
      pages. If entry points prove hard to find, embed only the zettels (a
      few thousand short notes) with `llama-server --embedding`, not
      chunked PDFs. That index lives in the plugin's own file.
-4. **Back-filling zettels with a local model** (llama.cpp's
+5. **The writing assistant** (ADR 0023), in steps:
+   - the panel and profiles, with endpoints for local llama.cpp servers on
+     their own ports and cloud providers;
+   - paragraph checks on pause, structured findings, the cache;
+   - audits on demand and the readiness traffic lights;
+   - the Z3 logic check (a second runtime dependency, with its own
+     justification);
+   - auto-zettel suggestions through the Zotero plugin.
+6. **Back-filling zettels with a local model** (llama.cpp's
    `llama-server`, not Ollama), a resumable job over the library:
    - per item: metadata, abstract, annotations and child notes, within a
      context budget for a model that fits in 32 GB RAM; full text only by
@@ -76,49 +86,7 @@ In this order (agreed November 2026):
      never silently made permanent;
    - idempotent (processed items are marked), checkpointed,
      rate-limited, with a dry run first.
-5. **Editorial assistant panel**, with its own ADR. It changes AGENTS §9:
-   document content goes to a model only on an explicit, per-message
-   action, with the provider named. Two API shapes: Anthropic Messages, and
-   OpenAI-compatible chat (OpenRouter, DeepSeek, Qwen, Gemini's compatible
-   endpoint, llama.cpp). Keys are held for the session or, on opt-in,
-   kept; both are encrypted in local storage. Custom endpoints mean a wider
-   `connect-src` (all HTTPS hosts), recorded in the ADR. It uses the Zotero
-   plugin's tools.
-   - **Readiness checks ("traffic lights").** Each check shows green, amber
-     or red with details:
-     - spelling, and the lint rules (AGENTS §8, language worker);
-     - grammar;
-     - the conventions of the genre (academic, fiction…);
-     - flow;
-     - signs of generated text (unusually low perplexity, em-dash
-       density…).
-
-     Checks that need no model run locally: spelling, lint, em-dash and
-     sentence-length statistics. The rest are assistant checks. Findings
-     become Monaco markers with hover explanations, plus a comments pane.
-
-   - **Argument checking with Z3** (its own ADR). A button asks the
-     assistant to state each argument's premises and conclusion in formal
-     logic, linked to the sentences they come from. Z3 then checks it:
-     - **consistency:** are the premises satisfiable together;
-     - **validity:** premises with the conclusion negated is unsat;
-     - **unused premises:** the unsat core;
-     - **counterexamples:** the model, when the argument is invalid.
-
-     Results come back as markers with hovers on the sentences, and as
-     comments. Modal logic goes through the standard (Kripke) translation,
-     with the frame axioms for K, T, S4 and S5. Points to settle:
-     - `z3-solver` would be a second runtime dependency. AGENTS §2 needs a
-       justification for it, and it is a large WASM file loaded only on
-       demand, in a worker.
-     - Its threaded build needs cross-origin isolation (COOP/COEP headers),
-       which GitHub Pages can't send. Prefer a single-threaded build in a
-       worker over a header-injecting service worker.
-     - The weak link is the formalisation, not the solver. Show the
-       premises and conclusion beside their sentences for the author to
-       accept or correct before trusting "valid" or "invalid", and say
-       that a result concerns the formalisation.
-6. **OneDrive and Google Drive** (ADR 0015 phases C and D, below).
+7. **OneDrive and Google Drive** (ADR 0015 phases C and D, below).
    Sign-in, then backup and sync of project folders. The owner must first
    create the Microsoft Entra ID and Google Cloud app registrations.
 

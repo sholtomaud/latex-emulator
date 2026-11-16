@@ -145,6 +145,26 @@ Built as follows:
   the page when such a handle is read back from IndexedDB; the pinned
   image's does not. Run `e2e/specs/folder.spec.ts` in the container.
 
+**B2. Versions on disk (proposed).** File names don't carry the version.
+
+- **The working files** (`paper.tex`, its `.bib`, images) are the working
+  copy, like a git working tree. Saves, and "save there as I type",
+  overwrite them, with the conflict check above.
+- **Each saved version (ADR 0006) is written once and never overwritten.**
+  - Its `.tex` goes to `versions/paper-v1.2.0.tex`.
+  - It is listed in `versions/versions.json` with its date, SHA-256 and
+    label.
+  - Labels (submitted, published…) can change later. Keeping them in the
+    index instead of the file name means a relabel never renames a file.
+- **Putting the version in the working file's name** (`paper-v1.2.0.tex`
+  overwritten on autosave) would break `\include`s and `\bibliography`
+  paths across bumps. It would also make every bump a new file that
+  editors and sync tools treat as unrelated.
+- **Download Preprint's PDF** is still named with version and label, since
+  it is a snapshot.
+- **Opening a folder** with a `versions/` folder brings its versions back
+  into the history, verified against their SHA-256.
+
 **C. OneDrive (Microsoft Graph).**
 
 - **Sign-in:** authorization code with PKCE, in a popup, as a
