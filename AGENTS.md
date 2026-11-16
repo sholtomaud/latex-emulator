@@ -164,6 +164,7 @@ were removed. Grow toward:
 ```
 src/
 ├── main.ts                       # routes, boot, SW registration
+├── pwa/                          # service worker registration + precache list (ADR 0021)
 ├── core/                         # Boba core (base-component, router, store)
 ├── store/                        # app stores: document, diagnostics, workspace, ui, print,
 │                                 #   bib, images
@@ -219,8 +220,8 @@ src/
 crates/                           # Rust workspace (only if/when needed)
 └── latex-spell/ …                # each crate: lib.rs, wasm.rs, ts-rs exports
 public/
-├── manifest.webmanifest
-├── sw.js                         # hand-written service worker
+├── manifest.webmanifest          # + icon-192/512 and maskable PNGs (scripts/make-icons.ts)
+├── sw.js                         # hand-written service worker (ADR 0021)
 └── dict/                         # Hunspell .aff/.dic (licenses alongside)
 fixtures/                         # *.tex inputs + pdflatex references (see §10)
 docs/decisions/                   # short ADRs: NNNN-title.md
@@ -590,8 +591,11 @@ chosen branch.
   `display: standalone`, `start_url` and `scope` relative to `BOBA_BASE_URL`.
 - A **hand-written** `public/sw.js`, not a plugin-generated one. It precaches
   the app shell, Monaco chunks, worker, WASM, fonts and dictionaries, using a
-  versioned cache name, and cleans up old caches on `activate`. A tiny local
-  Vite plugin may emit the precache list of hashed assets at build time.
+  versioned cache name, and cleans up old caches on `activate`. After
+  `vite build`, `scripts/precache.ts` writes the build's file list and
+  version into it (ADR 0021). Same-origin requests are answered from the
+  cache first; other origins are never cached. A new release waits for the
+  user's Reload; it never swaps code under an open document.
 - The app must be fully functional offline after first load, including
   diagnostics, spelling, preview and PDF.
 - Persist documents, `.bib` files and images in IndexedDB (`src/storage/`,
@@ -702,9 +706,10 @@ chosen branch.
 12. The starter document becomes a tour of every supported feature (updated
     alongside each step above).
 13. Language worker (parsing and diagnostics off the main thread), lint rules,
-    completion/hover, spell checking, PWA offline install, pagination-accurate
-    preview. ✅ Project zip export with a CI check that the sample compiles
-    in real pdflatex (ADR 0015, phase A).
+    completion/hover, spell checking, pagination-accurate preview.
+    ✅ Project zip export with a CI check that the sample compiles in real
+    pdflatex (ADR 0015, phase A). ✅ Offline-first PWA: service worker,
+    update prompt, installable manifest (ADR 0021).
 
 **Rule for every feature above:** the document stays standard LaTeX that
 compiles with pdflatex and the named CTAN packages. Browser conveniences

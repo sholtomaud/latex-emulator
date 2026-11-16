@@ -7,9 +7,10 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing. Done most recently: version status labels (ADR 0006). Before
-that: per-document `.bib` subsets (ADR 0020), saving to a folder (ADR 0015
-phase B) and keeping documents safe in the browser (ADR 0019).
+Nothing. Done most recently: offline-first (ADR 0021). A service worker
+caches the whole app, so after one visit it starts with no network; a new
+release waits for Reload; the app can be installed. Before that: version
+status labels (ADR 0006) and per-document `.bib` subsets (ADR 0020).
 
 ## Next
 
@@ -143,6 +144,12 @@ In this order (agreed November 2026):
   worker and the rest).
 
 ## Deferred follow-ups (from ADRs and PRs)
+
+- Offline (ADR 0021): if the first visit's ~5.3 MB proves too heavy, cache
+  Monaco on first use instead of precaching it; a "Ready to work offline"
+  note once the first install completes; the language worker and
+  dictionaries join the precache when they exist (automatic: every built
+  file is listed).
 
 - Folders (ADR 0015 B): save versions into a `versions/` subfolder;
   "Back up all" into a chosen folder on a schedule; detect a folder's
