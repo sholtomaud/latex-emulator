@@ -260,13 +260,21 @@ links back to the document and version.
   them in the browser's own password manager through the Credential
   Management API (`PasswordCredential`): encrypted by the operating
   system with the user's passwords, and synced the way they are. All
-  remembered keys are one saved entry (JSON), because the API returns one
-  credential per site, not per name; "Use saved keys" reads it, and the
-  browser may ask first. Chromium has the API; Firefox and Safari keep
-  keys for the session only, and setup says so. A key is never written to
-  localStorage, IndexedDB, backups or project folders. Encrypting keys in
-  page storage was rejected: without a passphrase the decryption key
-  would sit beside them.
+  remembered secrets of the app are one saved entry (JSON), because the
+  API returns one credential per site, not per name; "Use saved keys"
+  reads it, and the browser may ask first. A key is never written to
+  localStorage, backups or project folders.
+  - **Browsers without the API** (Firefox, Safari) first kept keys for
+    the session only, because encrypting them in page storage was
+    rejected: without a passphrase the decryption key sits beside them.
+    In November 2026 the maintainer chose an encrypted fallback instead,
+    as for the Zotero plugin's token (ADR 0024): there "Remember" keeps
+    keys on this device, AES-GCM under a non-exportable key in a database
+    of their own. That keeps them out of plain-text storage and backups,
+    and page code can't read the key as bytes; someone with a copy of the
+    browser profile still has both, and setup says where keys go.
+  - Both live in one vault, `src/storage/vault.ts`; the assistant's keys
+    are a section of it, so saving them never drops the plugin's token.
 - **Insert and ask about the selection** (added November 2026).
   - A code block in a reply has **Insert**, which reads **Replace
     selection** when the editor has a selection. It edits through Monaco

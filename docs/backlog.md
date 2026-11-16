@@ -22,9 +22,9 @@ Update it in the same PR that starts, finishes or defers an item.
   - a scheduled CI run against Zotero's latest release, so a new Zotero
     that breaks the plugin is noticed before users update;
   - test older Zotero versions before widening `plugin.json`'s range;
-  - one way of keeping secrets: the assistant's keys use the browser's
-    password manager, the plugin's token the encrypted SecretStore;
-    choose one (and move the zotero.org key, ADR 0009, to it).
+  - ~~one way of keeping secrets~~ (done: one vault, the password
+    manager where there is one, else encrypted); the zotero.org key
+    (ADR 0009) could offer Remember through it too.
 
 ## Next
 
