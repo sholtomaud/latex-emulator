@@ -48,8 +48,8 @@ In this order (agreed November 2026):
    - ~~skeleton, pairing and read tools, and a CI job with a real
      Zotero~~ (done);
    - Zettelkasten tools;
-   - Zotero search and typeahead through the plugin, and a document's
-     references as a collection;
+   - ~~Zotero search and typeahead through the plugin~~ (done, plugin
+     0.2.0); a document's references as a collection;
    - preprint versions with linked project files.
 
    No vector index at first; if needed, embed only the zettels with

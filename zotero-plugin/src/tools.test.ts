@@ -111,3 +111,19 @@ test('an item with no title, date or creators still summarises', async () => {
   assert.strictEqual(result.item.year, '');
   assert.deepStrictEqual(result.item.creators, ['Ada']);
 });
+
+test('search_items: include_csl adds each item’s CSL-JSON, for the app to make .bib entries', async () => {
+  const plain = (await runTool(port(), 'search_items', { query: 'odum' })) as {
+    items: Record<string, unknown>[];
+  };
+  assert.strictEqual('csl' in plain.items[0], false);
+  const withCsl = (await runTool(port(), 'search_items', {
+    query: 'odum',
+    include_csl: true,
+  })) as { items: { csl: Record<string, unknown> }[] };
+  assert.deepStrictEqual(withCsl.items[0].csl, ODUM.csl);
+  await assert.rejects(
+    runTool(port(), 'search_items', { query: 'odum', include_csl: 'yes' }),
+    ToolError
+  );
+});

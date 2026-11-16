@@ -4,10 +4,11 @@ A Zotero plugin that serves your library over [MCP](https://modelcontextprotocol
 to the LaTeX Emulator and to AI agents such as Claude Code. The design is in
 [ADR 0024](../docs/decisions/0024-zotero-plugin-and-zettelkasten.md).
 
-- **Phase 1 (this):** pairing, and two read tools: `search_items` and
+- **Phase 1:** pairing, and two read tools: `search_items` and
   `get_item`.
-- **Later:** Zettelkasten tools, the app's Zotero search through the
-  plugin, and preprint versions.
+- **0.2.0:** the app's Zotero search and citation typeahead go through
+  the plugin (`search_items` with `include_csl`).
+- **Later:** Zettelkasten tools and preprint versions.
 
 ## Install
 
