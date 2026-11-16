@@ -159,6 +159,35 @@ describe('preprintCss', () => {
     }
   });
 
+  test('watermarks every printed page with the stamp heading, diagonally', () => {
+    const css = preprintCss(stamp, g11);
+    // A fixed box repeats on every page in Chromium's print engine.
+    const m = css.match(/@media print \{\s*body::after \{([^}]*)\}\s*\}/);
+    assert.ok(m, 'no print-only body::after');
+    assert.match(m[1], /content: "PREPRINT";/);
+    assert.match(m[1], /position: fixed;/);
+    assert.match(m[1], /rotate\(-45deg\)/);
+    assert.match(m[1], /pointer-events: none;/);
+    assert.match(
+      preprintCss({ ...stamp, label: 'under review' }, g11),
+      /content: "UNDER REVIEW";/
+    );
+  });
+
+  test('a long label gets a smaller watermark that still fits the text block', () => {
+    const size = (label?: string) =>
+      Number(
+        preprintCss({ ...stamp, label }, g11).match(
+          /body::after \{[^}]*font-size: ([\d.]+)pt/
+        )![1]
+      );
+    assert.ok(size() <= 72);
+    const long = 'x'.repeat(40);
+    assert.ok(size(long) < size());
+    // Caps average under 0.75em in LM Roman: 40 of them fit the diagonal.
+    assert.ok(size(long) * 0.75 * 40 < toBp(g11.textWidth) * Math.SQRT2);
+  });
+
   test('escapes anything that could break out of a CSS string', () => {
     const css = preprintCss({ ...stamp, version: '1"} body{x' }, g11);
     assert.ok(!css.includes('1"}'));

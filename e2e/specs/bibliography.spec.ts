@@ -47,6 +47,44 @@ test.describe('bibliography', () => {
     ]);
   });
 
+  test('plainnat without natbib: a wide label stays on one line and pushes the entry along', async ({
+    page,
+  }) => {
+    // Without natbib, article's thebibliography prints plainnat's whole
+    // \bibitem[Brown and Ulgiati(2004)] label. latex.ltx \@item: a label wider than
+    // \labelwidth is set at its own width, and the text follows it after
+    // \labelsep, so nothing overlaps.
+    await setSource(
+      page,
+      doc('See \\cite{brown_energy_2004}.').replace(
+        '\\usepackage{natbib}\n',
+        ''
+      )
+    );
+    const item = preview(page).locator('ul.thebibliography > li > p').first();
+    const label = item.locator('.item-label');
+    await expect(label).toHaveText('[Brown and Ulgiati(2004)]');
+    const box = await label.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const range = el.ownerDocument.createRange();
+      range.selectNodeContents(el);
+      const lines = new Set(
+        [...range.getClientRects()].map((c) => Math.round(c.top))
+      ).size;
+      const next = el.nextSibling!;
+      const after = el.ownerDocument.createRange();
+      after.setStart(next, 0);
+      after.setEnd(next, 1);
+      return {
+        lines,
+        right: r.right,
+        textLeft: after.getBoundingClientRect().left,
+      };
+    });
+    expect(box.lines).toBe(1);
+    expect(box.textLeft).toBeGreaterThan(box.right);
+  });
+
   test('importing a .bib makes its keys citable; an unknown key is marked', async ({
     page,
   }) => {

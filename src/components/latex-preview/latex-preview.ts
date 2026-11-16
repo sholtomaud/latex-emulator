@@ -11,6 +11,7 @@ import {
   firstPageFooterCss,
   geometryCss,
   preprintCss,
+  PREPRINT_FONTS,
 } from '../../render/document-css.ts';
 import type { ArticleGeometry } from '../../latex/classes/article.ts';
 import { FONT_URLS } from '../../render/fonts.ts';
@@ -223,6 +224,10 @@ export class LatexPreviewComponent extends BaseComponent {
     if (job.stamp && this.geometry && this.preprintStyle)
       this.preprintStyle.textContent = preprintCss(job.stamp, this.geometry);
     doc.title = job.title ?? this.title;
+    if (job.stamp)
+      await Promise.all(
+        PREPRINT_FONTS.map((f) => doc.fonts.load(f).catch(() => []))
+      );
     await doc.fonts.ready;
     // Every figure decoded, so none prints blank.
     await Promise.all(
