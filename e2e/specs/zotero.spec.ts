@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page, Route } from '@playwright/test';
 import { editorReady } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 
 /**
  * Zotero search, with Zotero mocked: the local API on this computer
@@ -40,7 +41,7 @@ const library = (page: Page) =>
 async function openZotero(page: Page) {
   await page.goto('/');
   await editorReady(page);
-  await page.getByRole('button', { name: 'Toggle documents' }).click();
+  await openView(page, 'References');
   await library(page).getByText('Zotero', { exact: true }).click();
 }
 

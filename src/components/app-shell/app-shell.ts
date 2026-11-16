@@ -1,4 +1,5 @@
 import { BaseComponent } from '../../core/base-component.ts';
+import '../activity-bar/activity-bar.ts';
 import '../document-explorer/document-explorer.ts';
 import '../latex-editor/latex-editor.ts';
 import { isPrintShortcut } from '../latex-preview/latex-preview.ts';

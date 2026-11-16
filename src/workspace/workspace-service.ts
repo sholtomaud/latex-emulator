@@ -9,6 +9,8 @@ import { uiStore } from '../store/ui-store.ts';
 import { SAMPLE_DOCUMENT } from '../store/sample-document.ts';
 import { debounce } from '../util/debounce.ts';
 import { readPref, writePref } from '../util/browser-prefs.ts';
+import { activateView, parseSideView } from '../util/side-views.ts';
+import type { SideView } from '../util/side-views.ts';
 import { downloadText } from '../util/download.ts';
 import { requestPrint } from '../store/print-requests.ts';
 import type { Bump } from './versions.ts';
@@ -95,12 +97,14 @@ async function openRepository(): Promise<DocumentRepository> {
 }
 
 export async function startWorkspace(): Promise<void> {
-  uiStore.setState({ explorerOpen: readPref('explorer-open') === 'true' });
-  uiStore.addEventListener('change', ((e: CustomEvent) =>
-    writePref(
-      'explorer-open',
-      String(e.detail.explorerOpen)
-    )) as EventListener);
+  uiStore.setState({
+    explorerOpen: readPref('explorer-open') === 'true',
+    sideView: parseSideView(readPref('side-view')),
+  });
+  uiStore.addEventListener('change', ((e: CustomEvent) => {
+    writePref('explorer-open', String(e.detail.explorerOpen));
+    writePref('side-view', e.detail.sideView);
+  }) as EventListener);
 
   const repo = await openRepository();
   repository = repo;
@@ -720,6 +724,9 @@ export const workspaceActions = {
   },
   toggleExplorer: () =>
     uiStore.setState({ explorerOpen: !uiStore.getState().explorerOpen }),
+  /** An activity bar icon: open its view, or close the side bar (ADR 0022). */
+  showView: (view: SideView) =>
+    uiStore.setState(activateView(uiStore.getState(), view)),
 };
 
 function zoteroSource(): ZoteroSource {

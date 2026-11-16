@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import { editorReady, setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 
 interface PrintRecord {
   title: string;
@@ -45,9 +46,7 @@ const stampNow = (page: Page) =>
     .evaluate((el) => el.textContent ?? '');
 
 async function openExplorer(page: Page) {
-  const toggle = page.getByRole('button', { name: 'Toggle documents' });
-  if ((await toggle.getAttribute('aria-expanded')) !== 'true')
-    await toggle.click();
+  await openView(page, 'Versions');
   await expect(explorer(page)).toBeVisible();
 }
 

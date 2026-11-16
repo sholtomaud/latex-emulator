@@ -182,7 +182,9 @@ src/
 │   ├── app-shell/                # layout: editor | preview split, toolbar
 │   ├── latex-editor/             # Monaco host element
 │   ├── latex-preview/            # iframe preview + print trigger
-│   ├── document-explorer/        # left-hand document list (Ctrl/⌘+B)
+│   ├── activity-bar/             # icons choosing the side bar's view (ADR 0022)
+│   ├── document-explorer/        # the primary side bar (Ctrl/⌘+B): Explorer,
+│   │                             #   Versions, References and Storage views
 │   ├── image-panel/              # the open document's images (in the explorer)
 │   ├── storage-panel/            # storage status, backup/restore (ADR 0019),
 │   │                             #   the document's folder (ADR 0015 B)

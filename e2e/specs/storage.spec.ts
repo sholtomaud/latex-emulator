@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import fs from 'node:fs';
 import { editorReady, setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 import { unzip } from '../support/unzip.ts';
 
 /**
@@ -35,7 +36,7 @@ async function fakePersistence(page: Page, granted: boolean) {
 async function openExplorer(page: Page) {
   await page.goto('/');
   await editorReady(page);
-  await page.getByRole('button', { name: 'Toggle documents' }).click();
+  await openView(page, 'Storage');
 }
 
 test('the storage status says documents are not protected until the browser agrees', async ({
@@ -96,8 +97,10 @@ test('Back up all, then restore it into a browser that lost its storage', async 
     .setInputFiles('fixtures/figure-basic/images/plot.png');
   await expect(page.locator('image-panel .image-item')).toHaveCount(1);
   await setSource(page, 'The paper text.');
+  await openView(page, 'Versions');
   await page.getByRole('button', { name: 'Save version' }).click();
   await expect(page.locator('.version-item')).toHaveCount(1);
+  await openView(page, 'Explorer');
   await page.getByRole('button', { name: 'New document' }).click();
   // Wait until the new document is in the editor before replacing its text.
   await expect
@@ -114,6 +117,7 @@ test('Back up all, then restore it into a browser that lost its storage', async 
     .toContain('\\title{Untitled}');
   await setSource(page, 'Second document.');
 
+  await openView(page, 'Storage');
   const downloadPromise = page.waitForEvent('download');
   await storagePanel(page).getByRole('button', { name: 'Back up all' }).click();
   const download = await downloadPromise;
@@ -140,6 +144,7 @@ test('Back up all, then restore it into a browser that lost its storage', async 
     buffer: fs.readFileSync(path),
   });
   await expect(storagePanel(other)).toContainText('Restored 2 documents');
+  await openView(other, 'Explorer');
   await expect(
     docs.getByRole('button', { name: 'Untitled', exact: true })
   ).toBeVisible();
@@ -163,6 +168,7 @@ test('Back up all, then restore it into a browser that lost its storage', async 
   await expect(other.locator('image-panel .image-item')).toHaveCount(1);
 
   // Restoring the same backup again changes nothing.
+  await openView(other, 'Storage');
   await other.locator('storage-panel .restore-input').setInputFiles({
     name: 'backup.zip',
     mimeType: 'application/zip',
