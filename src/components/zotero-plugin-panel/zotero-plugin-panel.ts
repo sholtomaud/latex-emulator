@@ -45,6 +45,8 @@ export class ZoteroPluginPanelComponent extends BaseComponent {
       this.querySelector('.zp-status')!.textContent = pluginStatusText(status);
       const connected = status.state === 'connected';
       const busy = status.state === 'pairing' || status.state === 'checking';
+      // Once connected, the install steps have done their job.
+      this.querySelector<HTMLElement>('.zp-steps')!.hidden = connected;
       connect.hidden = connected;
       connect.disabled = busy;
       disconnect.hidden = !connected;

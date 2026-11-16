@@ -16,6 +16,7 @@
 :host .zp-steps {
   margin: 0 0 0.5rem;
   padding-left: 1.2rem;
+  list-style: decimal;
   color: var(--boba-text-muted);
 }
 
@@ -64,6 +65,7 @@
   cursor: default;
 }
 
+:host .zp-steps[hidden],
 :host .zp-actions button[hidden],
 :host .zp-remember[hidden] {
   display: none;
