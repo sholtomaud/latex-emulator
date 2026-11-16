@@ -333,3 +333,119 @@ test('Stop ends a reply and keeps what arrived', async ({ page }) => {
   );
   await expect(panel(page).getByRole('button', { name: 'Send' })).toBeVisible();
 });
+
+const editorValue = (page: Page) =>
+  page.evaluate(
+    () =>
+      (document.querySelector('latex-editor') as unknown as { value: string })
+        .value
+  );
+
+/** Put the caret at the start of a line, then select `lines` whole lines. */
+async function selectLines(page: Page, line: number, lines: number) {
+  await page.locator('latex-editor .monaco-editor').click();
+  await page.keyboard.press('ControlOrMeta+Home');
+  for (let i = 1; i < line; i++) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Home');
+  for (let i = 0; i < lines; i++) await page.keyboard.press('Shift+ArrowDown');
+}
+
+const SOURCE =
+  '\\documentclass{article}\n\\begin{document}\nFirst line.\nSecond line.\n\\end{document}\n';
+
+test('asking about the selection sends those lines with the question, once', async ({
+  page,
+}) => {
+  const seen = await mock(page, 'http://localhost:8080/v1/**', (route) =>
+    sse(route, openaiStream('ok'))
+  );
+  await start(page);
+  await chooseLocal(page);
+  await setSource(page, SOURCE);
+  await openChat(page);
+  const askButton = panel(page).getByRole('button', {
+    name: 'Ask about the selection (lines 3–4)',
+  });
+  await expect(askButton).toBeHidden();
+  await selectLines(page, 3, 2);
+  await askButton.click();
+  await expect(panel(page)).toContainText(
+    'Asking about lines 3–4; they are sent with your question.'
+  );
+  await expect(input(page)).toBeFocused();
+  await ask(page, 'Is this clear?');
+  await expect(log(page).getByRole('listitem')).toHaveCount(2);
+  const body = seen[0].postDataJSON();
+  expect(body.messages.at(-1).content).toBe(
+    'About lines 3–4 of my document:\n\n```latex\nFirst line.\nSecond line.\n```\n\nIs this clear?'
+  );
+  // Whole-document access stays off.
+  expect(body.messages[0].content).not.toContain('\\begin{document}');
+  // The chip is used up.
+  await expect(panel(page)).not.toContainText('Asking about');
+  await ask(page, 'And now?');
+  await expect(log(page).getByRole('listitem')).toHaveCount(4);
+  expect(seen[1].postDataJSON().messages.at(-1).content).toBe('And now?');
+});
+
+test('Ctrl/⌘+Shift+A in the editor opens the chat about the selection; × removes it', async ({
+  page,
+}) => {
+  await start(page);
+  await setSource(page, SOURCE);
+  await expect(panel(page)).toBeHidden();
+  await selectLines(page, 4, 1);
+  await page.keyboard.press('ControlOrMeta+Shift+a');
+  await expect(panel(page)).toBeVisible();
+  await expect(panel(page)).toContainText('Asking about line 4;');
+  await expect(input(page)).toBeFocused();
+  await panel(page)
+    .getByRole('button', { name: 'Don’t ask about the selection' })
+    .click();
+  await expect(panel(page)).not.toContainText('Asking about');
+});
+
+test('a suggested block is inserted at the cursor, or replaces the selection, in one undo step', async ({
+  page,
+}) => {
+  await mock(page, 'http://localhost:8080/v1/**', (route) =>
+    sse(route, openaiStream('Try:\n```latex\nNew line.\n```'))
+  );
+  await start(page);
+  await chooseLocal(page);
+  await setSource(page, SOURCE);
+  await openChat(page);
+  await ask(page, 'Suggest a line');
+  const reply = log(page).getByRole('listitem').nth(1);
+  // Your own message's quoted code has no Insert button; the reply's has.
+  await expect(
+    log(page)
+      .getByRole('listitem')
+      .nth(0)
+      .getByRole('button', { name: /Insert|Replace/ })
+  ).toHaveCount(0);
+
+  // Caret at the start of line 4, nothing selected: inserted there.
+  await selectLines(page, 4, 0);
+  await reply
+    .getByRole('button', { name: 'Insert this code at the cursor' })
+    .click();
+  await expect
+    .poll(() => editorValue(page))
+    .toBe(SOURCE.replace('Second line.', 'New line.Second line.'));
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect.poll(() => editorValue(page)).toBe(SOURCE);
+
+  // A selection is replaced, and the button says so.
+  await selectLines(page, 3, 1);
+  const replace = reply.getByRole('button', {
+    name: 'Replace the selection with this code',
+  });
+  await expect(replace).toHaveText('Replace selection');
+  await replace.click();
+  await expect
+    .poll(() => editorValue(page))
+    .toBe(SOURCE.replace('First line.\n', 'New line.'));
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect.poll(() => editorValue(page)).toBe(SOURCE);
+});

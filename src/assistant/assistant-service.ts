@@ -9,6 +9,8 @@ import { KeyStore } from './key-store.ts';
 import { browserPasswordManager } from './password-manager.ts';
 import { readPref, writePref } from '../util/browser-prefs.ts';
 import { workspaceStore } from '../store/workspace-store.ts';
+import { uiStore } from '../store/ui-store.ts';
+import type { Excerpt } from './context.ts';
 import type { WorkspaceStoreState } from '../store/workspace-store.ts';
 
 export const assistantKeys = new KeyStore(browserPasswordManager());
@@ -52,3 +54,9 @@ follow(workspaceStore.getState());
 workspaceStore.addEventListener('change', ((
   e: CustomEvent<WorkspaceStoreState>
 ) => follow(e.detail)) as EventListener);
+
+/** The editor's "Ask the Assistant about the Selection": open the chat with it. */
+export function askAboutSelection(selection: Excerpt) {
+  uiStore.setState({ assistantOpen: true });
+  assistant.attach(selection, { focus: true });
+}

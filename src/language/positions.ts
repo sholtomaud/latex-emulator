@@ -34,3 +34,18 @@ export function createPositionMap(text: string): PositionMap {
     },
   };
 }
+
+/**
+ * The lines a selection covers. One that ends at column 1 (whole lines
+ * selected with the keyboard or by line numbers) stops on the line before.
+ */
+export function selectedLines(
+  startLine: number,
+  endLine: number,
+  endColumn: number
+): { startLine: number; endLine: number } {
+  return {
+    startLine,
+    endLine: endColumn === 1 && endLine > startLine ? endLine - 1 : endLine,
+  };
+}

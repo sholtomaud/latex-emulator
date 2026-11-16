@@ -8,6 +8,9 @@ import type { AssistantState } from '../../assistant/assistant-controller.ts';
 import { PROVIDER_IDS, PROVIDERS } from '../../assistant/providers.ts';
 import type { ProviderId } from '../../assistant/providers.ts';
 import { splitFences } from '../../assistant/fences.ts';
+import { excerptLabel } from '../../assistant/context.ts';
+import { editorBridge, requestInsert } from '../../store/editor-bridge.ts';
+import type { EditorBridgeState } from '../../store/editor-bridge.ts';
 import {
   MAX_WIDTH,
   MIN_WIDTH,
@@ -50,6 +53,41 @@ export class AssistantPanelComponent extends BaseComponent {
     const stop = $<HTMLButtonElement>('.assistant-stop');
     const messageTemplate = $<HTMLTemplateElement>('.message-template');
     const codeTemplate = $<HTMLTemplateElement>('.code-template');
+    const attachment = $<HTMLElement>('.assistant-attachment');
+    const attachmentLabel = $<HTMLElement>('.assistant-attachment-label');
+    const askSelection = $<HTMLButtonElement>('.assistant-ask-selection');
+
+    // Ask about the editor's selection (ADR 0023): attach it to the next
+    // question, from here or with Ctrl/⌘+Shift+A in the editor.
+    $('.assistant-attachment-remove').addEventListener('click', () => {
+      assistant.attach(null);
+      input.focus();
+    });
+    askSelection.addEventListener('click', () => {
+      const { selection } = editorBridge.getState();
+      if (selection) assistant.attach(selection, { focus: true });
+    });
+    assistant.store.addEventListener('focus-composer', () => input.focus());
+
+    // Insert a suggested block at the cursor, replacing the selection.
+    const showInsert = (button: HTMLButtonElement) => {
+      const replace = !!editorBridge.getState().selection;
+      button.textContent = replace ? 'Replace selection' : 'Insert';
+      button.setAttribute(
+        'aria-label',
+        replace
+          ? 'Replace the selection with this code'
+          : 'Insert this code at the cursor'
+      );
+      button.disabled = uiStore.getState().readOnly;
+    };
+    const showSelection = ({ selection }: EditorBridgeState) => {
+      askSelection.hidden = !selection;
+      if (selection)
+        askSelection.textContent = `Ask about the selection (${excerptLabel(selection)})`;
+      for (const b of list.querySelectorAll<HTMLButtonElement>('.code-insert'))
+        showInsert(b);
+    };
 
     close.addEventListener('click', () => {
       workspaceActions.closeAssistant();
@@ -135,7 +173,11 @@ export class AssistantPanelComponent extends BaseComponent {
     });
     stop.addEventListener('click', () => assistant.stop());
 
-    const renderBody = (body: HTMLElement, text: string) => {
+    const renderBody = (
+      body: HTMLElement,
+      text: string,
+      role: 'user' | 'assistant'
+    ) => {
       body.replaceChildren();
       for (const seg of splitFences(text)) {
         if (seg.kind === 'text') {
@@ -150,6 +192,12 @@ export class AssistantPanelComponent extends BaseComponent {
         ) as HTMLElement;
         block.querySelector('code')!.textContent = seg.text;
         if (seg.lang) block.dataset.lang = seg.lang;
+        const insert = block.querySelector<HTMLButtonElement>('.code-insert')!;
+        if (role === 'user') insert.remove();
+        else {
+          showInsert(insert);
+          insert.addEventListener('click', () => requestInsert(seg.text));
+        }
         const copy = block.querySelector<HTMLButtonElement>('.code-copy')!;
         copy.setAttribute('aria-label', 'Copy code');
         copy.addEventListener('click', () => {
@@ -193,7 +241,7 @@ export class AssistantPanelComponent extends BaseComponent {
         const body = li.querySelector<HTMLElement>('.message-body')!;
         if (body.dataset.text !== m.content) {
           body.dataset.text = m.content;
-          renderBody(body, m.content);
+          renderBody(body, m.content, m.role);
         }
       });
       for (const extra of items.slice(s.messages.length)) extra.remove();
@@ -207,8 +255,19 @@ export class AssistantPanelComponent extends BaseComponent {
       if (s.draft && s.draft !== lastDraft && !input.value)
         input.value = s.draft;
       lastDraft = s.draft;
+      attachment.hidden = !s.attachment;
+      attachmentLabel.textContent = s.attachment
+        ? `Asking about ${excerptLabel(s.attachment)}; they are sent with your question.`
+        : '';
       if (atBottom) scroll.scrollTop = scroll.scrollHeight;
     };
+    showSelection(editorBridge.getState());
+    editorBridge.addEventListener('change', ((
+      e: CustomEvent<EditorBridgeState>
+    ) => showSelection(e.detail)) as EventListener);
+    uiStore.addEventListener('change', () =>
+      showSelection(editorBridge.getState())
+    );
     render(assistant.store.getState());
     assistant.store.addEventListener('change', ((
       e: CustomEvent<AssistantState>
