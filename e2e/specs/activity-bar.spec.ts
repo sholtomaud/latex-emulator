@@ -25,6 +25,7 @@ test('one view at a time; clicking the open view closes the side bar', async ({
     'Versions',
     'References',
     'Storage',
+    'Assistant setup',
   ]);
   await tab(page, 'Versions').click();
   await expect(tab(page, 'Versions')).toHaveAttribute('aria-selected', 'true');
@@ -79,6 +80,9 @@ test('arrow keys move between views, as in a tablist', async ({ page }) => {
   await page.keyboard.press('ArrowDown');
   await expect(tab(page, 'Versions')).toBeFocused();
   await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('ArrowUp');
+  // Up from the first wraps to the last: Assistant setup (ADR 0023).
+  await expect(tab(page, 'Assistant setup')).toBeFocused();
   await page.keyboard.press('ArrowUp');
   await expect(tab(page, 'Storage')).toBeFocused();
   await page.keyboard.press('Enter');

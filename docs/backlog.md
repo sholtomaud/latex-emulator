@@ -7,20 +7,21 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-**Zotero plugin with Zettelkasten tools** (ADR 0024), taken ahead of
-versions on disk and local style rules at the maintainer's request
-(November 2026). Phase 1 is done: the plugin (MCP on Zotero's port,
-pairing, `search_items` and `get_item`), the References section to get it
-and connect, and a CI job running it in a real Zotero 10. Next: phase 2,
-the Zettelkasten tools.
-
-Phase 1 follow-ups:
-
-- a scheduled CI run against Zotero's latest release, so a new Zotero
-  that breaks the plugin is noticed before users update;
-- test older Zotero versions before widening `plugin.json`'s range;
-- move the zotero.org API key (ADR 0009) to the same secret store, with
-  the same "remember" choice.
+- The writing assistant (ADR 0023), taken ahead of the agreed order on
+  request: step 1 (the chat pane, setup and providers) is done; profiles
+  and the checks are next for it. Versions on disk is next otherwise.
+- **Zotero plugin with Zettelkasten tools** (ADR 0024), taken ahead of
+  versions on disk and local style rules at the maintainer's request
+  (November 2026). Phase 1 is done: the plugin (MCP on Zotero's port,
+  pairing, `search_items` and `get_item`), the References section to get
+  it and connect, and a CI job running it in a real Zotero 10. Next:
+  phase 2, the Zettelkasten tools. Phase 1 follow-ups:
+  - a scheduled CI run against Zotero's latest release, so a new Zotero
+    that breaks the plugin is noticed before users update;
+  - test older Zotero versions before widening `plugin.json`'s range;
+  - one way of keeping secrets: the assistant's keys use the browser's
+    password manager, the plugin's token the encrypted SecretStore;
+    choose one (and move the zotero.org key, ADR 0009, to it).
 
 ## Next
 
@@ -28,8 +29,9 @@ In this order (agreed November 2026):
 
 1. ~~**Activity bar and side bars** (ADR 0022)~~ (done, three PRs): the
    activity bar and primary side bar; the Explorer tree; the secondary
-   side bar on the right with the Assistant shell. Later: draggable
-   side bar widths, an Outline and a Problems view.
+   side bar on the right with the Assistant shell. Later: a draggable
+   width for the left side bar (the Assistant's is done), an Outline and
+   a Problems view.
 2. **Versions on disk** (ADR 0015 B2, small): with a folder linked, each
    saved version is written once to `versions/<name>-v1.2.0.tex` and
    listed in `versions/versions.json` with its label. Working files keep
@@ -54,8 +56,15 @@ In this order (agreed November 2026):
    `llama-server --embedding` (ADR 0024 §4).
 
 5. **The writing assistant** (ADR 0023), in steps:
-   - the panel and profiles, with endpoints for local llama.cpp servers on
-     their own ports and cloud providers;
+   - ~~the chat pane (pinned or floating, resizable), Assistant setup,
+     and providers: Claude, OpenRouter, Gemini, a local llama.cpp
+     server~~ (done, November 2026);
+   - profiles: several assistants with their own prompts, each task
+     routed to its own endpoint (several local servers on their own
+     ports);
+   - chat follow-ups: insert a suggested block at the cursor or replace
+     the selection; ask about the selection; send the `.bib` entries
+     cited; a token/cost estimate per message;
    - paragraph checks on pause, structured findings, the cache;
    - audits on demand and the readiness traffic lights;
    - the Z3 logic check (a second runtime dependency, with its own

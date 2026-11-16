@@ -9,6 +9,8 @@ export const SIDE_VIEWS = [
   'versions',
   'references',
   'storage',
+  // Assistant setup: providers, keys and models (ADR 0023).
+  'assistant',
 ] as const;
 
 export type SideView = (typeof SIDE_VIEWS)[number];
