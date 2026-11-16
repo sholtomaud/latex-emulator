@@ -66,6 +66,16 @@ test.describe('visual', () => {
     await expect(page).toHaveScreenshot('app-shell-explorer.png');
   });
 
+  test('app shell with the assistant open', async ({ page }) => {
+    await openApp(page);
+    await page.getByRole('button', { name: 'Assistant', exact: true }).click();
+    await expect(
+      page.getByRole('complementary', { name: 'Assistant' })
+    ).toBeVisible();
+    await page.mouse.move(0, 0); // no hover state
+    await expect(page).toHaveScreenshot('app-shell-assistant.png');
+  });
+
   test('app shell, mobile', async ({ page }) => {
     await openApp(page, 390, 844);
     await expect(page).toHaveScreenshot('app-shell-mobile.png');

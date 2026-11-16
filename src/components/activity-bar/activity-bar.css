@@ -1,6 +1,8 @@
 /* The activity bar (ADR 0022): icons choosing the primary side bar's view. */
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   border-right: 1px solid var(--boba-border);
   background: var(--boba-surface);
 }
@@ -74,4 +76,14 @@
 
 :host .activity-badge[hidden] {
   display: none;
+}
+
+/* The Assistant sits at the foot of the column, as in VS Code. */
+:host .assistant-toggle {
+  margin: auto auto 0.375rem;
+}
+
+:host .assistant-toggle[aria-expanded='true'] {
+  color: var(--boba-text);
+  border-left-color: var(--boba-accent, currentColor);
 }
