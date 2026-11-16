@@ -7,11 +7,20 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-**Zotero plugin with Zettelkasten tools** (ADR 0024, proposed), taken
-ahead of versions on disk and local style rules at the maintainer's
-request (November 2026). The design is drafted; phase 1 (the plugin
-skeleton, pairing and read tools, with a real Zotero in CI) comes after
-it is agreed.
+**Zotero plugin with Zettelkasten tools** (ADR 0024), taken ahead of
+versions on disk and local style rules at the maintainer's request
+(November 2026). Phase 1 is done: the plugin (MCP on Zotero's port,
+pairing, `search_items` and `get_item`), the References section to get it
+and connect, and a CI job running it in a real Zotero 10. Next: phase 2,
+the Zettelkasten tools.
+
+Phase 1 follow-ups:
+
+- a scheduled CI run against Zotero's latest release, so a new Zotero
+  that breaks the plugin is noticed before users update;
+- test older Zotero versions before widening `plugin.json`'s range;
+- move the zotero.org API key (ADR 0009) to the same secret store, with
+  the same "remember" choice.
 
 ## Next
 
@@ -29,12 +38,13 @@ In this order (agreed November 2026):
    by a style profile. They cover `Supervisor++`'s mechanical rules:
    banned constructions, fillers, the quotation protocol, rhythm, and
    em-dash density.
-4. **Zotero plugin** (ADR 0024). Our own Zotero 7/8 plugin serving MCP on
+4. **Zotero plugin** (ADR 0024; phase 1 done). Our own Zotero plugin serving MCP on
    Zotero's own port (`/latex-emulator/mcp` on 127.0.0.1:23119), paired
    with the app by a code shown in Zotero, with read tools, Zettelkasten
    tools (Luhmann IDs, Related links, literature notes, an `zk/inbox` tag
    for agents' notes) and, later, preprint versions. Four phases:
-   - skeleton, pairing and read tools, and a CI job with a real Zotero;
+   - ~~skeleton, pairing and read tools, and a CI job with a real
+     Zotero~~ (done);
    - Zettelkasten tools;
    - Zotero search and typeahead through the plugin, and a document's
      references as a collection;
