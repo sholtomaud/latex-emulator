@@ -1,6 +1,7 @@
 # 0024: Our Zotero plugin: an MCP server with Zettelkasten tools
 
-Status: proposed (design only). It changes AGENTS §5 and §9 when built.
+Status: accepted. Phase 1 (the plugin, pairing and read tools, tested in
+a real Zotero) is built; phases 2–4 are not.
 
 ## Context
 
@@ -80,8 +81,10 @@ small.
   - its `updates.json`, which the manifest's `update_url` points to, so
     Zotero updates the plugin itself;
   - the service worker precaches the `.xpi`, so the button works offline.
-- **Zotero versions:** Zotero 7 and 8. The manifest's
-  `strict_max_version` is set to the newest version the CI checks.
+- **Zotero versions:** the ones the CI checks, which is Zotero 10 at
+  phase 1 (10.0.8 was current; this record first said 7 and 8). The
+  manifest allows `10.0` to `10.*`. It widens only when another version
+  is tested.
 
 ### 2. MCP on Zotero's own port, no second listener
 
@@ -249,13 +252,57 @@ the app's client, and published as MCP `inputSchema`/`outputSchema`.
 
 ### Phases (one PR each)
 
-1. **Plugin skeleton and read tools.**
+1. **Plugin skeleton and read tools** (built).
    - The build, `.xpi` and `updates.json` on Pages.
    - The endpoint, pairing, origin, host and token checks.
    - `search_items`, `get_item`.
    - The settings pane.
    - The References "Get the plugin" and "Connect" buttons.
    - The CI job with a real Zotero.
+
+   What building it settled:
+
+   - **Layout.** The pure core (`zotero-plugin/src/*.ts`) is unit-tested
+     against a fake `ZoteroPort` under the coverage gate. The code that
+     runs only inside Zotero (`zotero-plugin/src/zotero/`) is tested by
+     `npm run test:zotero` and is outside the gate. The build is
+     `scripts/build-zotero-plugin.ts`: Vite's library mode and the app's
+     zip writer.
+   - **What the real Zotero showed** (Zotero 10.0.8, CI job `zotero`):
+     - Zotero's server already refuses a foreign `Host` (400) before any
+       endpoint runs, so our 403 is a second layer.
+     - It refuses a POST without `Content-Length`; browsers and fetch
+       always send one.
+     - Just after start-up its translators may still be loading, so the
+       BibTeX export awaits `Zotero.Translators.init()`.
+     - Its table of status texts lacks 202, 401 and 405. The plugin adds
+       them while it runs and removes them when it stops.
+   - **`initialize`** also returns Zotero's version in
+     `_meta["latex-emulator/zotero-version"]`, for the app's status line.
+   - **Where the app keeps the token.**
+     - By default, for this session only.
+     - With "Remember this connection on this device (stored encrypted)",
+       it is encrypted with AES-GCM under a non-exportable key, in a
+       database of its own (`src/storage/secret-store.ts`,
+       `secret-db.ts`). It is never in `localStorage` or in backups.
+     - This protects the token from being read out of storage or a copied
+       profile. It does not protect it from code running on the app's own
+       origin.
+     - The zotero.org API key (ADR 0009) can move to the same store later.
+   - **Where the plugin keeps tokens:** in plain text in Zotero's
+     preferences (`prefs.js` in the Zotero profile), like other local
+     settings. Anyone who can read that profile can already read the
+     library itself.
+   - **Pairing** shows Zotero's own confirm dialog, with Deny as the
+     default. The settings pane lists clients with Remove, adds an MCP
+     client (and shows the `claude mcp add` command), and edits the
+     allowed websites. A development origin such as
+     `http://localhost:5173` must be added there.
+   - **The pane and the dialog are not exercised in CI**: a headless Zotero
+     can't click them. Their logic (`config.ts`: dialog text, settings
+     parsing) is unit-tested, and they are on the manual checklist in
+     `zotero-plugin/README.md`.
+
 2. **Zettelkasten.** Luhmann IDs, the zettel tools and literature
    notes; the inbox tag.
 3. **App integration.** Zotero search and typeahead through the plugin;

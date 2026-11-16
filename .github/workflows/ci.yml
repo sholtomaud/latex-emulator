@@ -46,6 +46,42 @@ jobs:
             lmodern
       - run: npm run check:projects
 
+  zotero:
+    name: Zotero plugin in a real Zotero
+    runs-on: ubuntu-latest
+    # The plugin (ADR 0024) installed into a clean profile of a real Zotero,
+    # started headless, and driven over HTTP: pairing tokens, the read
+    # tools, CORS and the refusals. Bump ZOTERO_VERSION deliberately, with
+    # zotero-plugin/plugin.json's version range.
+    env:
+      ZOTERO_VERSION: 10.0.8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25.x
+          cache: npm
+      - run: npm ci
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            xvfb libgtk-3-0t64 libdbus-glib-1-2 libasound2t64 libx11-xcb1
+      - name: Download Zotero ${{ env.ZOTERO_VERSION }}
+        run: |
+          curl -fsSL -o zotero.tar.xz \
+            "https://download.zotero.org/client/release/${ZOTERO_VERSION}/Zotero-${ZOTERO_VERSION}_linux-x86_64.tar.xz"
+          mkdir -p "$RUNNER_TEMP/zotero"
+          tar -xJf zotero.tar.xz -C "$RUNNER_TEMP/zotero"
+      - run: npm run test:zotero
+        env:
+          ZOTERO_DIR: ${{ runner.temp }}/zotero/Zotero_linux-x86_64
+          ZOTERO_LOG: ${{ runner.temp }}/zotero.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: zotero-log
+          path: ${{ runner.temp }}/zotero.log
+
   playwright-version:
     runs-on: ubuntu-latest
     outputs:

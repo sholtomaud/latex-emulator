@@ -170,7 +170,8 @@ src/
 │                                 #   bib, images
 ├── storage/                      # DocumentRepository (documents + versions):
 │                                 #   IndexedDB + in-memory; pure storage-status
-│                                 #   logic (ADR 0019)
+│                                 #   logic (ADR 0019); SecretStore: tokens for the
+│                                 #   session, or encrypted on opt-in (ADR 0024)
 ├── images/                       # pure: image headers (pdfTeX natural size),
 │                                 #   graphicx name resolution (ADR 0013)
 ├── references/                   # pure: DOI/URL input, CSL-JSON → BibTeX, citation
@@ -196,6 +197,7 @@ src/
 │   ├── image-panel/              # the open document's images (in the explorer)
 │   ├── storage-panel/            # storage status, backup/restore (ADR 0019),
 │   │                             #   the document's folder (ADR 0015 B)
+│   ├── zotero-plugin-panel/      # References: get the Zotero plugin, connect (ADR 0024)
 │   ├── diagnostics-panel/        # problems list
 │   └── outline-panel/            # section tree
 ├── latex/                        # PURE TS — no DOM access, runs in Node tests
@@ -227,6 +229,13 @@ src/
 │       └── base.css              # all document rules, driven by generated
 │                                 #   custom properties (math.css arrives with math)
 └── wasm/                         # generated wasm-bindgen output (gitignored)
+zotero-plugin/                    # our Zotero plugin: MCP on Zotero's port (ADR 0024)
+├── plugin.json                   # id, version, site, Zotero version range
+├── src/                          # pure core (unit-tested): server, tools, config,
+│   │                             #   protocol.ts (shared with src/references/)
+│   └── zotero/                   # runs only inside Zotero: endpoint, ZoteroPort,
+│                                 #   dialog, settings pane
+└── integration/                  # npm run test:zotero: the .xpi in a real Zotero
 crates/                           # Rust workspace (only if/when needed)
 └── latex-spell/ …                # each crate: lib.rs, wasm.rs, ts-rs exports
 public/
@@ -242,6 +251,7 @@ e2e/
 └── pages/                        # GitHub Pages build + live-site checks
 scripts/playwright-docker.sh      # run Playwright in the pinned CI image
 scripts/build-pages.sh            # GitHub Pages build (.pages/<repo>/)
+scripts/build-zotero-plugin.ts    # the .xpi + updates.json into <out>/zotero/
 scripts/make-reference.sh         # regenerate a fixture's pdflatex references
 playwright.config.ts              # projects: functional-dev/-prod, smoke, visual, pages
 ```
@@ -451,12 +461,18 @@ on-screen pages, implement our own lightweight paginator in
   and Zotero searches (local API on localhost:23119 or api.zotero.org),
   carrying just the search text and, for the web library, the session-only
   API key (ADR 0009); with the opt-in Zotero typeahead, the citation key
-  prefix being typed (ADR 0011); and the writing assistant's chat
+  prefix being typed (ADR 0011); the writing assistant's chat
   (ADR 0023), sent only when the user sends a message, to the provider
   they chose (Anthropic, OpenRouter, Gemini or a server on localhost):
   their messages, and the document's source only for a document they
-  allowed it to read. API keys stay in memory or the browser's password
-  manager, never in page storage. Documents live in
+  allowed it to read; and our Zotero plugin on `127.0.0.1:23119`, only
+  after the user opens its section or clicks Connect, carrying the pairing
+  request or the plugin's token (ADR 0024). The assistant's API keys stay
+  in memory or the browser's password manager, never in page storage.
+  The plugin's token is kept for the session, or, if the user opts in,
+  encrypted on this device in its own IndexedDB database, never in
+  `localStorage`. The plugin checks `Host`, `Origin` and the token on
+  every request. Documents live in
   OPFS/IndexedDB on the user's device.
 
 ---
@@ -489,9 +505,10 @@ the commit message.
 | **Smoke**            | `e2e/smoke/`                   | Playwright                    | `npm run e2e:smoke`                  | production build                                                        |
 | **Visual snapshots** | `e2e/visual/`                  | Playwright `toHaveScreenshot` | `npm run e2e:visual`                 | production build, in the pinned container                               |
 | **Pages**            | `e2e/pages/`                   | Playwright                    | `npm run e2e:pages`                  | GitHub Pages build under `/latex-emulator/`; the live site after deploy |
+| **Zotero**           | `zotero-plugin/integration/`   | `node --test`                 | `npm run test:zotero`                | the built `.xpi` in a real, headless Zotero (`ZOTERO_DIR`, Xvfb)        |
 
-- **Unit.** Pure modules (`src/latex/**`, `src/render/` helpers, `src/util/`)
-  have **≥ 90 % line, branch and function coverage**, enforced by
+- **Unit.** Pure modules (`src/latex/**`, `src/render/` helpers, `src/util/`,
+  `zotero-plugin/src/` outside `zotero/`) have **≥ 90 % line, branch and function coverage**, enforced by
   `npm run test:coverage`. Components and the vendored Boba router are
   excluded from the gate because they need a browser; e2e covers them.
   Keep logic out of components so it can be unit-tested.
@@ -558,6 +575,7 @@ npm run e2e                  # functional e2e, dev + prod (Docker)
 npm run e2e:visual           # visual snapshots (Docker)
 npm run e2e:pages            # Pages build served under /latex-emulator/ (Docker)
 npm run check:projects       # project folders compile in pdflatex (needs TeX Live)
+npm run test:zotero          # the Zotero plugin in a real Zotero (needs ZOTERO_DIR, Xvfb)
 # when crates/ exists:
 cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 npm run build:wasm           # wasm-bindgen → src/wasm/ (also regenerates ts-rs bindings)
@@ -584,6 +602,9 @@ run `npx playwright install --with-deps chromium`.
   the starter document and every fixture, exported as the app's project
   folder, compile with pdflatex + bibtex with no undefined citations or
   references (ADR 0015).
+- **Zotero:** downloads a pinned Zotero for Linux and runs
+  `npm run test:zotero` under Xvfb: the freshly built plugin in a clean
+  profile, driven over HTTP (ADR 0024). On failure it uploads Zotero's log.
 - **Playwright (smoke)**, **(e2e)**, **(visual)**, **(pages)**: each runs in the
   pinned Playwright container and uploads its report and diffs as an artifact.
 

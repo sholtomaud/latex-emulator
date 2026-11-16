@@ -153,4 +153,41 @@ test.describe('images', () => {
       'energy.png'
     );
   });
+
+  test('a rename in progress survives the list re-rendering under it', async ({
+    page,
+  }) => {
+    // An autosave or another image arriving re-renders the list. Chromium
+    // fires blur on a focused input that is removed, which used to finish
+    // (and so cancel) the rename and leave its box on a detached row.
+    await openExplorer(page);
+    await addFiles(page, [PLOT]);
+    await expect(imageList(page).getByRole('listitem')).toHaveCount(1);
+    await images(page).getByRole('button', { name: 'Rename plot.png' }).click();
+    const input = images(page).getByRole('textbox', { name: 'Image name' });
+    await input.fill('energy');
+    // Add another image without touching focus (setInputFiles would focus
+    // the file input, a real blur): the list re-renders under the box.
+    const bars = (await import('node:fs'))
+      .readFileSync(BARS)
+      .toString('base64');
+    await page.evaluate((b64) => {
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const input = document.querySelector<HTMLInputElement>(
+        'image-panel .add-image-input'
+      )!;
+      const dt = new DataTransfer();
+      dt.items.add(new File([bytes], 'bars.jpg', { type: 'image/jpeg' }));
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+    }, bars);
+    await expect(imageList(page).getByRole('listitem')).toHaveCount(2);
+    await expect(input).toHaveValue('energy');
+    await expect(input).toBeFocused();
+    await input.press('Enter');
+    await expect(imageList(page).getByRole('listitem')).toHaveText([
+      /bars\.jpg/,
+      /energy\.png/,
+    ]);
+  });
 });

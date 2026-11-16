@@ -16,6 +16,7 @@ import type { BibFileMeta } from '../../workspace/bib-library.ts';
 import '../image-panel/image-panel.ts';
 import '../storage-panel/storage-panel.ts';
 import '../assistant-setup/assistant-setup.ts';
+import '../zotero-plugin-panel/zotero-plugin-panel.ts';
 import template from './document-explorer.html?raw';
 import style from './document-explorer.css?raw';
 
@@ -45,7 +46,10 @@ export class DocumentExplorerComponent extends BaseComponent {
     this.itemTemplate = this.querySelector('.doc-item-template')!;
     this.imagePanel = this.querySelector('image-panel')!;
     // The open document's files follow its text and the library.
-    const refreshFiles = debounce(() => this.renderFiles(), 300);
+    const refreshFiles = debounce(
+      () => this.keepPanelFocus(() => this.renderFiles()),
+      300
+    );
     documentStore.addEventListener('change', refreshFiles);
     bibStore.addEventListener('change', refreshFiles);
     this.renameTemplate = this.querySelector('.doc-rename-template')!;
@@ -138,8 +142,10 @@ export class DocumentExplorerComponent extends BaseComponent {
     const items = documents.map((doc) =>
       this.renderItem(doc, doc.id === activeId)
     );
-    this.list.replaceChildren(...items);
-    this.renderFiles();
+    this.keepPanelFocus(() => {
+      this.list.replaceChildren(...items);
+      this.renderFiles();
+    });
     // Don't rebuild the list under a status being typed (autosave publishes).
     const typing = this.versionList.contains(document.activeElement);
     if (!typing)
@@ -398,6 +404,36 @@ export class DocumentExplorerComponent extends BaseComponent {
     }
     images.append(this.imagePanel);
     list.replaceChildren(texItem, ...bibItems, images);
+  }
+
+  /**
+   * Re-rendering the tree moves the image panel to the new row, and
+   * Chromium blurs a focused element that is detached, even to be moved:
+   * that would finish (or lose) a rename the user is typing. While moving,
+   * the panel carries `data-moving` (its fields ignore that blur), and
+   * focus and selection go back where they were.
+   */
+  keepPanelFocus(move: () => void) {
+    const active = document.activeElement;
+    const inside =
+      active instanceof HTMLElement && this.imagePanel.contains(active)
+        ? active
+        : null;
+    const range =
+      inside instanceof HTMLInputElement
+        ? [inside.selectionStart, inside.selectionEnd]
+        : null;
+    this.imagePanel.toggleAttribute('data-moving', true);
+    try {
+      move();
+    } finally {
+      this.imagePanel.removeAttribute('data-moving');
+    }
+    if (inside?.isConnected && document.activeElement !== inside) {
+      inside.focus();
+      if (range && inside instanceof HTMLInputElement)
+        inside.setSelectionRange(range[0], range[1]);
+    }
   }
 
   /** Swap the name for an input: Enter or blur saves, Escape cancels. */

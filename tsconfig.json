@@ -13,5 +13,5 @@
      "lib": ["esnext", "dom"],
      "types": ["node", "vite/client"]
   },
-  "include": ["src/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"]
+  "include": ["src/**/*.ts", "zotero-plugin/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"]
 }

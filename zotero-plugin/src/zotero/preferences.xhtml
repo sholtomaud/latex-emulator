@@ -1,0 +1,31 @@
+<vbox id="latex-emulator-prefs" class="main-section">
+  <html:div class="latex-emulator">
+    <html:p>
+      The LaTeX Emulator and MCP clients such as Claude Code reach your library
+      through this plugin, on this computer only. Each one is listed here and
+      can be removed at any time.
+    </html:p>
+    <html:h2>Connected</html:h2>
+    <html:p class="le-none">Nothing is connected yet.</html:p>
+    <html:ul class="le-clients"></html:ul>
+    <html:h2>Add an MCP client</html:h2>
+    <html:p>
+      Makes a token that can search and read your library, and shows the command
+      to give it to Claude Code.
+    </html:p>
+    <html:button class="le-add" type="button">Add an MCP client…</html:button>
+    <html:textarea
+      class="le-command"
+      readonly="readonly"
+      rows="3"
+      hidden="hidden"
+    ></html:textarea>
+    <html:h2>Websites allowed to connect</html:h2>
+    <html:p class="le-site"></html:p>
+    <html:p
+      >Others, one origin per line (for example http://localhost:5173):</html:p
+    >
+    <html:textarea class="le-origins" rows="3"></html:textarea>
+    <html:button class="le-save-origins" type="button">Save</html:button>
+  </html:div>
+</vbox>
