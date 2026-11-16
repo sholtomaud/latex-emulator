@@ -72,9 +72,9 @@ own and the browser's `CompressionStream('deflate-raw')`. This works in
 every browser, fills the "project zip export" item from ADR 0013, and
 gives the folder logic and the CI check something to run on.
 
-- The toolbar's "Download .zip" button (aria-label "Download project
-  (.zip)") saves the open document as `<folder>.zip`, holding
-  `<folder>/<folder>.tex` and the rest.
+- "Project (.zip)" in the toolbar's Download menu (accessible name
+  "Download project (.zip)"; ADR 0022) saves the open document as
+  `<folder>.zip`, holding `<folder>/<folder>.tex` and the rest.
 - `src/util/zip.ts` writes plain ZIP (APPNOTE 2.0 features, UTF-8 names, no
   ZIP64). Each file is deflated, or stored when deflating doesn't shrink it
   (PNG, JPEG). Every file gets the download's time. It refuses absolute

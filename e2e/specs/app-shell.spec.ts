@@ -96,19 +96,31 @@ test.describe('app shell', () => {
     expect(pageRight).toBeLessThanOrEqual(frameWidth);
   });
 
-  test('every toolbar button fits on a phone screen', async ({ page }) => {
+  test('every toolbar button, and the Download menu, fits on a phone screen', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    for (const name of [
+    const within = async (
+      name: string,
+      box: { x: number; width: number } | null
+    ) => {
+      expect(box!.x, name).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width, name).toBeLessThanOrEqual(390);
+    };
+    await within(
       'Toggle documents',
-      'Download .tex',
-      'Download project (.zip)',
-      'Download Preprint',
-      'Download PDF',
-    ]) {
-      const box = (await page.getByRole('button', { name }).boundingBox())!;
-      expect(box.x, name).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width, name).toBeLessThanOrEqual(390);
-    }
+      await page.getByRole('button', { name: 'Toggle documents' }).boundingBox()
+    );
+    const download = page.getByRole('button', {
+      name: 'Download',
+      exact: true,
+    });
+    await within('Download', await download.boundingBox());
+    await download.click();
+    await within(
+      'Download menu',
+      await page.getByRole('menu', { name: 'Download' }).boundingBox()
+    );
   });
 
   test('stacks the panes on narrow screens', async ({ page }) => {

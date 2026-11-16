@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { editorInput, editorReady, setSource } from '../support/editor.ts';
+import { chooseDownload } from '../support/download.ts';
 import type { Page } from '@playwright/test';
 
 /** Replace the preview iframe's print() with a recorder. */
@@ -34,7 +35,7 @@ test.describe('PDF download', () => {
   test('the Download PDF button prints only the preview, named after the title', async ({
     page,
   }) => {
-    await page.getByRole('button', { name: 'Download PDF' }).click();
+    await chooseDownload(page, 'Download PDF');
     await expect.poll(() => prints(page)).toEqual(['A Short Example']);
   });
 
@@ -50,7 +51,7 @@ test.describe('PDF download', () => {
     await expect(
       page.frameLocator('latex-preview iframe').locator('article')
     ).toHaveText('Just text.');
-    await page.getByRole('button', { name: 'Download PDF' }).click();
+    await chooseDownload(page, 'Download PDF');
     await expect.poll(() => prints(page)).toEqual(['document']);
   });
 });
