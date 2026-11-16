@@ -7,9 +7,14 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-The writing assistant (ADR 0023), taken ahead of the agreed order on
-request: step 1 (the chat pane, setup and providers) is done; profiles
-and the checks are next for it. Versions on disk is next otherwise.
+- The writing assistant (ADR 0023), taken ahead of the agreed order on
+  request: step 1 (the chat pane, setup and providers) is done; profiles
+  and the checks are next for it. Versions on disk is next otherwise.
+- **Zotero plugin with Zettelkasten tools** (ADR 0024, proposed), taken
+  ahead of versions on disk and local style rules at the maintainer's
+  request (November 2026). The design is drafted; phase 1 (the plugin
+  skeleton, pairing and read tools, with a real Zotero in CI) comes after
+  it is agreed.
 
 ## Next
 
@@ -28,45 +33,20 @@ In this order (agreed November 2026):
    by a style profile. They cover `Supervisor++`'s mechanical rules:
    banned constructions, fillers, the quotation protocol, rhythm, and
    em-dash density.
-4. **Zotero plugin** (our own; its own ADR). Decisions so far:
-   - **Writes need code inside Zotero.** Zotero's local API (port 23119)
-     is read-only and refuses web pages (ADR 0009). Never write
-     `zotero.sqlite` directly: it corrupts libraries while Zotero runs.
-   - **A Zotero 7 plugin (`.xpi`)** serving MCP over streamable HTTP on
-     localhost. No Python or Node to install. CORS only for our origin, an
-     `Origin` check, and a token paired once with the app. The app writes
-     its own small JSON-RPC client (no SDK) and adds the plugin's address
-     to `connect-src`.
-   - **Install:** a "Get the Zotero plugin" button downloads the `.xpi`,
-     with the steps for installing it from a file in Zotero's plugins
-     menu, and a "Check connection" button pairs the app with it. A web
-     page cannot install it in one click.
-   - **Why not `54yyyu/zotero-mcp`:** it is a Python server (local API
-     for reads, web API for writes) with an optional embedding index, and
-     has no Zettelkasten tools.
-   - **Tools:**
-     - search and read items, with Better BibTeX keys;
-     - Zettelkasten: create permanent notes (standalone notes in a
-       Zettelkasten collection, a Luhmann ID and a declarative title),
-       link and unlink them (Related), tag, list by ID prefix, follow
-       links, and build literature notes from annotations;
-     - snapshots: a labelled version (1) becomes or updates a `preprint`
-       item with that version's project zip, and the PDF if the user adds
-       it. The app can't attach the PDF itself; it comes from the print
-       dialog.
-     - linked files: the item links to the project folder's files (ADR
-       0015 B) rather than copying them. The document stores the item's
-       key (a `zotero://select/…` link) and the item links back to the
-       app.
-   - **Zotero is not the working copy.** Autosave every few seconds,
-     Zotero having to run, and zotero.org's attachment quota rule that
-     out. The working copy stays in the browser and the project folder.
-   - **No vector index at first.** Agents start from Zotero's full-text
-     and keyword search, scan declarative zettel titles, follow Related
-     links and Luhmann sequences, and only then read annotations and PDF
-     pages. If entry points prove hard to find, embed only the zettels (a
-     few thousand short notes) with `llama-server --embedding`, not
-     chunked PDFs. That index lives in the plugin's own file.
+4. **Zotero plugin** (ADR 0024). Our own Zotero 7/8 plugin serving MCP on
+   Zotero's own port (`/latex-emulator/mcp` on 127.0.0.1:23119), paired
+   with the app by a code shown in Zotero, with read tools, Zettelkasten
+   tools (Luhmann IDs, Related links, literature notes, an `zk/inbox` tag
+   for agents' notes) and, later, preprint versions. Four phases:
+   - skeleton, pairing and read tools, and a CI job with a real Zotero;
+   - Zettelkasten tools;
+   - Zotero search and typeahead through the plugin, and a document's
+     references as a collection;
+   - preprint versions with linked project files.
+
+   No vector index at first; if needed, embed only the zettels with
+   `llama-server --embedding` (ADR 0024 §4).
+
 5. **The writing assistant** (ADR 0023), in steps:
    - ~~the chat pane (pinned or floating, resizable), Assistant setup,
      and providers: Claude, OpenRouter, Gemini, a local llama.cpp
