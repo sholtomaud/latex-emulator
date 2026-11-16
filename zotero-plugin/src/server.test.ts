@@ -106,6 +106,10 @@ test('initialize: our server info, tools capability, and the client’s protocol
   assert.strictEqual(result.serverInfo.name, 'latex-emulator-zotero');
   assert.strictEqual(result.serverInfo.version, '0.1.0');
   assert.match(result.instructions, /Zotero 10\.0\.8/);
+  // For the app's status line, without parsing prose.
+  assert.deepStrictEqual(result._meta, {
+    'latex-emulator/zotero-version': '10.0.8',
+  });
 
   const other = await server.handle(
     agent(rpc('initialize', { protocolVersion: '1999-01-01' }))

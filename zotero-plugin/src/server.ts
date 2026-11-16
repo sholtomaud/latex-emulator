@@ -18,6 +18,7 @@ import {
   SCOPES,
   TOKEN_META_KEY,
   ZOTERO_PORT,
+  ZOTERO_VERSION_META_KEY,
 } from './protocol.ts';
 import type { PairResult, Scope } from './protocol.ts';
 import type { ZoteroPort } from './port.ts';
@@ -183,6 +184,7 @@ export function createServer(deps: ServerDeps) {
             version: deps.info.pluginVersion,
           },
           instructions: `The user's Zotero ${deps.info.zoteroVersion} library. Find references with search_items, then read one with get_item.`,
+          _meta: { [ZOTERO_VERSION_META_KEY]: deps.info.zoteroVersion },
         });
       }
       case 'ping':

@@ -19,6 +19,9 @@ export const PROTOCOL_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26'];
  */
 export const TOKEN_META_KEY = 'latex-emulator/token';
 
+/** initialize's result `_meta` key for the running Zotero's version. */
+export const ZOTERO_VERSION_META_KEY = 'latex-emulator/zotero-version';
+
 /** Our own JSON-RPC method (not MCP's): ask the user to pair a client. */
 export const PAIR_METHOD = 'pair/request';
 
