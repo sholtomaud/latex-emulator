@@ -1,6 +1,7 @@
 # 0022: Workbench layout: an activity bar and side bars
 
-Status: proposed (design only; built in the phases below).
+Status: accepted. Phase 1 (the activity bar and primary side bar) is built;
+phases 2 and 3 are not.
 
 ## Context
 
@@ -105,10 +106,26 @@ VS Code's answer is familiar to most of our users:
 
 ### Phases (one PR each)
 
-1. **Activity bar and primary side bar.** Today's sections are moved,
-   unchanged inside, into the Explorer (documents and images), Versions,
-   References and Storage views. The e2e specs open the right view first.
-   The visual baselines change.
+1. **Activity bar and primary side bar** (built).
+   - Today's sections are moved, unchanged inside, into four views in
+     `document-explorer`, one shown at a time:
+     - Explorer: documents and images;
+     - Versions;
+     - References: bibliography and Zotero;
+     - Storage.
+   - The choice is in `uiStore.sideView`, remembered as a preference; the
+     open/close logic is pure (`src/util/side-views.ts`).
+   - `activity-bar` is the tablist: arrow keys move between tabs, Enter or
+     a click opens a view, and a second click closes the side bar.
+   - Storage gets a badge (and "Storage (needs attention)" as its name)
+     when its status warns. A backup warning shouldn't hide behind a
+     closed view.
+   - The toolbar's toggle and Ctrl/⌘+B still open and close the side bar.
+   - E2E specs open the view they need (`e2e/support/views.ts`).
+   - The visual baselines changed, the preview ones included: the
+     activity bar takes 3rem, so the preview page is drawn at a slightly
+     smaller scale. Print fidelity is unaffected (it passes in the pinned
+     image).
 2. **The Explorer tree:** documents as folders with their `.tex`, images and
    generated `.bib`.
 3. **The secondary side bar,** with the Assistant shell (ADR 0023).

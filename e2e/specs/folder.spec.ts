@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import fs from 'node:fs';
 import { editorReady, setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 
 /**
  * Save to a folder on this computer (ADR 0015 phase B). Playwright can't
@@ -65,7 +66,7 @@ function writeDisk(page: Page, path: string, data: string | number[]) {
 async function openExplorer(page: Page) {
   await page.goto('/');
   await editorReady(page);
-  await page.getByRole('button', { name: 'Toggle documents' }).click();
+  await openView(page, 'Storage');
 }
 
 const SOURCE = [
@@ -197,6 +198,7 @@ test('Open folder reads a project into a new document, with its images and .bib 
 
   await panel(page).getByRole('button', { name: 'Open folder…' }).click();
   await expect(panel(page)).toContainText('Opened main.tex from thesis/.');
+  await openView(page, 'Explorer');
   const docs = page.getByRole('navigation', { name: 'Documents' });
   await expect(
     docs.getByRole('button', { name: 'main', exact: true })
@@ -217,9 +219,11 @@ test('Open folder reads a project into a new document, with its images and .bib 
   await expect(page.locator('image-panel .image-item')).toContainText(
     'figs/plot.png'
   );
+  await openView(page, 'References');
   await expect(
     page.getByRole('region', { name: 'Bibliography' })
   ).toContainText('thesis-refs.bib');
+  await openView(page, 'Storage');
 
   // It saves back into the same folder, under the folder's own .tex name.
   await setSource(
@@ -270,7 +274,9 @@ test('Open folder merges the folder’s .bib into the library, keeping the libra
   await fakePicker(page, 'shared');
   await openExplorer(page);
   const bib = page.getByRole('region', { name: 'Bibliography' });
+  await openView(page, 'References');
   await expect(bib).toContainText('5 entries');
+  await openView(page, 'Storage');
   await writeDisk(
     page,
     'shared/paper.tex',
@@ -296,5 +302,6 @@ test('Open folder merges the folder’s .bib into the library, keeping the libra
   await expect(panel(page)).toContainText(
     'hall_eroi_2014 differs in the folder’s references.bib; your library’s copy was kept.'
   );
+  await openView(page, 'References');
   await expect(bib).toContainText('6 entries');
 });

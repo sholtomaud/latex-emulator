@@ -1,5 +1,7 @@
 import { BaseComponent } from '../../core/base-component.ts';
 import { workspaceStore } from '../../store/workspace-store.ts';
+import { uiStore } from '../../store/ui-store.ts';
+import type { UiState } from '../../store/ui-store.ts';
 import type { WorkspaceStoreState } from '../../store/workspace-store.ts';
 import { workspaceActions } from '../../workspace/workspace-service.ts';
 import type { DocumentMeta, VersionMeta } from '../../workspace/workspace.ts';
@@ -99,6 +101,15 @@ export class DocumentExplorerComponent extends BaseComponent {
     this.renderBib(bibStore.getState());
     bibStore.addEventListener('change', ((e: CustomEvent<BibStoreState>) =>
       this.renderBib(e.detail)) as EventListener);
+
+    // One view at a time (ADR 0022).
+    const views = [...this.querySelectorAll<HTMLElement>('.side-view')];
+    const showView = ({ sideView }: UiState) => {
+      for (const v of views) v.hidden = v.dataset.view !== sideView;
+    };
+    showView(uiStore.getState());
+    uiStore.addEventListener('change', ((e: CustomEvent<UiState>) =>
+      showView(e.detail)) as EventListener);
 
     this.render(workspaceStore.getState());
     workspaceStore.addEventListener('change', ((

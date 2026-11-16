@@ -7,18 +7,19 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-Nothing. Done most recently: offline-first (ADR 0021). A service worker
-caches the whole app, so after one visit it starts with no network; a new
-release waits for Reload; the app can be installed. Before that: version
-status labels (ADR 0006) and per-document `.bib` subsets (ADR 0020).
+**Activity bar and side bars** (ADR 0022). Phase 1 is done: the activity
+bar and a primary side bar with the Explorer, Versions, References and
+Storage views. Next: phase 2 (the Explorer tree), then phase 3 (the
+right-hand side bar for the assistant). Before that: offline-first
+(ADR 0021).
 
 ## Next
 
 In this order (agreed November 2026):
 
 1. **Activity bar and side bars** (ADR 0022). Three PRs:
-   - the activity bar and primary side bar, with today's sections moved
-     into Explorer, Versions, References and Storage views;
+   - ~~the activity bar and primary side bar, with today's sections moved
+     into Explorer, Versions, References and Storage views~~ (done);
    - the Explorer tree: documents as folders with their `.tex`, images and
      generated `.bib`;
    - the secondary side bar on the right for the assistant.

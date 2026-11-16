@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { editorInput, editorReady, setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 
 /**
  * Citation keys in the editor: typeahead from the references library (and
@@ -118,7 +119,7 @@ test.describe('citation typeahead', () => {
         }),
       })
     );
-    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await openView(page, 'References');
     const library = page.getByRole('region', { name: 'Bibliography' });
     await library.getByText('Zotero', { exact: true }).click();
     await library
@@ -149,7 +150,7 @@ test.describe('citation typeahead', () => {
       requests++;
       return route.abort('failed');
     });
-    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await openView(page, 'References');
     const library = page.getByRole('region', { name: 'Bibliography' });
     await library.getByText('Zotero', { exact: true }).click();
     await library

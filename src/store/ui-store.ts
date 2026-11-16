@@ -1,7 +1,11 @@
 import { Store } from '../core/store.ts';
+import type { SideView } from '../util/side-views.ts';
 
 export interface UiState {
+  /** The primary side bar is open (ADR 0022). */
   explorerOpen: boolean;
+  /** The view it shows. */
+  sideView: SideView;
   /** An app-level problem the user must act on ('' when none). */
   notice: string;
   /** Edits can't be saved any more (a newer version took the database). */
@@ -11,6 +15,7 @@ export interface UiState {
 /** View state of the app chrome. */
 export const uiStore = new Store<UiState>({
   explorerOpen: false,
+  sideView: 'explorer',
   notice: '',
   readOnly: false,
 });

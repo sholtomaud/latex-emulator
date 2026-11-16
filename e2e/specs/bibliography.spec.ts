@@ -2,16 +2,14 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import fs from 'node:fs';
 import { editorReady, setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 
-const toggle = (page: Page) =>
-  page.getByRole('button', { name: 'Toggle documents' });
 const library = (page: Page) =>
   page.getByRole('region', { name: 'Bibliography' });
 const preview = (page: Page) => page.frameLocator('latex-preview iframe');
 
 async function openExplorer(page: Page) {
-  if ((await toggle(page).getAttribute('aria-expanded')) !== 'true')
-    await toggle(page).click();
+  await openView(page, 'References');
   await expect(library(page)).toBeVisible();
 }
 
@@ -65,6 +63,10 @@ test.describe('bibliography', () => {
     await expect(library(page).getByRole('status')).toHaveText(
       'Imported My-Library.bib: 1 entry. Use \\bibliography{My-Library}.'
     );
+    // Close the side bar: at full width the line doesn't wrap, so its one
+    // marker is drawn as one squiggle.
+    await openView(page, 'References');
+    await page.getByRole('button', { name: 'Toggle documents' }).click();
     await setSource(
       page,
       doc(

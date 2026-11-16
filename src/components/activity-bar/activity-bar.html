@@ -1,0 +1,66 @@
+<div
+  class="activity-bar"
+  role="tablist"
+  aria-label="Side bar views"
+  aria-orientation="vertical"
+>
+  <button
+    type="button"
+    role="tab"
+    class="activity"
+    data-view="explorer"
+    aria-controls="side-view-explorer"
+    title="Explorer: documents and images"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 5.5A1.5 1.5 0 0 1 5.5 4H9l2 2h7.5A1.5 1.5 0 0 1 20 7.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5z"
+      />
+    </svg>
+    <span class="activity-name">Explorer</span>
+  </button>
+  <button
+    type="button"
+    role="tab"
+    class="activity"
+    data-view="versions"
+    aria-controls="side-view-versions"
+    title="Versions"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 7.5V12l3 2" />
+    </svg>
+    <span class="activity-name">Versions</span>
+  </button>
+  <button
+    type="button"
+    role="tab"
+    class="activity"
+    data-view="references"
+    aria-controls="side-view-references"
+    title="References: .bib library, DOI and Zotero"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 4.5h4v15H5zM10 4.5h4v15h-4zM15.2 5.3l3.8-1 3.6 14.3-3.8 1z" />
+    </svg>
+    <span class="activity-name">References</span>
+  </button>
+  <button
+    type="button"
+    role="tab"
+    class="activity"
+    data-view="storage"
+    aria-controls="side-view-storage"
+    title="Storage: backup, restore and folders"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <ellipse cx="12" cy="6" rx="7" ry="2.5" />
+      <path
+        d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"
+      />
+    </svg>
+    <span class="activity-name">Storage</span>
+    <span class="activity-badge" hidden></span>
+  </button>
+</div>

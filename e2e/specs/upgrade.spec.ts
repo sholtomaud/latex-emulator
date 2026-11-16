@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { editorInput, editorReady, setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 
 /**
  * The app open in two tabs (or a tab and the installed window) while the
@@ -65,7 +66,7 @@ test.describe('database upgrades with the app open elsewhere', () => {
   }) => {
     await page.goto('/');
     await editorReady(page);
-    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await openView(page, 'References');
     await expect(
       page.getByRole('region', { name: 'Bibliography' })
     ).toContainText('references.bib');

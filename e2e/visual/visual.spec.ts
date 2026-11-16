@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import fs from 'node:fs';
 import { editorReady, setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 
 /**
  * Visual regression snapshots. Baselines live in e2e/visual/__screenshots__/
@@ -89,7 +90,7 @@ test.describe('visual', () => {
 
   test('preview page with citations and a bibliography', async ({ page }) => {
     await openApp(page);
-    await page.getByRole('button', { name: 'Toggle documents' }).click();
+    await openView(page, 'References');
     await page
       .getByRole('region', { name: 'Bibliography' })
       .locator('.import-bib-input')
@@ -142,7 +143,7 @@ test.describe('visual', () => {
   test('preview page with elsarticle', async ({ page }) => {
     await openApp(page);
     const toggle = page.getByRole('button', { name: 'Toggle documents' });
-    await toggle.click();
+    await openView(page, 'References');
     await page
       .locator('document-explorer .import-bib-input')
       .setInputFiles('fixtures/elsarticle-basic/refs.bib');

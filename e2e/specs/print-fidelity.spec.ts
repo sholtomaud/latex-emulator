@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { setSource } from '../support/editor.ts';
+import { openView } from '../support/views.ts';
 import fs from 'node:fs';
 
 /**
@@ -381,7 +382,7 @@ for (const fixture of FIXTURES) {
   async function load(page: Page) {
     await page.goto('/');
     if (fixture.bibFiles) {
-      await page.getByRole('button', { name: 'Toggle documents' }).click();
+      await openView(page, 'References');
       await page
         .locator('document-explorer .import-bib-input')
         .setInputFiles(
@@ -392,7 +393,7 @@ for (const fixture of FIXTURES) {
       await page.getByRole('button', { name: 'Toggle documents' }).click();
     }
     if (fixture.images) {
-      await page.getByRole('button', { name: 'Toggle documents' }).click();
+      await openView(page, 'Explorer');
       await page
         .locator('image-panel .add-image-input')
         .setInputFiles(
