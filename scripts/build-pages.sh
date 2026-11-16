@@ -12,6 +12,8 @@ SITE="$OUT$BASE"
 
 rm -rf "$OUT"
 npx vite build --base "$BASE" --outDir "$SITE" --emptyOutDir
+# The Zotero plugin and its update manifest, served from zotero/ (ADR 0024).
+node scripts/build-zotero-plugin.ts "$SITE"
 # Offline support: the build's file list into sw.js (ADR 0021).
 node scripts/precache.ts "$SITE"
 # SPA fallback: Pages serves 404.html for unknown paths; with an absolute

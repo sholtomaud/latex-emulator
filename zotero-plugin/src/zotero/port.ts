@@ -80,6 +80,9 @@ export const zoteroPort: ZoteroPort = {
   async bibtex(key) {
     const item = await regularItem(key);
     if (!item) return '';
+    // Just after Zotero starts, translators may still be loading; init()
+    // returns that load (or its finished promise) rather than starting again.
+    await Zotero.Translators.init();
     const exporter = new Zotero.Translate.Export();
     exporter.setItems([item]);
     exporter.setTranslator(Zotero.BetterBibTeX ? BETTER_BIBTEX : BIBTEX);

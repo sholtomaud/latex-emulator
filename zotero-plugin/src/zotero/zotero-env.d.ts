@@ -58,6 +58,7 @@ declare const Zotero: {
   Utilities: {
     Item: { itemToCSLJSON(item: ZoteroItem): Record<string, unknown> };
   };
+  Translators: { init(): Promise<void> };
   Translate: {
     Export: new () => {
       setItems(items: ZoteroItem[]): void;
