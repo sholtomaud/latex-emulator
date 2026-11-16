@@ -1,7 +1,7 @@
 # 0022: Workbench layout: an activity bar and side bars
 
-Status: accepted. Phase 1 (the activity bar and primary side bar) is built;
-phases 2 and 3 are not.
+Status: accepted. Phases 1 (the activity bar and primary side bar) and 2
+(the Explorer's documents as folders) are built; phase 3 is not.
 
 ## Context
 
@@ -77,9 +77,9 @@ VS Code's answer is familiar to most of our users:
   - The folder link and "save there as I type" (ADR 0015 B) show on the
     document's row.
   - The tree is a pure model (`src/workspace/explorer-tree.ts`: documents,
-    images and citations in, nodes out), rendered from a `<template>` with
-    the ARIA tree pattern (`role="tree"`, `treeitem`, arrow keys,
-    Enter/F2/Delete).
+    images and citations in, nodes out), rendered from `<template>`s. Phase 2
+    uses nested lists with buttons rather than the ARIA tree pattern (see
+    Phases).
 
 - **Versions:** today's Versions section (labels from ADR 0006 included),
   with room for a diff later.
@@ -126,8 +126,34 @@ VS Code's answer is familiar to most of our users:
      activity bar takes 3rem, so the preview page is drawn at a slightly
      smaller scale. Print fidelity is unaffected (it passes in the pinned
      image).
-2. **The Explorer tree:** documents as folders with their `.tex`, images and
-   generated `.bib`.
+2. **The Explorer tree** (built): documents as folders with their `.tex`,
+   images and generated `.bib`.
+   - The open document expands to a list of its files:
+     - its `.tex`;
+     - each `.bib` its `\bibliography` lists, with "3 cited of 412 in the
+       library" (or "not in your library") and a button to open
+       References;
+     - its images.
+
+     Other documents stay closed; opening one expands it. The model is pure
+     (`src/workspace/explorer-tree.ts`), and it refreshes as you type and
+     when the library changes.
+
+   - **Nested lists with buttons, not the ARIA `tree` pattern.** Rows carry
+     actions (rename, download, delete; copy, rename, download and delete
+     for images), and the tree pattern doesn't allow interactive controls
+     inside its items. Lists of buttons are accessible and keyboard-operable
+     with Tab, and keep the names screen readers and tests use. A real tree
+     with a context menu for actions can come later.
+   - The image panel moves into the open document's files, keeping its
+     add, drop, paste and reuse controls. Images are still listed with
+     their full paths (`figs/plot.png`); folder rows can come later.
+   - **A fix to the vendored Boba core** (AGENTS §3). `BaseComponent`
+     appended its template on every `connectedCallback`, so moving a
+     component in the DOM (as the Explorer moves the image panel)
+     duplicated its content and listeners. It now renders and initialises
+     once. This is a local divergence until the same fix is made in
+     `sholtomaud/boba`.
 3. **The secondary side bar,** with the Assistant shell (ADR 0023).
 
 ## Consequences

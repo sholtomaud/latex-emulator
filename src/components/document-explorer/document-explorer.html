@@ -182,18 +182,40 @@
   </div>
   <template class="doc-item-template">
     <li class="doc-item">
-      <button type="button" class="doc-open"></button>
-      <span class="doc-actions">
-        <button type="button" class="icon-button doc-rename">
-          <span aria-hidden="true">✎</span>
-        </button>
-        <button type="button" class="icon-button doc-download">
-          <span aria-hidden="true">⤓</span>
-        </button>
-        <button type="button" class="icon-button doc-delete">
-          <span aria-hidden="true">✕</span>
-        </button>
+      <div class="doc-row">
+        <button type="button" class="doc-open"></button>
+        <span class="doc-actions">
+          <button type="button" class="icon-button doc-rename">
+            <span aria-hidden="true">✎</span>
+          </button>
+          <button type="button" class="icon-button doc-download">
+            <span aria-hidden="true">⤓</span>
+          </button>
+          <button type="button" class="icon-button doc-delete">
+            <span aria-hidden="true">✕</span>
+          </button>
+        </span>
+      </div>
+      <!-- The open document's project folder (ADR 0022 phase 2). -->
+      <ul class="doc-files" hidden></ul>
+    </li>
+  </template>
+  <template class="doc-file-template">
+    <li class="doc-file">
+      <span class="doc-file-icon" aria-hidden="true">📄</span>
+      <span class="doc-file-name"></span>
+    </li>
+  </template>
+  <template class="doc-bib-template">
+    <li class="doc-file doc-bib">
+      <span class="doc-file-icon" aria-hidden="true">📚</span>
+      <span class="doc-file-text">
+        <span class="doc-file-name"></span>
+        <span class="doc-file-meta"></span>
       </span>
+      <button type="button" class="icon-button doc-bib-show">
+        <span aria-hidden="true">→</span>
+      </button>
     </li>
   </template>
   <template class="version-item-template">

@@ -7,10 +7,11 @@ Update it in the same PR that starts, finishes or defers an item.
 
 ## In progress
 
-**Activity bar and side bars** (ADR 0022). Phase 1 is done: the activity
-bar and a primary side bar with the Explorer, Versions, References and
-Storage views. Next: phase 2 (the Explorer tree), then phase 3 (the
-right-hand side bar for the assistant). Before that: offline-first
+**Activity bar and side bars** (ADR 0022). Phases 1 and 2 are done: the
+activity bar with Explorer, Versions, References and Storage views, and
+the open document shown as its project folder (`.tex`, `.bib` files with
+what is cited, images). Next: phase 3, the right-hand side bar for the
+assistant. Before that: offline-first
 (ADR 0021).
 
 ## Next
@@ -20,8 +21,8 @@ In this order (agreed November 2026):
 1. **Activity bar and side bars** (ADR 0022). Three PRs:
    - ~~the activity bar and primary side bar, with today's sections moved
      into Explorer, Versions, References and Storage views~~ (done);
-   - the Explorer tree: documents as folders with their `.tex`, images and
-     generated `.bib`;
+   - ~~the Explorer tree: documents as folders with their `.tex`, images and
+     generated `.bib`~~ (done);
    - the secondary side bar on the right for the assistant.
 2. **Versions on disk** (ADR 0015 B2, small): with a folder linked, each
    saved version is written once to `versions/<name>-v1.2.0.tex` and
@@ -113,6 +114,11 @@ In this order (agreed November 2026):
   worker and the rest).
 
 ## Deferred follow-ups (from ADRs and PRs)
+
+- Explorer (ADR 0022): folder rows for images in subfolders; a real ARIA
+  tree with a context menu for row actions; opening a `.bib` row to show
+  its cited entries; make the `BaseComponent` render-once fix upstream in
+  `sholtomaud/boba`.
 
 - Offline (ADR 0021): if the first visit's ~5.3 MB proves too heavy, cache
   Monaco on first use instead of precaching it; a "Ready to work offline"
