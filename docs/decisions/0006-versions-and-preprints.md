@@ -48,6 +48,8 @@ markup inside the document.
   centres on the page area. Its size keeps the word within 80% of the
   block's diagonal, at most 72pt, so a 40-character label still fits.
   It is not in the text `pdftotext` extracts.
+  A version labelled "published" gets no watermark, only the footer
+  stamp: it is the final text.
 - **Stamp fonts are loaded before printing.** A margin box or a generated
   watermark doesn't make Chromium fetch a font, and with `font-display:
 block` an unfetched one prints blank: in a document without `\texttt`
