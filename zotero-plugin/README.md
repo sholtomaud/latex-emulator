@@ -8,7 +8,9 @@ to the LaTeX Emulator and to AI agents such as Claude Code. The design is in
   `get_item`.
 - **0.2.0:** the app's Zotero search and citation typeahead go through
   the plugin (`search_items` with `include_csl`).
-- **Later:** Zettelkasten tools and preprint versions.
+- **0.3.0:** the Zettelkasten tools (below).
+- **Later:** PDF annotations, full text and literature notes; preprint
+  versions.
 
 ## Install
 
@@ -42,14 +44,40 @@ References → Zotero plugin → **Connect**.
    claude mcp add --transport http zotero http://127.0.0.1:23119/latex-emulator/mcp --header "Authorization: Bearer <token>"
    ```
 
+Tick **Also let it create and change zettels** first to let the agent
+write zettels; otherwise its token can only read.
+
 The endpoint speaks MCP's streamable HTTP with JSON responses only: no
 SSE, no sessions. `GET` answers 405, as the spec allows.
+
+## The Zettelkasten
+
+A zettel is a standalone note in one collection ("Zettelkasten" unless
+you rename it in the settings). Its first line is a Luhmann ID and a
+declarative title, such as `1a2 Energy sets the limits of growth`, so
+Zotero's own note list shows the same thing an agent sees. Links between
+zettels, and from a zettel to the sources it draws on, are Zotero's
+**Related** relation, which works both ways.
+
+| Tool                            | Scope         | Does                                                                                                           |
+| ------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------- |
+| `zettel_list`                   | `read`        | every zettel in Luhmann order (`1`, `1a`, `1a2`, `1a10`, `1b`, `2`), or one branch by prefix                   |
+| `zettel_get`                    | `read`        | one zettel: body, linked zettels, sources, parent, children, previous and next                                 |
+| `zettel_search`                 | `read`        | zettels whose title or body contains every word                                                                |
+| `zettel_create`                 | `write-notes` | a new zettel: `after` an ID (its next sibling, or a branch if that's taken), `under` an ID, or a new top level |
+| `zettel_update`                 | `write-notes` | a new title (the body is kept as it is) or a new body                                                          |
+| `zettel_link` / `zettel_unlink` | `write-notes` | a Related link to another zettel (`zettel`) or a source (`item`)                                               |
+| `zettel_tag`                    | `write-notes` | add or remove tags                                                                                             |
+
+New zettels are tagged `zk/inbox`. Removing that tag, in Zotero or with
+`zettel_tag`, accepts one into the Zettelkasten. Nothing is ever deleted.
 
 ## Settings (Zotero → Settings → LaTeX Emulator)
 
 - **Connected:** every paired client, with its site (or "a program on this
   computer"), its permissions and its date. **Remove** revokes its token at
   once.
+- **Zettelkasten:** the collection zettels live in.
 - **Websites allowed to connect:** the app's own site always, plus any you
   list. For local development, add `http://localhost:5173`.
 
@@ -66,9 +94,11 @@ SSE, no sessions. `GET` answers 405, as the spec allows.
   - Every call needs a token.
   - A token works only from the site it was paired from.
   - Pairing always asks you in Zotero, with Deny as the default.
-- **Writes:** none in phase 1. When writing tools arrive, they go through
-  Zotero's own API (never the database file), notes made by agents are
-  tagged `zk/inbox`, and nothing is deleted outright.
+- **Writes:** only with the `write-notes` scope, which a client gets only
+  if you allow it (the pairing dialog or the checkbox says so). They go
+  through Zotero's own API, never the database file. They only create and
+  change zettel notes, their tags and their Related links; new zettels are
+  tagged `zk/inbox`, and nothing is deleted.
 - **Storage:** tokens are kept in Zotero's preferences in your Zotero
   profile.
 
@@ -79,6 +109,9 @@ SSE, no sessions. `GET` answers 405, as the spec allows.
 | `src/protocol.ts`             | constants and types shared with the app                        | unit                                             |
 | `src/server.ts`               | HTTP → JSON-RPC: Host, Origin, tokens, pairing, MCP            | unit (`server.test.ts`)                          |
 | `src/tools.ts`, `validate.ts` | the tools and their argument schemas                           | unit, against `fake-port.ts`                     |
+| `src/zettel-tools.ts`         | the Zettelkasten tools                                         | unit, and `npm run test:zotero`                  |
+| `src/luhmann.ts`              | Luhmann IDs: parse, order, siblings, children                  | unit                                             |
+| `src/zettel-note.ts`          | a zettel's note HTML: ID, title, body                          | unit                                             |
 | `src/config.ts`               | settings read back, tokens, the dialog text                    | unit                                             |
 | `src/zotero/`                 | inside Zotero: the endpoint, `ZoteroPort`, the dialog and pane | `npm run test:zotero` (real Zotero), and by hand |
 
@@ -106,3 +139,8 @@ Headless Zotero can't click dialogs, so check these yourself:
    check says the connection was removed.
 4. Add an MCP client, run the command it shows, and in Claude Code ask it
    to search Zotero.
+5. Add another with **Also let it create and change zettels** ticked; the
+   list shows `read, write-notes`. Ask it to make a zettel: it appears in
+   the Zettelkasten collection, tagged `zk/inbox`.
+6. Rename the Zettelkasten collection in the settings and Save; the next
+   zettel goes to (or makes) the new collection.

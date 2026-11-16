@@ -15,7 +15,9 @@ interface PaneApi {
     createdAt: number;
   }[];
   revoke(id: string): void;
-  addAgent(name: string): string;
+  addAgent(name: string, scopes: string[]): string;
+  zettelCollection(): string;
+  setZettelCollection(name: string): void;
   extraOrigins(): string;
   setExtraOrigins(text: string): void;
 }
@@ -66,11 +68,20 @@ function init(root: Element) {
       return;
     if (!name.value.trim()) return;
     const command = $<HTMLTextAreaElement>('.le-command');
-    command.value = api.addAgent(name.value.trim().slice(0, 60));
+    const scopes = $<HTMLInputElement>('.le-write').checked
+      ? ['read', 'write-notes']
+      : ['read'];
+    command.value = api.addAgent(name.value.trim().slice(0, 60), scopes);
     command.hidden = false;
     command.select();
     render();
   });
+
+  const collection = $<HTMLInputElement>('.le-collection');
+  collection.value = api.zettelCollection();
+  $('.le-save-collection').addEventListener('click', () =>
+    api.setZettelCollection(collection.value)
+  );
 
   $('.le-site').textContent = `Always: ${new URL(api.site()).origin}`;
   const origins = $<HTMLTextAreaElement>('.le-origins');

@@ -27,6 +27,7 @@ const meta = JSON.parse(
 const APP = new URL(meta.site).origin;
 const AGENT_TOKEN = 'integration-agent-token-0123456789abcdef';
 const APP_TOKEN = 'integration-app-token-0123456789abcdefgh';
+const WRITER_TOKEN = 'integration-writer-token-0123456789abcd';
 
 let zotero: ChildProcess | undefined;
 let tmp = '';
@@ -103,11 +104,24 @@ const agent = (method: string, params?: Record<string, unknown>) =>
     body: rpcBody(method, params),
   });
 
-const callTool = async (name: string, args: Record<string, unknown>) => {
-  const res = await agent('tools/call', { name, arguments: args });
+const callTool = async (
+  name: string,
+  args: Record<string, unknown>,
+  token = AGENT_TOKEN
+) => {
+  const res = await request(MCP_PATH, {
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+    body: rpcBody('tools/call', { name, arguments: args }),
+  });
   assert.strictEqual(res.status, 200, res.body);
-  return JSON.parse(res.body).result;
+  const body = JSON.parse(res.body);
+  return body.result ?? body;
 };
+const write = (name: string, args: Record<string, unknown>) =>
+  callTool(name, args, WRITER_TOKEN);
 
 async function waitFor(
   what: string,
@@ -157,6 +171,14 @@ before(async () => {
       token: AGENT_TOKEN,
       scopes: ['read'],
       createdAt: 1,
+    },
+    {
+      id: 'writer',
+      name: 'Integration writer',
+      origin: null,
+      token: WRITER_TOKEN,
+      scopes: ['read', 'write-notes'],
+      createdAt: 3,
     },
     {
       id: 'app',
@@ -266,12 +288,90 @@ test('initialize: the plugin answers as an MCP server, naming this Zotero', asyn
   assert.match(result.instructions, /Zotero \d+\.\d+/);
 });
 
-test('tools/list: the read tools', async () => {
+test('tools/list: a read-only token gets the read tools only', async () => {
   const res = await agent('tools/list');
   const names = JSON.parse(res.body).result.tools.map(
     (t: { name: string }) => t.name
   );
-  assert.deepStrictEqual(names, ['search_items', 'get_item']);
+  assert.deepStrictEqual(names, [
+    'search_items',
+    'get_item',
+    'zettel_list',
+    'zettel_get',
+    'zettel_search',
+  ]);
+});
+
+test('the Zettelkasten in a real Zotero: create, branch, link, read, retitle, accept', async () => {
+  // No collection yet: an empty Zettelkasten, not an error.
+  const empty = await callTool('zettel_list', {});
+  assert.deepStrictEqual(empty.structuredContent, { zettels: [] });
+  // A read-only token can't write.
+  const refused = await callTool('zettel_create', { title: 'x' });
+  assert.match(refused.error.message, /may not use zettel_create/);
+
+  const odum = (await callTool('search_items', { query: 'odum' }))
+    .structuredContent.items[0].key;
+  const first = await write('zettel_create', {
+    title: 'Energy is the currency of systems',
+    body: 'Odum’s claim, in my words.\n\nSecond paragraph.',
+    sources: [odum],
+  });
+  assert.strictEqual(first.isError, undefined, JSON.stringify(first));
+  assert.strictEqual(first.structuredContent.zettel.id, '1');
+  const child = await write('zettel_create', {
+    title: 'Emergy counts the energy it took',
+    under: '1',
+    links: ['1'],
+  });
+  assert.strictEqual(child.structuredContent.zettel.id, '1a');
+
+  const got = (await callTool('zettel_get', { id: '1' })).structuredContent
+    .zettel;
+  assert.strictEqual(got.title, 'Energy is the currency of systems');
+  assert.strictEqual(
+    got.body,
+    'Odum’s claim, in my words.\n\nSecond paragraph.'
+  );
+  assert.deepStrictEqual(got.tags, ['zk/inbox']);
+  assert.deepStrictEqual(got.sources, [
+    {
+      key: odum,
+      title:
+        'Environmental Accounting: Emergy and Environmental Decision Making',
+      citationKey: 'odum_environmental_1996',
+    },
+  ]);
+  // Related works both ways: 1a linked to 1, so 1 shows 1a.
+  assert.deepStrictEqual(got.links, [
+    { id: '1a', title: 'Emergy counts the energy it took' },
+  ]);
+  assert.deepStrictEqual(got.children, [
+    { id: '1a', title: 'Emergy counts the energy it took' },
+  ]);
+
+  const listed = (await callTool('zettel_list', {})).structuredContent.zettels;
+  assert.deepStrictEqual(
+    listed.map((z: { id: string }) => z.id),
+    ['1', '1a']
+  );
+  const found = (await callTool('zettel_search', { query: 'my words' }))
+    .structuredContent.zettels;
+  assert.deepStrictEqual(
+    found.map((z: { id: string }) => z.id),
+    ['1']
+  );
+
+  await write('zettel_update', { id: '1a', title: 'Emergy is energy memory' });
+  await write('zettel_tag', { id: '1', remove: ['zk/inbox'], add: ['energy'] });
+  await write('zettel_unlink', { id: '1a', zettel: '1' });
+  const after = (await callTool('zettel_get', { id: '1' })).structuredContent
+    .zettel;
+  assert.deepStrictEqual(after.tags, ['energy']);
+  assert.deepStrictEqual(after.links, []);
+  assert.deepStrictEqual(after.children, [
+    { id: '1a', title: 'Emergy is energy memory' },
+  ]);
 });
 
 test('search_items and get_item read the real library', async () => {

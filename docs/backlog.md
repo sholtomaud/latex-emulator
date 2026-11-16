@@ -14,8 +14,11 @@ Update it in the same PR that starts, finishes or defers an item.
   versions on disk and local style rules at the maintainer's request
   (November 2026). Phase 1 is done: the plugin (MCP on Zotero's port,
   pairing, `search_items` and `get_item`), the References section to get
-  it and connect, and a CI job running it in a real Zotero 10. Next:
-  phase 2, the Zettelkasten tools. Phase 1 follow-ups:
+  it and connect, and a CI job running it in a real Zotero 10. Phase 2's
+  zettel tools are done (plugin 0.3.0). Next: the assistant's zettel
+  suggestions from a document's citations (ADR 0023 §5), then phase 2's
+  rest: `get_annotations`, `get_fulltext`, `literature_note_create`.
+  Follow-ups:
   - a scheduled CI run against Zotero's latest release, so a new Zotero
     that breaks the plugin is noticed before users update;
   - test older Zotero versions before widening `plugin.json`'s range;
@@ -47,7 +50,8 @@ In this order (agreed November 2026):
    for agents' notes) and, later, preprint versions. Four phases:
    - ~~skeleton, pairing and read tools, and a CI job with a real
      Zotero~~ (done);
-   - Zettelkasten tools;
+   - ~~Zettelkasten tools~~ (done, plugin 0.3.0; literature notes,
+     annotations and full text still to do);
    - ~~Zotero search and typeahead through the plugin~~ (done, plugin
      0.2.0); a document's references as a collection;
    - preprint versions with linked project files.

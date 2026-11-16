@@ -16,7 +16,7 @@ import {
   parseOrigins,
   tokenFromBytes,
 } from '../config.ts';
-import { zoteroPort } from './port.ts';
+import { ZETTEL_COLLECTION, zoteroPort } from './port.ts';
 
 declare const __PLUGIN__: { id: string; version: string; site: string };
 
@@ -98,6 +98,12 @@ const api = {
       },
     ]);
     return mcpCommand(token);
+  },
+  /** The Zettelkasten collection's name ('' means "Zettelkasten"). */
+  zettelCollection: () =>
+    String(Zotero.Prefs.get(ZETTEL_COLLECTION, true) ?? '') || 'Zettelkasten',
+  setZettelCollection(name: string) {
+    Zotero.Prefs.set(ZETTEL_COLLECTION, name.trim().slice(0, 100), true);
   },
   extraOrigins: () => String(Zotero.Prefs.get(ORIGINS, true) ?? ''),
   setExtraOrigins(text: string) {

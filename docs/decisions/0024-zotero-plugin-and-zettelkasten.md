@@ -316,8 +316,37 @@ the app's client, and published as MCP `inputSchema`/`outputSchema`.
      parsing) is unit-tested, and they are on the manual checklist in
      `zotero-plugin/README.md`.
 
-2. **Zettelkasten.** Luhmann IDs, the zettel tools and literature
-   notes; the inbox tag.
+2. **Zettelkasten** (built, plugin 0.3.0: the zettel tools; literature
+   notes, `get_annotations` and `get_fulltext` still to do).
+   - Zettels are standalone notes in one top-level collection,
+     "Zettelkasten" unless renamed in the settings pane, made the first
+     time a zettel is written (the maintainer chose standalone notes over
+     child notes of the cited items: a zettel can draw on several
+     sources).
+   - `luhmann.ts`: IDs alternate numbers and letters (letters run a…z,
+     aa…, so a branch never runs out); a branch sorts right after its
+     parent. `zettel-note.ts`: the note is `<h1>ID title</h1>` and
+     paragraphs; a note whose first line isn't `<ID> <title>` is not a
+     zettel and is left alone. A duplicated ID: the first in Zotero's
+     order counts.
+   - **Placement** (`zettel_create`): `after X` takes X's next sibling,
+     or, if that is taken, a new branch under X (Luhmann's way of
+     inserting between notes); `under X` takes the child after X's last;
+     neither takes the next top-level number. Writes are serialised, so
+     two at once never get the same ID.
+   - `zettel_update` with only a title rewrites the first line and keeps
+     the rest of the note, formatting included; with a body it rewrites
+     the note as plain paragraphs.
+   - Links take a zettel (`zettel`, an ID) or a source (`item`, a key),
+     never one string for both: an all-digit item key would also be a
+     valid Luhmann ID.
+   - `write-notes` tools write only zettel notes, their tags and Related
+     links. Outside agents get it only if "Also let it create and change
+     zettels" is ticked; the app still pairs read-only until the
+     assistant's zettel suggestions need it (ADR 0023 §5).
+   - Checked in a real Zotero 10.0.8 (`npm run test:zotero`): the
+     collection is made on first write, Related shows from both sides,
+     tags and retitling persist.
 3. **App integration.** ✅ Zotero search and typeahead through the
    plugin (brought forward, November 2026: with the plugin paired, the
    app still searched through Zotero's local API, which drops requests

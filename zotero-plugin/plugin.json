@@ -1,7 +1,7 @@
 {
   "id": "latex-emulator@sholtomaud.github.io",
   "name": "LaTeX Emulator for Zotero",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Lets the LaTeX Emulator and MCP clients (Claude Code and others) search your Zotero library, and later keep a Zettelkasten in it.",
   "site": "https://sholtomaud.github.io/latex-emulator/",
   "zotero": { "min": "10.0", "max": "10.*" }

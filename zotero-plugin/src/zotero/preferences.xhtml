@@ -13,6 +13,10 @@
       Makes a token that can search and read your library, and shows the command
       to give it to Claude Code.
     </html:p>
+    <html:label>
+      <html:input class="le-write" type="checkbox" />
+      Also let it create and change zettels (they arrive tagged zk/inbox)
+    </html:label>
     <html:button class="le-add" type="button">Add an MCP client…</html:button>
     <html:textarea
       class="le-command"
@@ -20,6 +24,14 @@
       rows="3"
       hidden="hidden"
     ></html:textarea>
+    <html:h2>Zettelkasten</html:h2>
+    <html:p>
+      Zettels are standalone notes in this collection, made the first time one
+      is written. Their first line is a Luhmann ID and a title, such as “1a2
+      Energy sets the limits of growth”.
+    </html:p>
+    <html:input class="le-collection" type="text" />
+    <html:button class="le-save-collection" type="button">Save</html:button>
     <html:h2>Websites allowed to connect</html:h2>
     <html:p class="le-site"></html:p>
     <html:p

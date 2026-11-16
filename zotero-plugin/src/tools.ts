@@ -1,21 +1,13 @@
-import { entryFromCsl } from '../../src/references/lookup.ts';
-import type { ItemDetail, ItemSummary, Scope } from './protocol.ts';
-import type { PortItem, ZoteroPort } from './port.ts';
+import type { ItemDetail, Scope } from './protocol.ts';
+import type { ZoteroPort } from './port.ts';
 import { validate } from './validate.ts';
 import type { Schema } from './validate.ts';
+import { ToolError, itemSummary } from './tool-base.ts';
+import type { Tool } from './tool-base.ts';
+import { ZETTEL_TOOLS } from './zettel-tools.ts';
 
-/** A failure the caller should read: returned as an MCP tool error. */
-export class ToolError extends Error {}
-
-export interface Tool {
-  name: string;
-  title: string;
-  description: string;
-  scope: Scope;
-  inputSchema: Schema & { type: 'object' };
-  annotations: { readOnlyHint: boolean };
-  run(port: ZoteroPort, args: Record<string, unknown>): Promise<unknown>;
-}
+export { ToolError } from './tool-base.ts';
+export type { Tool } from './tool-base.ts';
 
 const KEY: Schema = {
   type: 'string',
@@ -50,7 +42,9 @@ export const TOOLS: Tool[] = [
       const items = await port.search(args.query as string, limit);
       return {
         items: items.map((item) =>
-          args.include_csl ? { ...summary(item), csl: item.csl } : summary(item)
+          args.include_csl
+            ? { ...itemSummary(item), csl: item.csl }
+            : itemSummary(item)
         ),
       };
     },
@@ -73,7 +67,7 @@ export const TOOLS: Tool[] = [
       const item = await port.getItem(key);
       if (!item) throw new ToolError(`No item with key ${key}.`);
       const detail: ItemDetail = {
-        ...summary(item),
+        ...itemSummary(item),
         fields: item.fields,
         tags: item.tags,
         bibtex: await port.bibtex(key),
@@ -82,6 +76,7 @@ export const TOOLS: Tool[] = [
       return { item: detail };
     },
   },
+  ...ZETTEL_TOOLS,
 ];
 
 export function toolsFor(scopes: readonly Scope[]): Tool[] {
@@ -100,19 +95,4 @@ export async function runTool(
   if (problems.length)
     throw new ToolError(`Invalid arguments: ${problems.join('; ')}.`);
   return tool.run(port, args as Record<string, unknown>);
-}
-
-function summary(item: PortItem): ItemSummary {
-  return {
-    key: item.key,
-    itemType: item.itemType,
-    title: item.fields.title ?? '',
-    creators: item.creators.map(
-      (c) => c.name ?? [c.lastName, c.firstName].filter(Boolean).join(', ')
-    ),
-    year: /\d{4}/.exec(item.fields.date ?? '')?.[0] ?? '',
-    // Better BibTeX's or Zotero's key; else ours (ADR 0008), from the CSL.
-    citationKey: item.citationKey || entryFromCsl(item.csl, new Set()).key,
-    uri: `zotero://select/library/items/${item.key}`,
-  };
 }

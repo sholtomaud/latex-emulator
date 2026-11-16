@@ -67,7 +67,7 @@ export function tokenFromBytes(bytes: Uint8Array): string {
 
 const ABILITIES: Record<Scope, string> = {
   read: 'search and read your library',
-  'write-notes': 'create and change notes',
+  'write-notes': 'create and change zettels (notes in your Zettelkasten)',
   'write-items': 'create and change items and collections',
 };
 

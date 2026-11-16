@@ -75,3 +75,38 @@ export interface ItemDetail extends ItemSummary {
   bibtex: string;
   attachments: { key: string; title: string; contentType: string }[];
 }
+
+/** Agents' new zettels wait here until the user accepts them (ADR 0024 §3). */
+export const INBOX_TAG = 'zk/inbox';
+
+/** A zettel named by its Luhmann ID (ADR 0024 §4). */
+export interface ZettelRef {
+  id: string;
+  title: string;
+}
+
+export interface ZettelSummary extends ZettelRef {
+  /** The note's Zotero item key. */
+  key: string;
+  tags: string[];
+}
+
+/** A source a zettel draws on: a regular item it is Related to. */
+export interface SourceRef {
+  key: string;
+  title: string;
+  citationKey: string;
+}
+
+export interface ZettelDetail extends ZettelSummary {
+  body: string;
+  uri: string;
+  /** Related zettels. */
+  links: ZettelRef[];
+  sources: SourceRef[];
+  parent: ZettelRef | null;
+  children: ZettelRef[];
+  /** Neighbours in Luhmann order. */
+  previous: ZettelRef | null;
+  next: ZettelRef | null;
+}
