@@ -3,6 +3,8 @@ import '../document-explorer/document-explorer.ts';
 import '../latex-editor/latex-editor.ts';
 import { isPrintShortcut } from '../latex-preview/latex-preview.ts';
 import { requestPrint } from '../../store/print-requests.ts';
+import { updateStore } from '../../store/update-store.ts';
+import type { UpdateState } from '../../store/update-store.ts';
 import { uiStore } from '../../store/ui-store.ts';
 import type { UiState } from '../../store/ui-store.ts';
 import { workspaceStore } from '../../store/workspace-store.ts';
@@ -41,6 +43,19 @@ export class AppShellComponent extends BaseComponent {
       notice.textContent = text;
       notice.hidden = !text;
     };
+    // A release downloaded in the background (ADR 0021): reload on request,
+    // after saving (the reload's pagehide flushes the editor).
+    const update = this.querySelector<HTMLElement>('.app-update')!;
+    const showUpdate = ({ apply }: UpdateState) => {
+      update.hidden = !apply;
+    };
+    this.querySelector('.app-update-button')!.addEventListener('click', () =>
+      updateStore.getState().apply?.()
+    );
+    showUpdate(updateStore.getState());
+    updateStore.addEventListener('change', ((e: CustomEvent<UpdateState>) =>
+      showUpdate(e.detail)) as EventListener);
+
     showExplorer(uiStore.getState());
     showNotice(uiStore.getState());
     uiStore.addEventListener('change', ((e: CustomEvent<UiState>) => {

@@ -12,6 +12,8 @@ SITE="$OUT$BASE"
 
 rm -rf "$OUT"
 npx vite build --base "$BASE" --outDir "$SITE" --emptyOutDir
+# Offline support: the build's file list into sw.js (ADR 0021).
+node scripts/precache.ts "$SITE"
 # SPA fallback: Pages serves 404.html for unknown paths; with an absolute
 # base it can be the app itself, and the router shows the right page.
 cp "$SITE/index.html" "$SITE/404.html"

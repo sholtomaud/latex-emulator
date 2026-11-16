@@ -67,4 +67,42 @@ test.describe('github pages', () => {
       page.frameLocator('latex-preview iframe').locator('article p').first()
     ).toHaveText('See [Knuth, 1984].');
   });
+
+  test('works offline after one visit, under the repo sub-path (ADR 0021)', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('./');
+    const scope = await page.evaluate(async () => {
+      const reg = await navigator.serviceWorker.ready;
+      if (!navigator.serviceWorker.controller)
+        await new Promise((resolve) =>
+          navigator.serviceWorker.addEventListener(
+            'controllerchange',
+            resolve,
+            {
+              once: true,
+            }
+          )
+        );
+      return new URL(reg.scope).pathname;
+    });
+    expect(scope).toBe(
+      new URL('./', test.info().project.use.baseURL!).pathname
+    );
+
+    await context.setOffline(true);
+    // Any address under the app is answered by the cached app, offline:
+    // an unknown one gets the app's own not-found page, not a network error.
+    await page.goto('./some/deep/link');
+    await expect(
+      page.getByRole('heading', { name: '404 - Page Not Found' })
+    ).toBeVisible();
+    await page.goto('./');
+    await expect(page.locator('app-shell')).toBeVisible();
+    await expect(
+      page.frameLocator('latex-preview iframe').locator('.latex-page p').first()
+    ).toBeVisible();
+    await expect(page.locator('latex-editor .monaco-editor')).toBeVisible();
+  });
 });
