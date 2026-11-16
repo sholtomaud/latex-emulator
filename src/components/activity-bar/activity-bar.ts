@@ -11,18 +11,27 @@ import style from './activity-bar.css?raw';
 /**
  * The activity bar (ADR 0022): a vertical tablist choosing the primary side
  * bar's view. Clicking the open view closes the side bar. A badge keeps a
- * storage warning visible while another view is open.
+ * storage warning visible while another view is open. At the bottom, the
+ * Assistant button opens the secondary side bar.
  */
 export class ActivityBarComponent extends BaseComponent {
   static tagName = 'activity-bar';
   tabs: HTMLButtonElement[] = [];
+  assistant: HTMLButtonElement | null = null;
 
   constructor() {
     super(template, style);
   }
 
   init() {
-    this.tabs = [...this.querySelectorAll<HTMLButtonElement>('.activity')];
+    this.tabs = [...this.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    // The Assistant toggles the secondary side bar: a plain button with
+    // aria-expanded, not a tab, because it opens a second region.
+    this.assistant =
+      this.querySelector<HTMLButtonElement>('.assistant-toggle')!;
+    this.assistant.addEventListener('click', () =>
+      workspaceActions.toggleAssistant()
+    );
     for (const tab of this.tabs) {
       tab.addEventListener('click', () =>
         workspaceActions.showView(parseSideView(tab.dataset.view ?? null))
@@ -45,7 +54,8 @@ export class ActivityBarComponent extends BaseComponent {
     ) => this.renderBadge(e.detail)) as EventListener);
   }
 
-  render({ explorerOpen, sideView }: UiState) {
+  render({ explorerOpen, sideView, assistantOpen }: UiState) {
+    this.assistant?.setAttribute('aria-expanded', String(assistantOpen));
     for (const tab of this.tabs) {
       const selected = tab.dataset.view === sideView;
       tab.setAttribute('aria-selected', String(explorerOpen && selected));

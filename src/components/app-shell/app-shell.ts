@@ -1,5 +1,6 @@
 import { BaseComponent } from '../../core/base-component.ts';
 import '../activity-bar/activity-bar.ts';
+import '../assistant-panel/assistant-panel.ts';
 import '../download-menu/download-menu.ts';
 import '../document-explorer/document-explorer.ts';
 import '../latex-editor/latex-editor.ts';
@@ -15,12 +16,16 @@ import {
   startWorkspace,
   workspaceActions,
 } from '../../workspace/workspace-service.ts';
-import { isToggleExplorerShortcut } from '../../util/shortcuts.ts';
+import {
+  isToggleAssistantShortcut,
+  isToggleExplorerShortcut,
+} from '../../util/shortcuts.ts';
 import template from './app-shell.html?raw';
 import style from './app-shell.css?raw';
 
 /**
- * Top-level layout: toolbar, then document explorer | editor | preview.
+ * Top-level layout: toolbar, then activity bar | side bar | editor |
+ * preview | assistant (ADR 0022).
  */
 export class AppShellComponent extends BaseComponent {
   static tagName = 'app-shell';
@@ -39,6 +44,11 @@ export class AppShellComponent extends BaseComponent {
       explorer.hidden = !explorerOpen;
       panes.classList.toggle('with-explorer', explorerOpen);
       toggle.setAttribute('aria-expanded', String(explorerOpen));
+    };
+    const assistant = this.querySelector<HTMLElement>('assistant-panel')!;
+    const showAssistant = ({ assistantOpen }: UiState) => {
+      assistant.hidden = !assistantOpen;
+      panes.classList.toggle('with-assistant', assistantOpen);
     };
     const notice = this.querySelector<HTMLElement>('.app-notice')!;
     const showNotice = ({ notice: text }: UiState) => {
@@ -59,9 +69,11 @@ export class AppShellComponent extends BaseComponent {
       showUpdate(e.detail)) as EventListener);
 
     showExplorer(uiStore.getState());
+    showAssistant(uiStore.getState());
     showNotice(uiStore.getState());
     uiStore.addEventListener('change', ((e: CustomEvent<UiState>) => {
       showExplorer(e.detail);
+      showAssistant(e.detail);
       showNotice(e.detail);
     }) as EventListener);
 
@@ -82,6 +94,10 @@ export class AppShellComponent extends BaseComponent {
           e.preventDefault();
           e.stopPropagation();
           requestPrint();
+        } else if (isToggleAssistantShortcut(e)) {
+          e.preventDefault();
+          e.stopPropagation();
+          workspaceActions.toggleAssistant();
         } else if (isToggleExplorerShortcut(e)) {
           e.preventDefault();
           e.stopPropagation();

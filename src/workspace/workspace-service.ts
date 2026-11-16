@@ -100,10 +100,12 @@ export async function startWorkspace(): Promise<void> {
   uiStore.setState({
     explorerOpen: readPref('explorer-open') === 'true',
     sideView: parseSideView(readPref('side-view')),
+    assistantOpen: readPref('assistant-open') === 'true',
   });
   uiStore.addEventListener('change', ((e: CustomEvent) => {
     writePref('explorer-open', String(e.detail.explorerOpen));
     writePref('side-view', e.detail.sideView);
+    writePref('assistant-open', String(e.detail.assistantOpen));
   }) as EventListener);
 
   const repo = await openRepository();
@@ -724,6 +726,9 @@ export const workspaceActions = {
   },
   toggleExplorer: () =>
     uiStore.setState({ explorerOpen: !uiStore.getState().explorerOpen }),
+  /** The secondary side bar (ADR 0022), independent of the primary one. */
+  toggleAssistant: () =>
+    uiStore.setState({ assistantOpen: !uiStore.getState().assistantOpen }),
   /** An activity bar icon: open its view, or close the side bar (ADR 0022). */
   showView: (view: SideView) =>
     uiStore.setState(activateView(uiStore.getState(), view)),

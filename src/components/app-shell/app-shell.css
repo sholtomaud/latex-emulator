@@ -80,6 +80,33 @@
   grid-template-columns: 3rem 15rem minmax(0, 1fr) minmax(0, 1fr);
 }
 
+/* The Assistant (ADR 0022 phase 3). Where there is room it is a fourth
+   column; otherwise it lies over the preview, so the editor never narrows
+   while you type. */
+:host assistant-panel {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: 5;
+  width: 20rem;
+  box-shadow: -4px 0 12px rgb(0 0 0 / 0.15);
+}
+
+@media (min-width: 1440px) {
+  :host .panes.with-assistant {
+    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1fr) 20rem;
+  }
+
+  :host .panes.with-explorer.with-assistant {
+    grid-template-columns: 3rem 15rem minmax(0, 1fr) minmax(0, 1fr) 20rem;
+  }
+
+  :host assistant-panel {
+    position: static;
+    width: auto;
+    box-shadow: none;
+  }
+}
+
 :host .pane {
   min-width: 0;
   min-height: 0;
@@ -111,7 +138,9 @@
   }
 
   :host .panes,
-  :host .panes.with-explorer {
+  :host .panes.with-explorer,
+  :host .panes.with-assistant,
+  :host .panes.with-explorer.with-assistant {
     grid-template-columns: 2.75rem minmax(0, 1fr);
     grid-template-rows: 1fr 1fr;
   }
@@ -128,6 +157,12 @@
     z-index: 10;
     width: min(18rem, 85vw);
     box-shadow: 4px 0 12px rgb(0 0 0 / 0.15);
+  }
+
+  /* The Assistant is a drawer from the right. */
+  :host assistant-panel {
+    width: min(20rem, 85vw);
+    z-index: 10;
   }
 
   :host .pane-preview {

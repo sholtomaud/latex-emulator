@@ -184,6 +184,8 @@ src/
 │   ├── latex-editor/             # Monaco host element
 │   ├── latex-preview/            # iframe preview + print trigger
 │   ├── activity-bar/             # icons choosing the side bar's view (ADR 0022)
+│   ├── assistant-panel/          # the secondary side bar (Ctrl/⌘+Alt+B): the
+│   │                             #   writing assistant's shell (ADR 0022, 0023)
 │   ├── document-explorer/        # the primary side bar (Ctrl/⌘+B): Explorer,
 │   │                             #   Versions, References and Storage views
 │   ├── image-panel/              # the open document's images (in the explorer)

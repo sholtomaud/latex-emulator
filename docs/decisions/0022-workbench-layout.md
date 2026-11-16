@@ -1,7 +1,8 @@
 # 0022: Workbench layout: an activity bar and side bars
 
-Status: accepted. Phases 1 (the activity bar and primary side bar) and 2
-(the Explorer's documents as folders) are built; phase 3 is not.
+Status: accepted and built: phases 1 (the activity bar and primary side
+bar), 2 (the Explorer's documents as folders) and 3 (the secondary side
+bar). Draggable widths are still to come.
 
 ## Context
 
@@ -43,7 +44,8 @@ VS Code's answer is familiar to most of our users:
 - **Primary side bar** (`side-bar`): shows the chosen view.
   - Clicking the active icon closes the side bar, as in VS Code. Ctrl/⌘+B
     still toggles it (ADR 0005's shortcut).
-  - Its width can be dragged (15–30rem) and is remembered.
+  - Its width can be dragged (15–30rem) and is remembered (not built yet;
+    15rem for now).
 - **Secondary side bar** on the right: the Assistant (ADR 0023), later
   Comments.
   - It opens and closes independently.
@@ -154,7 +156,27 @@ VS Code's answer is familiar to most of our users:
      duplicated its content and listeners. It now renders and initialises
      once. This is a local divergence until the same fix is made in
      `sholtomaud/boba`.
-3. **The secondary side bar,** with the Assistant shell (ADR 0023).
+3. **The secondary side bar** (built), with the Assistant shell
+   (ADR 0023).
+   - `assistant-panel` is a `complementary` region named "Assistant". For
+     now it says what the assistant will do (style-profile checks as you
+     type, paragraph checks when you pause, audits on request) and has a
+     close button that returns focus to the toggle.
+   - **The toggle is a button, not a tab.** It sits at the foot of the
+     activity bar, outside the tablist, with `aria-expanded` and
+     `aria-controls`, because it opens a second region rather than
+     choosing the primary side bar's view. Ctrl+Alt+B (⌘⌥B) toggles it,
+     as VS Code's secondary side bar; the shortcut matches the physical
+     key, because ⌥B types "∫" on a Mac (`src/util/shortcuts.ts`).
+   - `uiStore.assistantOpen`, remembered as the `assistant-open`
+     preference.
+   - **Layout.** At 1440px and wider it is a fourth column (20rem).
+     Narrower, it lies over the right of the preview, so the editor keeps
+     its width (the preview page behind it is not rescaled). At 768px and
+     below it is a drawer from the right, `min(20rem, 85vw)` wide.
+     `e2e/specs/assistant-panel.spec.ts` measures all three.
+   - The widths are fixed for now; dragging them (15–30rem, remembered) is
+     a later change for both side bars.
 
 ### The toolbar: one Download menu
 
