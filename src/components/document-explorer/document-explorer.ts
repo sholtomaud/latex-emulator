@@ -7,6 +7,9 @@ import { workspaceActions } from '../../workspace/workspace-service.ts';
 import type { DocumentMeta, VersionMeta } from '../../workspace/workspace.ts';
 import type { Bump } from '../../workspace/versions.ts';
 import { VERSION_LABELS, shortHash } from '../../workspace/versions.ts';
+import { documentStore } from '../../store/document-store.ts';
+import { documentFiles } from '../../workspace/explorer-tree.ts';
+import { debounce } from '../../util/debounce.ts';
 import { bibStore } from '../../store/bib-store.ts';
 import type { BibStoreState } from '../../store/bib-store.ts';
 import type { BibFileMeta } from '../../workspace/bib-library.ts';
@@ -27,6 +30,8 @@ export class DocumentExplorerComponent extends BaseComponent {
   bibList!: HTMLUListElement;
   refFile!: HTMLSelectElement;
   bibTemplate!: HTMLTemplateElement;
+  /** Moved into the open document's files on each render. */
+  imagePanel!: HTMLElement;
   /** Document being renamed; re-renders leave its input alone. */
   renaming: string | null = null;
 
@@ -37,6 +42,11 @@ export class DocumentExplorerComponent extends BaseComponent {
   init() {
     this.list = this.querySelector('.doc-list')!;
     this.itemTemplate = this.querySelector('.doc-item-template')!;
+    this.imagePanel = this.querySelector('image-panel')!;
+    // The open document's files follow its text and the library.
+    const refreshFiles = debounce(() => this.renderFiles(), 300);
+    documentStore.addEventListener('change', refreshFiles);
+    bibStore.addEventListener('change', refreshFiles);
     this.renameTemplate = this.querySelector('.doc-rename-template')!;
     const input = this.querySelector<HTMLInputElement>('.import-input')!;
     this.versionList = this.querySelector('.version-list')!;
@@ -128,6 +138,7 @@ export class DocumentExplorerComponent extends BaseComponent {
       this.renderItem(doc, doc.id === activeId)
     );
     this.list.replaceChildren(...items);
+    this.renderFiles();
     // Don't rebuild the list under a status being typed (autosave publishes).
     const typing = this.versionList.contains(document.activeElement);
     if (!typing)
@@ -310,7 +321,10 @@ export class DocumentExplorerComponent extends BaseComponent {
     const open = li.querySelector<HTMLButtonElement>('.doc-open')!;
     open.textContent = doc.name;
     open.title = doc.name;
-    if (active) open.setAttribute('aria-current', 'true');
+    if (active) {
+      open.setAttribute('aria-current', 'true');
+      li.classList.add('active');
+    }
     open.addEventListener('click', () => workspaceActions.open(doc.id));
     open.addEventListener('dblclick', () => this.startRename(li, doc));
 
@@ -333,6 +347,56 @@ export class DocumentExplorerComponent extends BaseComponent {
 
     if (this.renaming === doc.id) this.startRename(li, doc);
     return li;
+  }
+
+  /**
+   * Under the open document, the files of its project folder (ADR 0022):
+   * its .tex, each .bib its \bibliography lists (generated, ADR 0020), and
+   * its images (the image panel, moved here so it keeps its state).
+   */
+  renderFiles() {
+    const { documents, activeId } = workspaceStore.getState();
+    const doc = documents.find((d) => d.id === activeId);
+    const item = this.list.querySelector<HTMLLIElement>('.doc-item.active');
+    const list = item?.querySelector<HTMLUListElement>('.doc-files');
+    if (!doc || !list) return;
+    const { tex, bibs } = documentFiles(
+      doc.name,
+      documentStore.getState().source,
+      bibStore.getState().sources
+    );
+    list.hidden = false;
+    list.setAttribute('aria-label', `Files in ${doc.name}`);
+    const clone = (cls: string) =>
+      (
+        this.querySelector<HTMLTemplateElement>(cls)!.content.cloneNode(
+          true
+        ) as DocumentFragment
+      ).firstElementChild as HTMLLIElement;
+    const texItem = clone('.doc-file-template');
+    texItem.querySelector('.doc-file-name')!.textContent = tex;
+    const bibItems = bibs.map((b) => {
+      const li = clone('.doc-bib-template');
+      li.classList.toggle('missing', !b.inLibrary);
+      li.querySelector('.doc-file-name')!.textContent = b.file;
+      li.querySelector('.doc-file-meta')!.textContent = b.inLibrary
+        ? `${b.cited} cited of ${b.total} in the library`
+        : 'not in your library';
+      const show = li.querySelector<HTMLButtonElement>('.doc-bib-show')!;
+      show.setAttribute('aria-label', `Show ${b.file} in References`);
+      show.title = 'Generated from your library: open References';
+      show.addEventListener('click', () =>
+        workspaceActions.showView('references')
+      );
+      return li;
+    });
+    let images = list.querySelector<HTMLLIElement>('.doc-file-images');
+    if (!images) {
+      images = document.createElement('li');
+      images.className = 'doc-file-images';
+    }
+    images.append(this.imagePanel);
+    list.replaceChildren(texItem, ...bibItems, images);
   }
 
   /** Swap the name for an input: Enter or blur saves, Escape cancels. */
