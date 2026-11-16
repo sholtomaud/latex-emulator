@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import { editorReady, setSource } from '../support/editor.ts';
+import { chooseDownload } from '../support/download.ts';
 import { unzip } from '../support/unzip.ts';
 
 /**
@@ -34,7 +35,7 @@ test('Download project saves the .tex, its .bib file and its images as a zip', a
   await setSource(page, SOURCE);
 
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download project (.zip)' }).click();
+  await chooseDownload(page, 'Download project (.zip)');
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('a-short-example.zip');
 

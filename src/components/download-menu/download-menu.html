@@ -1,0 +1,71 @@
+<div class="download">
+  <button
+    type="button"
+    class="download-button"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    aria-controls="download-menu"
+    title="Download the PDF, a preprint, the project or the source"
+  >
+    Download
+    <span class="download-caret" aria-hidden="true">▾</span>
+  </button>
+  <div
+    class="download-menu"
+    id="download-menu"
+    role="menu"
+    aria-label="Download"
+    hidden
+  >
+    <button
+      type="button"
+      role="menuitem"
+      tabindex="-1"
+      class="download-item"
+      data-action="pdf"
+      aria-label="Download PDF"
+    >
+      <span class="item-name">PDF</span>
+      <span class="item-help"
+        >Print-ready, as pdflatex would set it · Ctrl/⌘ P</span
+      >
+    </button>
+    <button
+      type="button"
+      role="menuitem"
+      tabindex="-1"
+      class="download-item"
+      data-action="preprint"
+      aria-label="Download Preprint"
+    >
+      <span class="item-name">Preprint PDF</span>
+      <span class="item-help"
+        >Saves a version, stamped with its number and SHA-256</span
+      >
+    </button>
+    <button
+      type="button"
+      role="menuitem"
+      tabindex="-1"
+      class="download-item"
+      data-action="zip"
+      aria-label="Download project (.zip)"
+    >
+      <span class="item-name">Project (.zip)</span>
+      <span class="item-help"
+        >The .tex, its .bib files and images, ready for pdflatex</span
+      >
+    </button>
+    <button
+      type="button"
+      role="menuitem"
+      tabindex="-1"
+      class="download-item"
+      data-action="tex"
+      aria-label="Download .tex"
+    >
+      <span class="item-name">LaTeX source (.tex)</span>
+      <span class="item-help">Just this document's source</span>
+    </button>
+  </div>
+</div>

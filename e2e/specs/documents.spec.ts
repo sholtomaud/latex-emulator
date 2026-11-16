@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import fs from 'node:fs';
 import { editorReady, setSource } from '../support/editor.ts';
+import { chooseDownload } from '../support/download.ts';
 
 const explorer = (page: Page) =>
   page.getByRole('navigation', { name: 'Documents' });
@@ -148,7 +149,7 @@ test.describe('documents', () => {
     page,
   }) => {
     const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download .tex' }).click();
+    await chooseDownload(page, 'Download .tex');
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe('a-short-example.tex');
     const text = fs.readFileSync((await download.path())!, 'utf8');

@@ -13,38 +13,7 @@
     <h1 class="brand">LaTeX Emulator</h1>
     <span class="doc-name" aria-live="polite"></span>
     <div class="toolbar-actions">
-      <button
-        type="button"
-        class="toolbar-button tex-button"
-        title="Download the LaTeX source"
-        aria-label="Download .tex"
-      >
-        <span class="label-prefix">Download </span>.tex
-      </button>
-      <button
-        type="button"
-        class="toolbar-button zip-button"
-        title="Download the project: the .tex, its .bib files and its images, ready for pdflatex"
-        aria-label="Download project (.zip)"
-      >
-        <span class="label-prefix">Download </span>.zip
-      </button>
-      <button
-        type="button"
-        class="toolbar-button preprint-button"
-        title="Save a version and download it as a stamped preprint PDF"
-        aria-label="Download Preprint"
-      >
-        <span class="label-prefix">Download </span>Preprint
-      </button>
-      <button
-        type="button"
-        class="toolbar-button primary print-button"
-        title="Download PDF (Ctrl/⌘ P)"
-        aria-label="Download PDF"
-      >
-        <span class="label-prefix">Download </span>PDF
-      </button>
+      <download-menu></download-menu>
     </div>
   </header>
   <p class="app-notice" role="alert" hidden></p>

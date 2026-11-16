@@ -180,6 +180,7 @@ src/
 │                                 #   browser wiring (autosave, import/export)
 ├── components/
 │   ├── app-shell/                # layout: editor | preview split, toolbar
+│   ├── download-menu/            # the toolbar's one Download button + menu (ADR 0022)
 │   ├── latex-editor/             # Monaco host element
 │   ├── latex-preview/            # iframe preview + print trigger
 │   ├── activity-bar/             # icons choosing the side bar's view (ADR 0022)

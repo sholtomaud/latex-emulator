@@ -156,6 +156,23 @@ VS Code's answer is familiar to most of our users:
      `sholtomaud/boba`.
 3. **The secondary side bar,** with the Assistant shell (ADR 0023).
 
+### The toolbar: one Download menu
+
+The toolbar had four download buttons (.tex, .zip, Preprint, PDF). They
+become **one Download button** whose menu holds the four, PDF first:
+minimal by default, the choices shown when asked for.
+
+- The `download-menu` component follows the WAI-ARIA menu-button
+  pattern. Down or Up on the button opens it at the first or last item,
+  arrows wrap (`src/util/menu-keys.ts`, pure), Home and End jump, Escape
+  or a choice returns focus to the button, and Tab or a click elsewhere
+  closes it.
+- Each item says what it gives ("Saves a version, stamped with its number
+  and SHA-256"). The items keep the old buttons' accessible names
+  ("Download PDF", "Download Preprint", "Download project (.zip)",
+  "Download .tex").
+- Ctrl/⌘ P still prints at once.
+
 ## Consequences
 
 - The side bar shows one concern at a time. New features get a view (or a

@@ -1,5 +1,6 @@
 import { BaseComponent } from '../../core/base-component.ts';
 import '../activity-bar/activity-bar.ts';
+import '../download-menu/download-menu.ts';
 import '../document-explorer/document-explorer.ts';
 import '../latex-editor/latex-editor.ts';
 import { isPrintShortcut } from '../latex-preview/latex-preview.ts';
@@ -72,18 +73,6 @@ export class AppShellComponent extends BaseComponent {
     }) as EventListener);
 
     toggle.addEventListener('click', () => workspaceActions.toggleExplorer());
-    this.querySelector('.tex-button')!.addEventListener('click', () =>
-      workspaceActions.download()
-    );
-    this.querySelector('.zip-button')!.addEventListener('click', () =>
-      workspaceActions.downloadProject()
-    );
-    this.querySelector('.preprint-button')!.addEventListener('click', () =>
-      workspaceActions.preprint()
-    );
-    this.querySelector('.print-button')!.addEventListener('click', () =>
-      requestPrint()
-    );
 
     // Capture phase: the editor handles (and may swallow) its own key events.
     window.addEventListener(

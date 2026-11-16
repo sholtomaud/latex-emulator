@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import { editorReady, setSource } from '../support/editor.ts';
+import { chooseDownload } from '../support/download.ts';
 import { openView } from '../support/views.ts';
 
 interface PrintRecord {
@@ -63,7 +64,7 @@ test.describe('versions and preprints', () => {
   test('Download Preprint prints a v0.1.0 snapshot stamped with its hash', async ({
     page,
   }) => {
-    await page.getByRole('button', { name: 'Download Preprint' }).click();
+    await chooseDownload(page, 'Download Preprint');
     await expect.poll(() => prints(page)).toHaveLength(1);
     const [p] = await prints(page);
     expect(p.title).toBe('a-short-example-v0.1.0-preprint');
@@ -77,13 +78,12 @@ test.describe('versions and preprints', () => {
   test('unchanged text reuses the version; an edit bumps the patch', async ({
     page,
   }) => {
-    const preprint = page.getByRole('button', { name: 'Download Preprint' });
-    await preprint.click();
+    await chooseDownload(page, 'Download Preprint');
     await expect.poll(() => prints(page)).toHaveLength(1);
-    await preprint.click();
+    await chooseDownload(page, 'Download Preprint');
     await expect.poll(() => prints(page)).toHaveLength(2);
     await setSource(page, sample.replace('A Short Example', 'Revised'));
-    await preprint.click();
+    await chooseDownload(page, 'Download Preprint');
     await expect.poll(() => prints(page)).toHaveLength(3);
     expect((await prints(page)).map((p) => p.title)).toEqual([
       'a-short-example-v0.1.0-preprint',
