@@ -134,7 +134,8 @@ test('tools/list shows the tools the token’s scopes allow, with schemas', asyn
   const { tools } = json(res.body).result;
   assert.deepStrictEqual(
     tools.map((t: { name: string }) => t.name),
-    ['search_items', 'get_item']
+    // A read-only token: no zettel_create and friends (write-notes).
+    ['search_items', 'get_item', 'zettel_list', 'zettel_get', 'zettel_search']
   );
   assert.strictEqual(tools[0].inputSchema.type, 'object');
   assert.deepStrictEqual(tools[0].annotations, { readOnlyHint: true });
@@ -210,6 +211,13 @@ test('a tool outside the token’s scopes, or unknown, is refused', async () => 
     )
   );
   assert.strictEqual(json(res.body).error.code, RPC.forbidden);
+  // And the other way round: a read-only token can't write a zettel.
+  const write = await server.handle(
+    agent(
+      rpc('tools/call', { name: 'zettel_create', arguments: { title: 'x' } })
+    )
+  );
+  assert.strictEqual(json(write.body).error.code, RPC.forbidden);
   const unknown = await server.handle(
     agent(rpc('tools/call', { name: 'rm_rf', arguments: {} }))
   );

@@ -97,7 +97,7 @@ test('the pairing dialog says who asks, from where, for what, and the code', () 
       code: '1234',
       scopes: ['read', 'write-notes'],
     }),
-    /^“Agent”, a program on this computer, wants.*\n\nIt will be able to: search and read your library; create and change notes\./s
+    /^“Agent”, a program on this computer, wants.*\n\nIt will be able to: search and read your library; create and change zettels \(notes in your Zettelkasten\)\./s
   );
   assert.match(
     pairingPrompt({

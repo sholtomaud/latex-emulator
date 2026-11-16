@@ -8,11 +8,37 @@ interface ZoteroItem {
   id: number;
   key: string;
   itemType: string;
+  libraryID: number;
+  deleted: boolean;
+  parentKey: string | false;
+  /** Keys of Related items. */
+  relatedItems: string[];
   isRegularItem(): boolean;
+  isNote(): boolean;
+  getNote(): string;
+  setNote(html: string): boolean;
+  getTags(): { tag: string }[];
+  addTag(name: string): boolean;
+  removeTag(name: string): boolean;
+  setCollections(ids: number[]): void;
+  addRelatedItem(item: ZoteroItem): boolean;
+  removeRelatedItem(item: ZoteroItem): Promise<boolean>;
+  save(): Promise<unknown>;
+  saveTx(): Promise<unknown>;
   getField(name: string): string;
   getAttachments(): number[];
   attachmentContentType: string;
   toJSON(): Record<string, unknown>;
+}
+
+interface ZoteroCollection {
+  id: number;
+  name: string;
+  libraryID: number;
+  parentID: number | false;
+  deleted: boolean;
+  getChildItems(asIDs: false, includeTrashed: boolean): ZoteroItem[];
+  saveTx(): Promise<unknown>;
 }
 
 interface ZoteroServerRequest {
@@ -42,6 +68,12 @@ declare const Zotero: {
     set(name: string, value: string, global: true): void;
   };
   Libraries: { userLibraryID: number };
+  Item: new (itemType: string) => ZoteroItem;
+  Collection: new () => ZoteroCollection;
+  Collections: {
+    getByLibrary(libraryID: number): ZoteroCollection[];
+  };
+  DB: { executeTransaction<T>(fn: () => Promise<T>): Promise<T> };
   Search: new () => {
     libraryID: number;
     addCondition(condition: string, operator: string, value: string): void;

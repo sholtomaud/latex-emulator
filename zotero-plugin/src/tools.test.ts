@@ -5,22 +5,34 @@ import { fakePort, ODUM, IPCC } from './fake-port.ts';
 
 const port = () => fakePort([ODUM, IPCC]);
 
-test('phase 1 has the two read tools, published with schemas and read-only hints', () => {
+test('the item tools and the zettel tools, published with schemas; read-only hints match their scope', () => {
   assert.deepStrictEqual(
     TOOLS.map((t) => t.name),
-    ['search_items', 'get_item']
+    [
+      'search_items',
+      'get_item',
+      'zettel_list',
+      'zettel_get',
+      'zettel_search',
+      'zettel_create',
+      'zettel_update',
+      'zettel_link',
+      'zettel_unlink',
+      'zettel_tag',
+    ]
   );
   for (const tool of TOOLS) {
-    assert.strictEqual(tool.scope, 'read');
-    assert.strictEqual(tool.annotations.readOnlyHint, true);
+    assert.ok(['read', 'write-notes'].includes(tool.scope), tool.name);
+    assert.strictEqual(tool.annotations.readOnlyHint, tool.scope === 'read');
     assert.strictEqual(tool.inputSchema.type, 'object');
     assert.ok(tool.description.length > 20);
   }
 });
 
 test('a client sees only the tools its scopes allow', () => {
-  assert.strictEqual(toolsFor(['read']).length, 2);
-  assert.strictEqual(toolsFor(['write-notes']).length, 0);
+  assert.strictEqual(toolsFor(['read']).length, 5);
+  assert.strictEqual(toolsFor(['write-notes']).length, 5);
+  assert.strictEqual(toolsFor(['write-items']).length, 0);
 });
 
 test('search_items: summaries with keys, creators, year, citation key and a zotero link', async () => {

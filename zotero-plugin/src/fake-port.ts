@@ -1,10 +1,61 @@
-import type { PortItem, ZoteroPort } from './port.ts';
+import type { PortItem, PortNote, ZoteroPort } from './port.ts';
 
-/** An in-memory Zotero for tests: items by key, search by title words. */
-export function fakePort(items: PortItem[]): ZoteroPort & { calls: string[] } {
+/**
+ * An in-memory Zotero for tests: items by key, search by title words, and
+ * the Zettelkasten collection's notes (`notes`; `outside` are notes that
+ * exist but aren't in the collection).
+ */
+export function fakePort(
+  items: PortItem[],
+  notes: PortNote[] = [],
+  outside: PortNote[] = []
+): ZoteroPort & { calls: string[]; notes: PortNote[] } {
   const calls: string[] = [];
+  let next = 1;
+  const any = (key: string) =>
+    notes.find((n) => n.key === key) ??
+    outside.find((n) => n.key === key) ??
+    items.find((i) => i.key === key);
   return {
     calls,
+    notes,
+    async zettelNotes() {
+      calls.push('zettelNotes');
+      return notes.map((n) => ({ ...n, related: [...n.related] }));
+    },
+    async createZettelNote(html, tags) {
+      const key = `NOTE${String(next++).padStart(4, '0')}`;
+      calls.push(`create ${key}`);
+      notes.push({ key, html, tags: [...tags], related: [] });
+      return key;
+    },
+    async setNoteHtml(key, html) {
+      calls.push(`html ${key}`);
+      const note = notes.find((n) => n.key === key);
+      if (!note) throw new Error(`no note ${key}`);
+      note.html = html;
+    },
+    async relate(a, b, related) {
+      calls.push(`${related ? 'relate' : 'unrelate'} ${a} ${b}`);
+      for (const [x, y] of [
+        [a, b],
+        [b, a],
+      ]) {
+        const item = any(x);
+        if (!item) throw new Error(`no item ${x}`);
+        if (!('related' in item)) continue; // regular items: not tracked here
+        item.related = item.related.filter((k) => k !== y);
+        if (related) item.related.push(y);
+      }
+    },
+    async setTags(key, add, remove) {
+      calls.push(`tags ${key} +${add.join(',')} -${remove.join(',')}`);
+      const note = notes.find((n) => n.key === key);
+      if (!note) throw new Error(`no note ${key}`);
+      note.tags = [...new Set([...note.tags, ...add])].filter(
+        (t) => !remove.includes(t)
+      );
+    },
     async search(query, limit) {
       calls.push(`search ${query} ${limit}`);
       const words = query.toLowerCase().split(/\s+/);

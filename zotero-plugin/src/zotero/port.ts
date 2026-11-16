@@ -1,5 +1,5 @@
 /** ZoteroPort over Zotero's own JavaScript API: the user's library only. */
-import type { PortCreator, PortItem, ZoteroPort } from '../port.ts';
+import type { PortCreator, PortItem, PortNote, ZoteroPort } from '../port.ts';
 
 // Translator IDs (Zotero's translators/ folder; Better BibTeX's own).
 const BETTER_BIBTEX = 'ca65189f-8815-4afe-8c8b-8c7c15f0edca';
@@ -56,6 +56,51 @@ function toPortItem(item: ZoteroItem): PortItem {
   };
 }
 
+/** The Zettelkasten collection's name (the settings pane can change it). */
+export const ZETTEL_COLLECTION = 'extensions.latex-emulator.zettelCollection';
+const collectionName = () =>
+  String(Zotero.Prefs.get(ZETTEL_COLLECTION, true) ?? '').trim() ||
+  'Zettelkasten';
+
+/** The top-level collection of that name; made when `create` and missing. */
+async function zettelCollection(
+  create: boolean
+): Promise<ZoteroCollection | null> {
+  const name = collectionName();
+  const found = Zotero.Collections.getByLibrary(library()).find(
+    (c) => c.name === name && !c.parentID && !c.deleted
+  );
+  if (found || !create) return found ?? null;
+  const made = new Zotero.Collection();
+  made.libraryID = library();
+  made.name = name;
+  await made.saveTx();
+  return made;
+}
+
+const isZettelNote = (i: ZoteroItem) => i.isNote() && !i.parentKey;
+
+function toPortNote(item: ZoteroItem): PortNote {
+  return {
+    key: item.key,
+    html: item.getNote(),
+    tags: item.getTags().map((t) => t.tag),
+    related: item.relatedItems,
+  };
+}
+
+async function anyItem(key: string): Promise<ZoteroItem> {
+  const item = await Zotero.Items.getByLibraryAndKeyAsync(library(), key);
+  if (!item || item.deleted) throw new Error(`No item ${key}.`);
+  return item;
+}
+
+async function zettelNote(key: string): Promise<ZoteroItem> {
+  const item = await anyItem(key);
+  if (!isZettelNote(item)) throw new Error(`${key} is not a standalone note.`);
+  return item;
+}
+
 async function regularItem(key: string): Promise<ZoteroItem | null> {
   const item = await Zotero.Items.getByLibraryAndKeyAsync(library(), key);
   return item && item.isRegularItem() ? item : null;
@@ -88,5 +133,51 @@ export const zoteroPort: ZoteroPort = {
     exporter.setTranslator(Zotero.BetterBibTeX ? BETTER_BIBTEX : BIBTEX);
     await exporter.translate();
     return exporter.string;
+  },
+  async zettelNotes() {
+    const collection = await zettelCollection(false);
+    return collection
+      ? collection
+          .getChildItems(false, false)
+          .filter(isZettelNote)
+          .map(toPortNote)
+      : [];
+  },
+  async createZettelNote(html, tags) {
+    const collection = (await zettelCollection(true))!;
+    const note = new Zotero.Item('note');
+    note.libraryID = library();
+    note.setNote(html);
+    note.setCollections([collection.id]);
+    for (const tag of tags) note.addTag(tag);
+    await note.saveTx();
+    return note.key;
+  },
+  async setNoteHtml(key, html) {
+    const note = await zettelNote(key);
+    note.setNote(html);
+    await note.saveTx();
+  },
+  async relate(a, b, related) {
+    const x = await anyItem(a);
+    const y = await anyItem(b);
+    // Related is stored on each item: change and save both, together.
+    if (related) {
+      x.addRelatedItem(y);
+      y.addRelatedItem(x);
+    } else {
+      await x.removeRelatedItem(y);
+      await y.removeRelatedItem(x);
+    }
+    await Zotero.DB.executeTransaction(async () => {
+      await x.save();
+      await y.save();
+    });
+  },
+  async setTags(key, add, remove) {
+    const note = await zettelNote(key);
+    for (const tag of add) note.addTag(tag);
+    for (const tag of remove) note.removeTag(tag);
+    await note.saveTx();
   },
 };
