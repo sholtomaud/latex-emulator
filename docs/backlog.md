@@ -62,9 +62,10 @@ In this order (agreed November 2026):
    - profiles: several assistants with their own prompts, each task
      routed to its own endpoint (several local servers on their own
      ports);
-   - chat follow-ups: insert a suggested block at the cursor or replace
-     the selection; ask about the selection; send the `.bib` entries
-     cited; a token/cost estimate per message;
+   - ~~chat: insert a suggested block at the cursor or replace the
+     selection; ask about the selection~~ (done, November 2026);
+   - chat follow-ups: send the `.bib` entries cited; a token/cost
+     estimate per message;
    - paragraph checks on pause, structured findings, the cache;
    - audits on demand and the readiness traffic lights;
    - the Z3 logic check (a second runtime dependency, with its own

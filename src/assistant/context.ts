@@ -76,3 +76,33 @@ export function parseAssistantSettings(text: string | null): AssistantSettings {
       : [],
   };
 }
+
+/** Lines selected in the editor, to ask about. */
+export interface Excerpt {
+  text: string;
+  /** 1-based, inclusive. */
+  startLine: number;
+  endLine: number;
+}
+
+export const excerptLabel = ({ startLine, endLine }: Excerpt) =>
+  startLine === endLine ? `line ${startLine}` : `lines ${startLine}–${endLine}`;
+
+/**
+ * A question about selected lines: the lines first, quoted as LaTeX in a
+ * fence longer than any run of backticks inside them, then the question.
+ */
+export function withExcerpt(question: string, excerpt: Excerpt): string {
+  const longest = Math.max(
+    2,
+    ...(excerpt.text.match(/`+/g) ?? []).map((run) => run.length)
+  );
+  const fence = '`'.repeat(longest + 1);
+  return `About ${excerptLabel(excerpt)} of my document:
+
+${fence}latex
+${excerpt.text.replace(/\r?\n$/, '')}
+${fence}
+
+${question}`;
+}

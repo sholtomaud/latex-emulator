@@ -751,6 +751,8 @@ chosen branch.
     floating, resizable, Ctrl/⌘+Alt+B), Assistant setup, and Claude,
     OpenRouter, Gemini and local llama.cpp providers, with keys in the
     browser's password manager and the document sent only where allowed.
+    ✅ Insert a suggested block at the cursor (or over the selection) and
+    ask about the selected lines (Ctrl/⌘+Shift+A).
     Next: style rules, profiles, paragraph checks, audits, Z3.
 
 **Rule for every feature above:** the document stays standard LaTeX that

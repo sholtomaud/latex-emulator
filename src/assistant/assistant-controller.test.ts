@@ -244,4 +244,49 @@ describe('AssistantController', () => {
     );
     assert.match(await c.testConnection('anthropic'), /needs an API key/);
   });
+
+  test('a selection attached to a question is sent with it, once, even without access to the document', async () => {
+    const { c, sent } = make([['A'], ['B']]);
+    localSetup(c);
+    await c.openDocument('d1', 'A');
+    let focus = 0;
+    c.store.addEventListener('focus-composer', () => focus++);
+    const ex = { text: '\\section{X}', startLine: 3, endLine: 3 };
+    c.attach(ex, { focus: true });
+    assert.deepEqual(c.store.getState().attachment, ex);
+    assert.equal(focus, 1);
+    await c.send('Better title?', 'whole source');
+    const messages = sent[0].body!.messages as { content: string }[];
+    assert.match(messages.at(-1)!.content, /^About line 3 of my document:/);
+    assert.match(messages.at(-1)!.content, /Better title\?$/);
+    // The document itself is still not sent.
+    assert.doesNotMatch(messages[0].content, /whole source/);
+    // Shown in the conversation as sent; the attachment is used up.
+    assert.match(c.store.getState().messages[0].content, /\\section\{X\}/);
+    assert.equal(c.store.getState().attachment, null);
+    await c.send('Next', '');
+    assert.equal(
+      (sent[1].body!.messages as { content: string }[]).at(-1)!.content,
+      'Next'
+    );
+  });
+
+  test('a failed send keeps the attachment; removing it or switching document drops it', async () => {
+    const { c } = make([{ status: 500, body: '' }]);
+    localSetup(c);
+    await c.openDocument('d1', 'A');
+    const ex = { text: 'x', startLine: 1, endLine: 1 };
+    c.attach(ex);
+    await c.send('Q', '');
+    assert.deepEqual(c.store.getState().attachment, ex);
+    assert.equal(c.store.getState().draft, 'Q');
+    c.attach(null);
+    assert.equal(c.store.getState().attachment, null);
+    c.attach(ex);
+    await c.openDocument('d2', 'B');
+    assert.equal(c.store.getState().attachment, null);
+    // An empty selection attaches nothing.
+    c.attach({ text: '  ', startLine: 1, endLine: 1 });
+    assert.equal(c.store.getState().attachment, null);
+  });
 });

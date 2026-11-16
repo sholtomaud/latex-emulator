@@ -2,8 +2,10 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   SYSTEM_PROMPT,
+  excerptLabel,
   parseAssistantSettings,
   systemPrompt,
+  withExcerpt,
 } from './context.ts';
 
 describe('assistant context', () => {
@@ -62,5 +64,34 @@ describe('assistant context', () => {
       }
     );
     assert.equal(parseAssistantSettings('nope').provider, 'anthropic');
+  });
+
+  test('a question about selected lines quotes them first, as LaTeX', () => {
+    assert.equal(
+      withExcerpt('Is this clear?', {
+        text: 'A \\emph{b}.\nC.',
+        startLine: 12,
+        endLine: 13,
+      }),
+      'About lines 12–13 of my document:\n\n```latex\nA \\emph{b}.\nC.\n```\n\nIs this clear?'
+    );
+    assert.equal(
+      excerptLabel({ text: 'x', startLine: 4, endLine: 4 }),
+      'line 4'
+    );
+  });
+
+  test('whole lines selected end with a newline, which is not quoted', () => {
+    assert.equal(
+      withExcerpt('Q', { text: 'A.\nB.\n', startLine: 3, endLine: 4 }),
+      'About lines 3–4 of my document:\n\n```latex\nA.\nB.\n```\n\nQ'
+    );
+  });
+
+  test('a selection containing a fence gets a longer one', () => {
+    assert.match(
+      withExcerpt('Q', { text: 'a ``` b ````', startLine: 1, endLine: 1 }),
+      /^About line 1 of my document:\n\n`````latex\na ``` b ````\n`````\n\nQ$/
+    );
   });
 });

@@ -6,6 +6,8 @@ import { diagnosticsStore } from '../../store/diagnostics-store.ts';
 import type { DiagnosticsState } from '../../store/diagnostics-store.ts';
 import type { LatexEditor } from '../../language/monaco.ts';
 import { citationServices } from '../../workspace/workspace-service.ts';
+import { editorBridge, editorRequests } from '../../store/editor-bridge.ts';
+import { askAboutSelection } from '../../assistant/assistant-service.ts';
 import template from './latex-editor.html?raw';
 import style from './latex-editor.css?raw';
 
@@ -34,8 +36,16 @@ export class LatexEditorComponent extends BaseComponent {
       host,
       documentStore.getState().source,
       (source) => documentStore.setState({ source }),
-      citationServices
+      citationServices,
+      {
+        onSelection: (selection) => editorBridge.setState({ selection }),
+        onAskAboutSelection: askAboutSelection,
+      }
     );
+    // The assistant's Insert (ADR 0023); refused while the tab is read-only.
+    editorRequests.addEventListener('insert', ((e: CustomEvent<string>) => {
+      if (!uiStore.getState().readOnly) this.editor?.insert(e.detail);
+    }) as EventListener);
     host.removeAttribute('data-loading');
     // A tab whose edits can no longer be saved stops taking them (ADR 0019).
     const lock = ({ readOnly }: UiState) => this.editor?.setReadOnly(readOnly);

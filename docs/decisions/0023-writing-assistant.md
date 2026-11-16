@@ -267,6 +267,23 @@ links back to the document and version.
   localStorage, IndexedDB, backups or project folders. Encrypting keys in
   page storage was rejected: without a passphrase the decryption key
   would sit beside them.
+- **Insert and ask about the selection** (added November 2026).
+  - A code block in a reply has **Insert**, which reads **Replace
+    selection** when the editor has a selection. It edits through Monaco
+    (`executeEdits` between undo stops), so one Ctrl/⌘+Z takes it back,
+    and it is disabled in a read-only tab. Your own messages' quoted code
+    has no Insert button.
+  - **Ask about the selection**: the pane's "Ask about the selection
+    (lines 3–4)" button, or Ctrl/⌘+Shift+A and the editor's context menu
+    ("Ask the Assistant about the Selection"), which also opens the pane.
+    The lines become a chip above the composer (× removes it) and go with
+    the next question only, quoted first as a `latex` block with their
+    line numbers (`withExcerpt`, a fence longer than any backtick run
+    inside). They are sent even when the document may not be read: the
+    author chose them, and the chip says they will be sent.
+  - The editor and the assistant meet through a small store
+    (`src/store/editor-bridge.ts`): the editor publishes its selection
+    and handles insert requests; neither reaches into the other.
 - **The document is sent only where allowed.** A per-document checkbox,
   "Let the assistant read this document", off by default; the pane says
   which provider receives it. When on, the source follows the fixed

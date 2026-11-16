@@ -66,6 +66,24 @@
     <ol class="assistant-messages" role="log" aria-label="Conversation"></ol>
   </div>
   <p class="assistant-error" role="alert" hidden></p>
+  <div class="assistant-attach">
+    <span class="assistant-attachment" hidden>
+      <span class="assistant-attachment-label"></span>
+      <button
+        type="button"
+        class="assistant-icon assistant-attachment-remove"
+        aria-label="Don’t ask about the selection"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </span>
+    <button
+      type="button"
+      class="assistant-link assistant-ask-selection"
+      title="Send the selected lines with your next question (Ctrl/⌘ Shift A in the editor)"
+      hidden
+    ></button>
+  </div>
   <form class="assistant-composer">
     <textarea
       class="assistant-input"
@@ -90,7 +108,10 @@
   </template>
   <template class="code-template">
     <div class="message-code">
-      <button type="button" class="assistant-link code-copy">Copy</button>
+      <span class="code-actions">
+        <button type="button" class="assistant-link code-insert">Insert</button>
+        <button type="button" class="assistant-link code-copy">Copy</button>
+      </span>
       <pre><code></code></pre>
     </div>
   </template>

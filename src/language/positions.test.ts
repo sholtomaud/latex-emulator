@@ -1,6 +1,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert';
 import { createPositionMap } from './positions.ts';
+import { selectedLines } from './positions.ts';
 
 describe('createPositionMap', () => {
   const map = createPositionMap('ab\ncd\r\n\nef');
@@ -36,5 +37,13 @@ describe('createPositionMap', () => {
       lineNumber: 1,
       column: 1,
     });
+  });
+});
+
+describe('selectedLines', () => {
+  test('the lines a selection covers; ending at a line start leaves that line out', () => {
+    assert.deepEqual(selectedLines(3, 5, 4), { startLine: 3, endLine: 5 });
+    assert.deepEqual(selectedLines(3, 5, 1), { startLine: 3, endLine: 4 });
+    assert.deepEqual(selectedLines(7, 7, 1), { startLine: 7, endLine: 7 });
   });
 });

@@ -7,8 +7,12 @@
  */
 import { Store } from '../core/store.ts';
 import { fetchModels, streamChat } from './chat-client.ts';
-import { parseAssistantSettings, systemPrompt } from './context.ts';
-import type { AssistantSettings } from './context.ts';
+import {
+  parseAssistantSettings,
+  systemPrompt,
+  withExcerpt,
+} from './context.ts';
+import type { AssistantSettings, Excerpt } from './context.ts';
 import type { KeyStore } from './key-store.ts';
 import {
   PROVIDERS,
@@ -59,6 +63,8 @@ export interface AssistantState {
   draft: string;
   /** The open document may be sent to the model. */
   mayRead: boolean;
+  /** Selected lines to send with the next question. */
+  attachment: Excerpt | null;
 }
 
 const SETTINGS = 'assistant-settings';
@@ -81,6 +87,7 @@ export class AssistantController {
       error: '',
       draft: '',
       mayRead: false,
+      attachment: null,
     });
     // A key added after "needs an API key" clears the message.
     deps.keys.addEventListener('change', () => {
@@ -158,11 +165,23 @@ export class AssistantController {
       messages: [],
       error: '',
       draft: '',
+      attachment: null,
       mayRead: settings.readDocuments.includes(documentId),
     });
     const messages = (await this.deps.chats.get(documentId)) ?? [];
     if (this.store.getState().documentId === documentId)
       this.store.setState({ messages });
+  }
+
+  /**
+   * Ask the next question about these lines (null: don't). With `focus`,
+   * the pane is asked to put the caret in the composer.
+   */
+  attach(excerpt: Excerpt | null, { focus = false } = {}) {
+    this.store.setState({
+      attachment: excerpt && excerpt.text.trim() ? excerpt : null,
+    });
+    if (focus) this.store.dispatchEvent(new Event('focus-composer'));
   }
 
   /** Rename the open document (its chat stays). */
@@ -192,9 +211,12 @@ export class AssistantController {
       this.store.setState({ error: needsKey(provider), draft: question });
       return;
     }
+    const content = state.attachment
+      ? withExcerpt(question, state.attachment)
+      : question;
     const history: ChatMessage[] = [
       ...state.messages,
-      { role: 'user', content: question },
+      { role: 'user', content },
     ];
     const system = systemPrompt(
       state.mayRead ? { name: state.documentName, source } : null
@@ -211,6 +233,7 @@ export class AssistantController {
       streaming: true,
       error: '',
       draft: '',
+      attachment: null,
     });
     try {
       for await (const piece of streamChat(
@@ -229,6 +252,7 @@ export class AssistantController {
           streaming: false,
           error: e instanceof Error ? e.message : String(e),
           draft: question,
+          attachment: state.attachment,
         });
         this.abort = null;
         return;
