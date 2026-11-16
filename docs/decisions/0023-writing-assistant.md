@@ -1,6 +1,8 @@
 # 0023: The writing assistant
 
-Status: proposed (design only). It changes AGENTS §9 when built.
+Status: step 1 built (November 2026): the chat pane, Assistant setup and
+four providers (§6 below). The checks, profiles, audits, Z3 and
+auto-zettel are still proposed.
 
 ## Context
 
@@ -165,13 +167,9 @@ Anthropic's prompt caching reuse it. A guide like `Supervisor++` is about
   a same-origin `window.open` kept in sync over `BroadcastChannel`.
 - **Opt-in per document:** "the assistant may read this document", with
   the provider named. Local servers are the default.
-- **Keys:** held for the session or, on opt-in, kept; both are encrypted in
-  local storage (backlog).
-- **CSP** (an AGENTS §9 relaxation, recorded here when built):
-  - `connect-src` gains `http://localhost:*` and `http://127.0.0.1:*` for
-    local servers;
-  - each configured HTTPS endpoint is added, or all HTTPS once custom
-    endpoints are allowed.
+- **Keys:** held for the session, or kept in the browser's password
+  manager on request (§6). Never in page storage.
+- **CSP:** see §6.
 
 ### 4. The logic check (Z3)
 
@@ -224,6 +222,75 @@ links back to the document and version.
   is in it is the author's own.
 - The assistant searches zettels first (titles, then links), before
   annotations and full text.
+
+### 6. Step 1 as built: the chat
+
+- **The pane** (`assistant-panel`, ADR 0022's secondary side bar).
+  - **Pinned** (the default) it is a column of the layout at any width
+    above 768px: the editor and preview share what is left, like the side
+    bar on the left. **Unpinned** it floats over the preview and closes
+    when focus goes back to the editor. Phones keep the drawer.
+  - Its left edge is a window splitter (`role="separator"`): drag it, or
+    use ← → (16px), Home and End. Widths run from 280px to the smaller of
+    720px and 60% of the window. Pinning and width are remembered
+    (`assistant-pane`). Pure logic: `src/assistant/pane.ts`.
+  - Ctrl/⌘+Alt+B toggles it, as before; the activity bar's foot button
+    too.
+  - Replies are text. Fenced code blocks are shown as code with a Copy
+    button (`fences.ts`); nothing from a model is parsed as HTML or
+    Markdown (AGENTS §9).
+  - Stop keeps what arrived. A failed send shows the error and puts the
+    question back in the composer.
+- **Assistant setup**, a fifth activity bar view (`assistant-setup`): per
+  provider its key, model (with Load models), a Test connection button,
+  and for the local server its address. One radio chooses the chat's
+  provider; the pane also has a provider menu and a Setup link.
+- **Providers** (`providers.ts`, pure). Claude (Anthropic Messages API,
+  default `claude-opus-5-5`, with server-side refusal fallbacks on the
+  models that take them), OpenRouter (`openrouter/auto` by default),
+  Gemini (its OpenAI-compatible endpoint; the model is picked from Load
+  models), and a local OpenAI-compatible server (llama.cpp by default on
+  `localhost:8080/v1`; Ollama and LM Studio work too) with
+  `cache_prompt`. Replies stream (SSE, `sse.ts`).
+- **fetch, not the Anthropic SDK.** AGENTS §2 allows no runtime
+  dependency but Monaco, and one fetch path serves all four providers.
+  Claude needs the `anthropic-dangerous-direct-browser-access` header for
+  a call from a web page with the user's own key.
+- **Keys** (`key-store.ts`). In memory for the session. "Remember" saves
+  them in the browser's own password manager through the Credential
+  Management API (`PasswordCredential`): encrypted by the operating
+  system with the user's passwords, and synced the way they are. All
+  remembered keys are one saved entry (JSON), because the API returns one
+  credential per site, not per name; "Use saved keys" reads it, and the
+  browser may ask first. Chromium has the API; Firefox and Safari keep
+  keys for the session only, and setup says so. A key is never written to
+  localStorage, IndexedDB, backups or project folders. Encrypting keys in
+  page storage was rejected: without a passphrase the decryption key
+  would sit beside them.
+- **The document is sent only where allowed.** A per-document checkbox,
+  "Let the assistant read this document", off by default; the pane says
+  which provider receives it. When on, the source follows the fixed
+  instructions in the system prompt (`context.ts`), so prompt caches keep
+  the instructions.
+- **Conversations** are per document, in a small IndexedDB database of
+  their own (`latex-emulator-assistant`), like the folder links: the
+  documents database keeps its version. They stay on this device: backups
+  (ADR 0019) and project folders leave them out. A deleted document's
+  conversation is deleted.
+- **CSP** (AGENTS §9). `connect-src` gains `https://api.anthropic.com`,
+  `https://openrouter.ai`, `https://generativelanguage.googleapis.com`
+  and `http://localhost:*` / `http://127.0.0.1:*` (which replaces the
+  Zotero port). A local server's address must be on this computer
+  (`baseUrlProblem`). Another cloud host needs one CSP line and a
+  provider entry; allowing all HTTPS was rejected (a wider exfiltration
+  path if a script were ever injected).
+- **Verified** with every provider mocked (`e2e/specs/assistant-chat.spec.ts`)
+  and the pure modules unit-tested. Not yet verified against the live
+  services from a browser: in particular whether Gemini's OpenAI-compatible
+  endpoint and a given local server send the CORS headers a web page
+  needs (llama-server does by default). Chrome may also ask the user to
+  allow a public site to reach `localhost` (local network access); the
+  error message points at the server and CORS.
 
 ## Consequences
 

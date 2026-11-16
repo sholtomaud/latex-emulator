@@ -177,6 +177,11 @@ VS Code's answer is familiar to most of our users:
      `e2e/specs/assistant-panel.spec.ts` measures all three.
    - The widths are fixed for now; dragging them (15–30rem, remembered) is
      a later change for both side bars.
+   - **Update (ADR 0023 step 1):** the Assistant is now pinned (a column
+     at any width above 768px) or unpinned (over the preview, closed when
+     you go back to the editor), and its width is dragged from its left
+     edge and remembered. Assistant setup is a fifth view of the primary
+     side bar. The left side bar's width is still fixed.
 
 ### The toolbar: one Download menu
 

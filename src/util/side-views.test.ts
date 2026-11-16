@@ -9,6 +9,7 @@ describe('side views (ADR 0022)', () => {
       'versions',
       'references',
       'storage',
+      'assistant',
     ]);
   });
 

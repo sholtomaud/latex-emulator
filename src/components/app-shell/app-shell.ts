@@ -46,10 +46,26 @@ export class AppShellComponent extends BaseComponent {
       toggle.setAttribute('aria-expanded', String(explorerOpen));
     };
     const assistant = this.querySelector<HTMLElement>('assistant-panel')!;
-    const showAssistant = ({ assistantOpen }: UiState) => {
+    const showAssistant = ({
+      assistantOpen,
+      assistantPinned,
+      assistantWidth,
+    }: UiState) => {
       assistant.hidden = !assistantOpen;
       panes.classList.toggle('with-assistant', assistantOpen);
+      panes.classList.toggle('assistant-pinned', assistantPinned);
+      panes.style.setProperty('--assistant-width', `${assistantWidth}px`);
     };
+    // Unpinned, the assistant floats over the preview (ADR 0023) and gets
+    // out of the way when you go back to the editor.
+    this.querySelector('.pane:not(.pane-preview)')!.addEventListener(
+      'focusin',
+      () => {
+        const ui = uiStore.getState();
+        if (ui.assistantOpen && !ui.assistantPinned)
+          workspaceActions.closeAssistant();
+      }
+    );
     const notice = this.querySelector<HTMLElement>('.app-notice')!;
     const showNotice = ({ notice: text }: UiState) => {
       notice.textContent = text;

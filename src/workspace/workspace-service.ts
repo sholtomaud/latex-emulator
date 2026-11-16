@@ -9,6 +9,7 @@ import { uiStore } from '../store/ui-store.ts';
 import { SAMPLE_DOCUMENT } from '../store/sample-document.ts';
 import { debounce } from '../util/debounce.ts';
 import { readPref, writePref } from '../util/browser-prefs.ts';
+import { parsePaneState } from '../assistant/pane.ts';
 import { activateView, parseSideView } from '../util/side-views.ts';
 import type { SideView } from '../util/side-views.ts';
 import { downloadText } from '../util/download.ts';
@@ -101,11 +102,22 @@ export async function startWorkspace(): Promise<void> {
     explorerOpen: readPref('explorer-open') === 'true',
     sideView: parseSideView(readPref('side-view')),
     assistantOpen: readPref('assistant-open') === 'true',
+    ...(({ pinned, width }) => ({
+      assistantPinned: pinned,
+      assistantWidth: width,
+    }))(parsePaneState(readPref('assistant-pane'))),
   });
   uiStore.addEventListener('change', ((e: CustomEvent) => {
     writePref('explorer-open', String(e.detail.explorerOpen));
     writePref('side-view', e.detail.sideView);
     writePref('assistant-open', String(e.detail.assistantOpen));
+    writePref(
+      'assistant-pane',
+      JSON.stringify({
+        pinned: e.detail.assistantPinned,
+        width: e.detail.assistantWidth,
+      })
+    );
   }) as EventListener);
 
   const repo = await openRepository();
@@ -729,6 +741,12 @@ export const workspaceActions = {
   /** The secondary side bar (ADR 0022), independent of the primary one. */
   toggleAssistant: () =>
     uiStore.setState({ assistantOpen: !uiStore.getState().assistantOpen }),
+  closeAssistant: () => uiStore.setState({ assistantOpen: false }),
+  /** Pinned beside the preview, or floating over it (ADR 0023). */
+  setAssistantPinned: (pinned: boolean) =>
+    uiStore.setState({ assistantPinned: pinned }),
+  setAssistantWidth: (width: number) =>
+    uiStore.setState({ assistantWidth: width }),
   /** An activity bar icon: open its view, or close the side bar (ADR 0022). */
   showView: (view: SideView) =>
     uiStore.setState(activateView(uiStore.getState(), view)),

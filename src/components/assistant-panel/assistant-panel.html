@@ -1,26 +1,97 @@
 <aside class="assistant" aria-labelledby="assistant-title">
+  <div
+    class="assistant-resize"
+    role="separator"
+    tabindex="0"
+    aria-orientation="vertical"
+    aria-label="Resize assistant"
+    title="Drag to resize (or use ← →)"
+  ></div>
   <header class="assistant-header">
     <h2 class="assistant-title" id="assistant-title">Assistant</h2>
-    <button
-      type="button"
-      class="assistant-close"
-      aria-label="Close assistant"
-      title="Close (Ctrl/⌘ Alt B)"
-    >
-      <span aria-hidden="true">×</span>
-    </button>
+    <span class="assistant-tools">
+      <button
+        type="button"
+        class="assistant-icon assistant-clear"
+        aria-label="Clear conversation"
+        title="Clear this document’s conversation"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="assistant-icon assistant-pin"
+        aria-label="Pin assistant"
+        aria-pressed="true"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 4h6l-1 5 3 3H7l3-3zM12 12v8" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="assistant-icon assistant-close"
+        aria-label="Close assistant"
+        title="Close (Ctrl/⌘ Alt B)"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </span>
   </header>
-  <div class="assistant-empty">
-    <p>The writing assistant is on its way.</p>
-    <ul>
-      <li>
-        Instant checks against a style profile as you type, with no model and
-        nothing sent anywhere.
-      </li>
-      <li>
-        Paragraph checks by a model you choose, local or cloud, when you pause.
-      </li>
-      <li>Audits of a section’s flow and an argument’s logic, on request.</li>
-    </ul>
+  <div class="assistant-model">
+    <label class="assistant-provider-label">
+      <span class="visually-hidden">Provider</span>
+      <select class="assistant-provider" aria-label="Provider"></select>
+    </label>
+    <span class="assistant-model-name"></span>
+    <button type="button" class="assistant-link assistant-setup-open">
+      Setup
+    </button>
   </div>
+  <label class="assistant-consent">
+    <input type="checkbox" class="assistant-read" />
+    <span>Let the assistant read this document</span>
+  </label>
+  <p class="assistant-consent-note"></p>
+  <div class="assistant-scroll">
+    <div class="assistant-empty">
+      <p>Ask about your document, LaTeX or your writing.</p>
+      <p class="assistant-empty-hint">
+        Choose a provider and add its key in Setup. A local llama.cpp server
+        needs no key, and nothing leaves this computer.
+      </p>
+    </div>
+    <ol class="assistant-messages" role="log" aria-label="Conversation"></ol>
+  </div>
+  <p class="assistant-error" role="alert" hidden></p>
+  <form class="assistant-composer">
+    <textarea
+      class="assistant-input"
+      rows="3"
+      aria-label="Message the assistant"
+      placeholder="Ask… (Ctrl/⌘ Enter to send)"
+    ></textarea>
+    <div class="assistant-actions">
+      <button type="button" class="assistant-button assistant-stop" hidden>
+        Stop
+      </button>
+      <button type="submit" class="assistant-button assistant-send">
+        Send
+      </button>
+    </div>
+  </form>
+  <template class="message-template">
+    <li class="message">
+      <span class="message-role"></span>
+      <div class="message-body"></div>
+    </li>
+  </template>
+  <template class="code-template">
+    <div class="message-code">
+      <button type="button" class="assistant-link code-copy">Copy</button>
+      <pre><code></code></pre>
+    </div>
+  </template>
 </aside>

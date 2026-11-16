@@ -176,6 +176,9 @@ src/
 ├── references/                   # pure: DOI/URL input, CSL-JSON → BibTeX, citation
 │                                 #   keys, .bib cleaning (ADR 0008), per-document
 │                                 #   .bib subsets and merging (ADR 0020)
+├── assistant/                    # the writing assistant (ADR 0023): providers,
+│                                 #   streaming, keys, pane sizing (pure, tested),
+│                                 #   and its browser wiring
 ├── workspace/                    # documents: pure Workspace logic, names, and the
 │                                 #   browser wiring (autosave, import/export)
 ├── components/
@@ -185,9 +188,11 @@ src/
 │   ├── latex-preview/            # iframe preview + print trigger
 │   ├── activity-bar/             # icons choosing the side bar's view (ADR 0022)
 │   ├── assistant-panel/          # the secondary side bar (Ctrl/⌘+Alt+B): the
-│   │                             #   writing assistant's shell (ADR 0022, 0023)
+│   │                             #   assistant's chat, pinned or floating (ADR 0023)
+│   ├── assistant-setup/          # providers, keys and models (a side bar view)
 │   ├── document-explorer/        # the primary side bar (Ctrl/⌘+B): Explorer,
-│   │                             #   Versions, References and Storage views
+│   │                             #   Versions, References, Storage and
+│   │                             #   Assistant setup views
 │   ├── image-panel/              # the open document's images (in the explorer)
 │   ├── storage-panel/            # storage status, backup/restore (ADR 0019),
 │   │                             #   the document's folder (ADR 0015 B)
@@ -446,7 +451,12 @@ on-screen pages, implement our own lightweight paginator in
   and Zotero searches (local API on localhost:23119 or api.zotero.org),
   carrying just the search text and, for the web library, the session-only
   API key (ADR 0009); with the opt-in Zotero typeahead, the citation key
-  prefix being typed (ADR 0011). Documents live in
+  prefix being typed (ADR 0011); and the writing assistant's chat
+  (ADR 0023), sent only when the user sends a message, to the provider
+  they chose (Anthropic, OpenRouter, Gemini or a server on localhost):
+  their messages, and the document's source only for a document they
+  allowed it to read. API keys stay in memory or the browser's password
+  manager, never in page storage. Documents live in
   OPFS/IndexedDB on the user's device.
 
 ---
@@ -716,6 +726,11 @@ chosen branch.
     ✅ Project zip export with a CI check that the sample compiles in real
     pdflatex (ADR 0015, phase A). ✅ Offline-first PWA: service worker,
     update prompt, installable manifest (ADR 0021).
+14. The writing assistant (ADR 0023). ✅ Step 1: a chat pane (pinned or
+    floating, resizable, Ctrl/⌘+Alt+B), Assistant setup, and Claude,
+    OpenRouter, Gemini and local llama.cpp providers, with keys in the
+    browser's password manager and the document sent only where allowed.
+    Next: style rules, profiles, paragraph checks, audits, Z3.
 
 **Rule for every feature above:** the document stays standard LaTeX that
 compiles with pdflatex and the named CTAN packages. Browser conveniences

@@ -80,28 +80,33 @@
   grid-template-columns: 3rem 15rem minmax(0, 1fr) minmax(0, 1fr);
 }
 
-/* The Assistant (ADR 0022 phase 3). Where there is room it is a fourth
-   column; otherwise it lies over the preview, so the editor never narrows
-   while you type. */
+/* The Assistant (ADR 0022, 0023), as wide as it was dragged. Pinned, it is
+   a column like the side bar on the left, and the editor and preview share
+   what is left. Unpinned, it floats over the preview. */
 :host assistant-panel {
   position: absolute;
   inset: 0 0 0 auto;
   z-index: 5;
-  width: 20rem;
+  width: var(--assistant-width, 22rem);
   box-shadow: -4px 0 12px rgb(0 0 0 / 0.15);
 }
 
-@media (min-width: 1440px) {
-  :host .panes.with-assistant {
-    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1fr) 20rem;
+@media (min-width: 769px) {
+  :host .panes.with-assistant.assistant-pinned {
+    grid-template-columns:
+      3rem minmax(0, 1fr) minmax(0, 1fr)
+      var(--assistant-width, 22rem);
   }
 
-  :host .panes.with-explorer.with-assistant {
-    grid-template-columns: 3rem 15rem minmax(0, 1fr) minmax(0, 1fr) 20rem;
+  :host .panes.with-explorer.with-assistant.assistant-pinned {
+    grid-template-columns:
+      3rem 15rem minmax(0, 1fr) minmax(0, 1fr)
+      var(--assistant-width, 22rem);
   }
 
-  :host assistant-panel {
-    position: static;
+  :host .panes.assistant-pinned assistant-panel {
+    position: relative;
+    inset: auto;
     width: auto;
     box-shadow: none;
   }
@@ -159,9 +164,9 @@
     box-shadow: 4px 0 12px rgb(0 0 0 / 0.15);
   }
 
-  /* The Assistant is a drawer from the right. */
+  /* The Assistant is a drawer from the right, pinned or not. */
   :host assistant-panel {
-    width: min(20rem, 85vw);
+    width: min(var(--assistant-width, 22rem), 85vw);
     z-index: 10;
   }
 
