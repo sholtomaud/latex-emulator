@@ -2,6 +2,8 @@ import { BaseComponent } from '../../core/base-component.ts';
 import { assistant, assistantKeys } from '../../assistant/assistant-service.ts';
 import type { AssistantState } from '../../assistant/assistant-controller.ts';
 import { PROVIDER_IDS, PROVIDERS } from '../../assistant/providers.ts';
+import { appVault } from '../../storage/app-vault.ts';
+import { rememberWhere } from '../../storage/vault.ts';
 import type { ProviderId } from '../../assistant/providers.ts';
 import template from './assistant-setup.html?raw';
 import style from './assistant-setup.css?raw';
@@ -24,10 +26,18 @@ export class AssistantSetupComponent extends BaseComponent {
     const keysNote = this.querySelector<HTMLElement>('.setup-keys-note')!;
     const unlock = this.querySelector<HTMLButtonElement>('.setup-unlock')!;
 
-    keysNote.textContent = assistantKeys.canRemember
-      ? 'Keys are kept for this session. Tick “Remember” to save them with this browser’s passwords; the browser may ask first.'
-      : 'This browser has no password manager API, so keys are kept for this session only and asked for again after a reload.';
-    unlock.hidden = !assistantKeys.canRemember;
+    // Where Remember keeps keys: the password manager (which may ask the
+    // user, so reading is on request), or encrypted on this device (no
+    // prompt, so saved keys are read at once). See src/storage/vault.ts.
+    const how = appVault.how;
+    keysNote.textContent =
+      how === 'password-manager'
+        ? 'Keys are kept for this session. Tick “Remember” to save them with this browser’s passwords; the browser may ask first.'
+        : how === 'encrypted'
+          ? 'Keys are kept for this session. Tick “Remember” to keep them on this device, encrypted: this browser has no password manager the app can use.'
+          : 'This browser can’t store keys safely, so they are kept for this session only and asked for again after a reload.';
+    unlock.hidden = how !== 'password-manager';
+    if (how === 'encrypted') void assistantKeys.unlock();
     unlock.addEventListener('click', async () => {
       unlock.disabled = true;
       const found = await assistantKeys.unlock();
@@ -77,6 +87,8 @@ export class AssistantSetupComponent extends BaseComponent {
       q<HTMLElement>('.field-url').hidden = id !== 'local';
       q<HTMLElement>('.provider-remember-label').hidden =
         !assistantKeys.canRemember;
+      q<HTMLElement>('.provider-remember-text').textContent =
+        `Remember ${rememberWhere(appVault.how)}`;
 
       use.addEventListener(
         'change',

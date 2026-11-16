@@ -2,6 +2,11 @@ import { test, expect } from '@playwright/test';
 import type { Page, Route } from '@playwright/test';
 import { editorReady } from '../support/editor.ts';
 import { openView } from '../support/views.ts';
+import {
+  fakePasswordManager,
+  noPasswordManager,
+  savedPassword,
+} from '../support/credentials.ts';
 
 /**
  * The Zotero plugin from the app's side (ADR 0024 phase 1): get it,
@@ -143,38 +148,57 @@ test('Connect pairs with a code shown here and in Zotero; nothing is sent before
   ).toBeVisible();
 });
 
-test('the connection is forgotten on reload unless Remember is ticked', async ({
-  page,
-}) => {
-  await fakePlugin(page, working);
-  await openPanel(page);
-  await panel(page).getByRole('button', { name: 'Connect' }).click();
-  await expect(panel(page)).toContainText('Connected to Zotero');
-  await page.reload();
-  await editorReady(page);
-  await openPanel(page);
-  await expect(panel(page)).toContainText('Not connected.');
+for (const mode of ['password manager', 'no password manager'] as const)
+  test(`with ${mode}: the connection lasts the session unless Remember is ticked`, async ({
+    page,
+  }) => {
+    if (mode === 'password manager') await fakePasswordManager(page);
+    else await noPasswordManager(page);
+    await page.reload();
+    await editorReady(page);
+    await fakePlugin(page, working);
+    await openPanel(page);
+    const remember = panel(page).getByRole('checkbox', {
+      name:
+        mode === 'password manager'
+          ? 'Remember this connection in this browser’s password manager'
+          : 'Remember this connection on this device (stored encrypted)',
+    });
+    await panel(page).getByRole('button', { name: 'Connect' }).click();
+    await expect(panel(page)).toContainText('Connected to Zotero');
+    await page.reload();
+    await editorReady(page);
+    await openPanel(page);
+    await expect(panel(page)).toContainText('Not connected.');
 
-  await panel(page)
-    .getByRole('checkbox', { name: /Remember this connection/ })
-    .check();
-  await panel(page).getByRole('button', { name: 'Connect' }).click();
-  await expect(panel(page)).toContainText('Connected to Zotero');
-  await page.reload();
-  await editorReady(page);
-  await openPanel(page);
-  await expect(panel(page)).toContainText('Connected to Zotero 10.0.8');
-  // The token is not in localStorage in any form.
-  const stored = await page.evaluate(() => JSON.stringify({ ...localStorage }));
-  expect(stored).not.toContain(TOKEN);
+    await remember.check();
+    await panel(page).getByRole('button', { name: 'Connect' }).click();
+    await expect(panel(page)).toContainText('Connected to Zotero');
+    if (mode === 'password manager')
+      // One saved password holds the app's secrets, as JSON.
+      expect(JSON.parse((await savedPassword(page))!)).toEqual({
+        'zotero-plugin-token': TOKEN,
+      });
+    await page.reload();
+    await editorReady(page);
+    await openPanel(page);
+    await expect(panel(page)).toContainText('Connected to Zotero 10.0.8');
+    await expect(remember).toBeChecked();
+    // Never in localStorage, in any form.
+    const stored = await page.evaluate(() =>
+      JSON.stringify({ ...localStorage })
+    );
+    expect(stored).not.toContain(TOKEN);
 
-  await panel(page).getByRole('button', { name: 'Disconnect' }).click();
-  await expect(panel(page)).toContainText('Not connected.');
-  await page.reload();
-  await editorReady(page);
-  await openPanel(page);
-  await expect(panel(page)).toContainText('Not connected.');
-});
+    await panel(page).getByRole('button', { name: 'Disconnect' }).click();
+    await expect(panel(page)).toContainText('Not connected.');
+    if (mode === 'password manager')
+      expect(JSON.parse((await savedPassword(page))!)).toEqual({});
+    await page.reload();
+    await editorReady(page);
+    await openPanel(page);
+    await expect(panel(page)).toContainText('Not connected.');
+  });
 
 test('failures say what to do', async ({ page }) => {
   await fakePlugin(page, () => 'abort');
@@ -197,6 +221,9 @@ test('failures say what to do', async ({ page }) => {
 test('a remembered connection removed in Zotero is dropped', async ({
   page,
 }) => {
+  await fakePasswordManager(page);
+  await page.reload();
+  await editorReady(page);
   let removed = false;
   await fakePlugin(page, (c) =>
     removed && c.method === 'initialize'

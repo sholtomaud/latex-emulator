@@ -1,17 +1,20 @@
 /**
  * The assistant in the browser (ADR 0023): one controller for the app,
- * following the open document, with keys in the browser's password manager
- * where it has one and chats in IndexedDB (in memory when unavailable).
+ * following the open document, with remembered keys in the app's vault
+ * (the browser's password manager, else encrypted on this device) and
+ * chats in IndexedDB (in memory when unavailable).
  */
 import { AssistantController, MemoryChats } from './assistant-controller.ts';
 import type { ChatStore } from './assistant-controller.ts';
 import { KeyStore } from './key-store.ts';
-import { browserPasswordManager } from './password-manager.ts';
+import { PROVIDER_IDS } from './providers.ts';
+import { appVault } from '../storage/app-vault.ts';
+import { vaultSection } from '../storage/vault.ts';
 import { readPref, writePref } from '../util/browser-prefs.ts';
 import { workspaceStore } from '../store/workspace-store.ts';
 import type { WorkspaceStoreState } from '../store/workspace-store.ts';
 
-export const assistantKeys = new KeyStore(browserPasswordManager());
+export const assistantKeys = new KeyStore(vaultSection(appVault, PROVIDER_IDS));
 
 /** Opened lazily; memory when IndexedDB isn't there. */
 const chats: ChatStore = (() => {

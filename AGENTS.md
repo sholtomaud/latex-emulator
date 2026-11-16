@@ -170,8 +170,8 @@ src/
 │                                 #   bib, images
 ├── storage/                      # DocumentRepository (documents + versions):
 │                                 #   IndexedDB + in-memory; pure storage-status
-│                                 #   logic (ADR 0019); SecretStore: tokens for the
-│                                 #   session, or encrypted on opt-in (ADR 0024)
+│                                 #   logic (ADR 0019); the vault: remembered secrets
+│                                 #   in the password manager, else encrypted (ADR 0024)
 ├── images/                       # pure: image headers (pdfTeX natural size),
 │                                 #   graphicx name resolution (ADR 0013)
 ├── references/                   # pure: DOI/URL input, CSL-JSON → BibTeX, citation
@@ -467,12 +467,13 @@ on-screen pages, implement our own lightweight paginator in
   their messages, and the document's source only for a document they
   allowed it to read; and our Zotero plugin on `127.0.0.1:23119`, only
   after the user opens its section or clicks Connect, carrying the pairing
-  request or the plugin's token (ADR 0024). The assistant's API keys stay
-  in memory or the browser's password manager, never in page storage.
-  The plugin's token is kept for the session, or, if the user opts in,
-  encrypted on this device in its own IndexedDB database, never in
-  `localStorage`. The plugin checks `Host`, `Origin` and the token on
-  every request. Documents live in
+  request or the plugin's token (ADR 0024). Secrets (the assistant's API
+  keys, the plugin's token) are kept for the session; if the user ticks
+  Remember, they go to one vault (`src/storage/vault.ts`): the browser's
+  password manager where it has one, else encrypted on this device in
+  their own IndexedDB database. Never `localStorage`, backups or project
+  folders. The plugin checks `Host`, `Origin` and the token on every
+  request. Documents live in
   OPFS/IndexedDB on the user's device.
 
 ---
@@ -749,8 +750,9 @@ chosen branch.
     update prompt, installable manifest (ADR 0021).
 14. The writing assistant (ADR 0023). ✅ Step 1: a chat pane (pinned or
     floating, resizable, Ctrl/⌘+Alt+B), Assistant setup, and Claude,
-    OpenRouter, Gemini and local llama.cpp providers, with keys in the
-    browser's password manager and the document sent only where allowed.
+    OpenRouter, Gemini and local llama.cpp providers, with keys remembered
+    in the browser's password manager (else encrypted on this device) and
+    the document sent only where allowed.
     Next: style rules, profiles, paragraph checks, audits, Z3.
 
 **Rule for every feature above:** the document stays standard LaTeX that

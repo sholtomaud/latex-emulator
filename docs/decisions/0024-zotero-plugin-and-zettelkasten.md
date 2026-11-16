@@ -279,16 +279,29 @@ the app's client, and published as MCP `inputSchema`/`outputSchema`.
        them while it runs and removes them when it stops.
    - **`initialize`** also returns Zotero's version in
      `_meta["latex-emulator/zotero-version"]`, for the app's status line.
-   - **Where the app keeps the token.**
+   - **Where the app keeps the token** (revised after phase 1, November
+     2026, with the maintainer: one way of keeping secrets for the whole
+     app).
      - By default, for this session only.
-     - With "Remember this connection on this device (stored encrypted)",
-       it is encrypted with AES-GCM under a non-exportable key, in a
-       database of its own (`src/storage/secret-store.ts`,
-       `secret-db.ts`). It is never in `localStorage` or in backups.
-     - This protects the token from being read out of storage or a copied
-       profile. It does not protect it from code running on the app's own
-       origin.
-     - The zotero.org API key (ADR 0009) can move to the same store later.
+     - "Remember this connection" puts it in the app's vault
+       (`src/storage/vault.ts`), which also holds the assistant's keys
+       (ADR 0023):
+       - in the browser's password manager where the browser offers the
+         Credential Management API (Chromium: Chrome, Edge, Brave). The
+         password manager keeps one password per site, so every
+         remembered secret is one JSON object saved as one password, under
+         the assistant's original entry so nothing saved before is lost;
+       - otherwise (Firefox, Safari) encrypted on this device: AES-GCM
+         under a non-exportable key, in a database of its own
+         (`secret-store.ts`, `secret-db.ts`).
+     - The option's label says which applies.
+     - Never in `localStorage` or in backups. The encrypted fallback keeps
+       the token out of plain-text storage, and page code can't read the
+       key as bytes. It does not protect it from code running on the app's
+       own origin, or from someone with a copy of the browser profile.
+     - Writes are kept to what changed (a remembered token is removed only
+       if one was saved), because each write may make the browser ask.
+     - The zotero.org API key (ADR 0009) can use the same vault later.
    - **Where the plugin keeps tokens:** in plain text in Zotero's
      preferences (`prefs.js` in the Zotero profile), like other local
      settings. Anyone who can read that profile can already read the

@@ -3,6 +3,7 @@ import { zoteroPluginStore } from '../../store/zotero-plugin-store.ts';
 import type { ZoteroPluginState } from '../../store/zotero-plugin-store.ts';
 import { zoteroPluginActions } from '../../references/zotero-plugin-service.ts';
 import { pluginStatusText } from '../../references/zotero-plugin.ts';
+import { rememberWhere } from '../../storage/vault.ts';
 import template from './zotero-plugin-panel.html?raw';
 import style from './zotero-plugin-panel.css?raw';
 
@@ -41,7 +42,10 @@ export class ZoteroPluginPanelComponent extends BaseComponent {
     details?.addEventListener('toggle', check);
     check();
 
-    const render = ({ status, remember: keep }: ZoteroPluginState) => {
+    const render = ({ status, remember: keep, how }: ZoteroPluginState) => {
+      this.querySelector('.zp-remember-text')!.textContent =
+        `Remember this connection ${rememberWhere(how)}`.trim();
+      this.querySelector<HTMLElement>('.zp-remember')!.hidden = how === null;
       this.querySelector('.zp-status')!.textContent = pluginStatusText(status);
       const connected = status.state === 'connected';
       const busy = status.state === 'pairing' || status.state === 'checking';
