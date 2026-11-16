@@ -41,6 +41,19 @@ markup inside the document.
   below the text). The PDF's default name is
   `<name>-v<version>-preprint.pdf`.
 
+- **Watermark** (added November 2026): the stamp heading in capitals
+  ("PREPRINT", or the label: "SUBMITTED") across the text block at 45°,
+  in LM Roman 17 at 15% black, on every page. It is a print-only, fixed
+  `body::after` box, which Chromium repeats on each printed page and
+  centres on the page area. Its size keeps the word within 80% of the
+  block's diagonal, at most 72pt, so a 40-character label still fits.
+  It is not in the text `pdftotext` extracts.
+- **Stamp fonts are loaded before printing.** A margin box or a generated
+  watermark doesn't make Chromium fetch a font, and with `font-display:
+block` an unfetched one prints blank: in a document without `\texttt`
+  the SHA-256 (LM Mono 10) was missing. `print()` now loads
+  `PREPRINT_FONTS` first (`e2e/specs/versions.spec.ts`).
+
 - **Verified** with a real Chromium-printed PDF: the footer reads
   `Preprint · v0.1.0 · October 31, 2026   1   SHA-256 8f042c51e87fa114`, and
   `sha256sum` of the fixture source starts `8f042c51e87fa114`.

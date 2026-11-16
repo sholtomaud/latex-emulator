@@ -10,6 +10,8 @@ interface PrintRecord {
   title: string;
   stamp: string;
   heading: string;
+  /** The stamp's fonts were loaded when print() ran. */
+  fonts: boolean;
 }
 
 const sha256 = (text: string) =>
@@ -34,6 +36,9 @@ async function recordPrints(page: Page) {
         stamp: doc.querySelector('style[data-preprint]')?.textContent ?? '',
         heading:
           doc.querySelector('header.maketitle .title')?.textContent ?? '',
+        fonts:
+          doc.fonts.check("8pt 'LM Mono 10'") &&
+          doc.fonts.check("72pt 'LM Roman 17'"),
       });
     };
   });
@@ -90,6 +95,34 @@ test.describe('versions and preprints', () => {
       'a-short-example-v0.1.0-preprint',
       'a-short-example-v0.1.1-preprint',
     ]);
+  });
+
+  test('a preprint watermarks every page, with its stamp fonts loaded even when the text never uses them', async ({
+    page,
+  }) => {
+    // Margin boxes and the watermark don't make Chromium fetch a font: a
+    // document without \texttt printed its SHA-256 blank (LM Mono 10,
+    // font-display: block).
+    await setSource(
+      page,
+      '\\documentclass{article}\n\\begin{document}\nPlain text.\n\\end{document}\n'
+    );
+    // A fresh preview that has never shown \texttt or a title.
+    await expect(
+      page.frameLocator('latex-preview iframe').locator('article p')
+    ).toHaveText(['Plain text.']);
+    await page.waitForTimeout(800); // autosave debounce
+    await page.reload();
+    await editorReady(page);
+    await expect(
+      page.frameLocator('latex-preview iframe').locator('article p')
+    ).toHaveText(['Plain text.']);
+    await recordPrints(page);
+    await chooseDownload(page, 'Download Preprint');
+    await expect.poll(() => prints(page)).toHaveLength(1);
+    const [p] = await prints(page);
+    expect(p.stamp).toContain('content: "PREPRINT"');
+    expect(p.fonts).toBe(true);
   });
 
   test('the version history saves minor releases and survives a reload', async ({

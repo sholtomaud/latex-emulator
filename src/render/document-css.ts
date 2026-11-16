@@ -267,6 +267,13 @@ export interface PreprintStampInput {
   label?: string;
 }
 
+/**
+ * Fonts the preprint stamp uses that the text may not: a margin box or a
+ * generated watermark doesn't make Chromium fetch a font, and with
+ * font-display: block an unfetched one prints blank. Load these first.
+ */
+export const PREPRINT_FONTS = ["8pt 'LM Mono 10'", "72pt 'LM Roman 17'"];
+
 /** A CSS string literal; quotes, backslashes and newlines escaped. */
 const cssString = (s: string) =>
   `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\A ')}"`;
@@ -293,7 +300,34 @@ export function preprintCss(
     white-space: nowrap;`;
   const left = `${stampHeading(stamp.label)} · v${stamp.version} · ${formatToday(new Date(stamp.date))}`;
   const right = `SHA-256 ${stamp.sha256.slice(0, 16)}`;
-  return `@page {
+  // Watermark: the heading in capitals across the text block at 45°, pale
+  // enough to read through. A fixed box repeats on every page in
+  // Chromium's print engine. Caps average under 0.75em in LM Roman, so the
+  // size keeps the word within 80% of the block's 45° diagonal, at most
+  // 72pt. It stays real text, like arXiv's margin stamp.
+  const mark = stampHeading(stamp.label).toUpperCase();
+  const diagonal = toBp(g.textWidth) * Math.SQRT2;
+  const markSize = Math.min(72, (0.8 * diagonal) / (0.75 * mark.length));
+  return `@media print {
+  body::after {
+    content: ${cssString(mark)};
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-45deg);
+    font-family: 'LM Roman 17', var(--rm-family), serif;
+    font-size: ${markSize.toFixed(2)}pt;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    color: rgb(0 0 0 / 0.15);
+    pointer-events: none;
+    user-select: none;
+  }
+}
+@page {
   @bottom-left {${box(left, 'var(--rm-family), serif')}
     text-align: left;
   }
