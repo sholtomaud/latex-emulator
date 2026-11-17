@@ -246,4 +246,39 @@ describe('ReplyAssembler: OpenAI-compatible', () => {
     const ids = r.result().toolCalls.map((c) => c.id);
     assert.equal(new Set(ids).size, 2);
   });
+
+  test('Gemini’s thought signature on a call is kept, to send back', () => {
+    const r = new ReplyAssembler('openai');
+    const signed = { google: { thought_signature: 'SIG' } };
+    feedAll(r, [
+      {
+        choices: [
+          {
+            delta: {
+              tool_calls: [
+                {
+                  index: 0,
+                  id: 'x',
+                  extra_content: signed,
+                  function: { name: 'document_read', arguments: '' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      {
+        choices: [
+          {
+            delta: {
+              tool_calls: [{ index: 0, function: { arguments: '{}' } }],
+            },
+          },
+        ],
+      },
+    ]);
+    assert.deepEqual(r.result().toolCalls, [
+      { id: 'x', name: 'document_read', input: {}, extra: signed },
+    ]);
+  });
 });

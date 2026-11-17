@@ -170,4 +170,57 @@ describe('tools in requests (ADR 0025)', () => {
       ['system', 'user', 'user']
     );
   });
+
+  test('Gemini: each call’s thought signature goes back as it came; a call without one gets the documented placeholder', () => {
+    const gemini: ProviderConfig = {
+      provider: 'gemini',
+      baseUrl: PROVIDERS.gemini.baseUrl,
+      model: 'gemini-3.5-flash-lite',
+      apiKey: 'k',
+    };
+    const signed = { google: { thought_signature: 'SIG' } };
+    const history: ChatMessage[] = [
+      { role: 'user', content: 'Q' },
+      {
+        role: 'assistant',
+        content: '',
+        // An older turn, saved before signatures were kept.
+        toolCalls: [{ id: 'a', name: 'document_read', input: {} }],
+      },
+      { role: 'tool', callId: 'a', name: 'document_read', content: 'x' },
+      {
+        role: 'assistant',
+        content: '',
+        toolCalls: [
+          { id: 'b', name: 'zettel_get', input: { id: '1' }, extra: signed },
+          { id: 'c', name: 'zettel_get', input: { id: '2' } },
+        ],
+      },
+      { role: 'tool', callId: 'b', name: 'zettel_get', content: 'y' },
+      { role: 'tool', callId: 'c', name: 'zettel_get', content: 'z' },
+    ];
+    const body = JSON.parse(
+      buildChatRequest(gemini, 'S', history, tools).body!
+    );
+    const calls = body.messages
+      .filter((m: { tool_calls?: unknown[] }) => m.tool_calls)
+      .map((m: { tool_calls: { extra_content?: unknown }[] }) =>
+        m.tool_calls.map((c) => c.extra_content)
+      );
+    assert.deepEqual(calls, [
+      [{ google: { thought_signature: 'skip_thought_signature_validator' } }],
+      // Only the first call of a turn carries Gemini's signature.
+      [signed, undefined],
+    ]);
+    // Other OpenAI-compatible servers get what came, and no placeholder.
+    const plain = JSON.parse(
+      buildChatRequest(local, 'S', history, tools).body!
+    );
+    const localCalls = plain.messages
+      .filter((m: { tool_calls?: unknown[] }) => m.tool_calls)
+      .map((m: { tool_calls: { extra_content?: unknown }[] }) =>
+        m.tool_calls.map((c) => c.extra_content)
+      );
+    assert.deepEqual(localCalls, [[undefined], [signed, undefined]]);
+  });
 });
