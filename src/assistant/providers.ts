@@ -85,7 +85,22 @@ export interface ToolCall {
   id: string;
   name: string;
   input: Record<string, unknown>;
+  /**
+   * The provider's own data on the call, sent back unchanged: Gemini's
+   * `extra_content` (its thought signature) on OpenAI-compatible calls.
+   */
+  extra?: Record<string, unknown>;
 }
+
+/**
+ * Gemini rejects a function call in the history without a thought
+ * signature (HTTP 400). Calls saved before signatures were kept get the
+ * placeholder Gemini documents for calls it didn't make; only the first
+ * call of a turn carries one.
+ */
+const SKIP_SIGNATURE = {
+  google: { thought_signature: 'skip_thought_signature_validator' },
+};
 
 /**
  * A conversation turn, the same for every provider. An assistant turn may
@@ -148,7 +163,7 @@ function anthropicMessages(messages: ChatMessage[]): unknown[] {
 }
 
 /** OpenAI-compatible messages: tool_calls with JSON arguments, tool turns. */
-function openaiMessages(messages: ChatMessage[]): unknown[] {
+function openaiMessages(messages: ChatMessage[], gemini: boolean): unknown[] {
   const out: unknown[] = [];
   for (const m of messages) {
     if (m.role === 'user') out.push({ role: 'user', content: m.content });
@@ -159,11 +174,19 @@ function openaiMessages(messages: ChatMessage[]): unknown[] {
         content: m.content,
         ...(m.toolCalls?.length
           ? {
-              tool_calls: m.toolCalls.map((c) => ({
-                id: c.id,
-                type: 'function',
-                function: { name: c.name, arguments: JSON.stringify(c.input) },
-              })),
+              tool_calls: m.toolCalls.map((c, i) => {
+                const extra =
+                  c.extra ?? (gemini && i === 0 ? SKIP_SIGNATURE : undefined);
+                return {
+                  id: c.id,
+                  type: 'function',
+                  function: {
+                    name: c.name,
+                    arguments: JSON.stringify(c.input),
+                  },
+                  ...(extra ? { extra_content: extra } : {}),
+                };
+              }),
             }
           : {}),
       });
@@ -262,7 +285,7 @@ export function buildChatRequest(
       stream: true,
       messages: [
         { role: 'system', content: system },
-        ...openaiMessages(messages),
+        ...openaiMessages(messages, cfg.provider === 'gemini'),
       ],
       ...(tools.length
         ? {

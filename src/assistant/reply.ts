@@ -33,6 +33,7 @@ interface Partial {
   id: string;
   name: string;
   json: string;
+  extra?: Record<string, unknown>;
 }
 
 export class ReplyAssembler {
@@ -110,6 +111,8 @@ export class ReplyAssembler {
       if (typeof p.id === 'string' && p.id) call.id = p.id;
       if (typeof fn.name === 'string' && fn.name) call.name = fn.name;
       if (typeof fn.arguments === 'string') call.json += fn.arguments;
+      // Gemini's thought signature: it must come back with the call.
+      if (isRecord(p.extra_content)) call.extra = p.extra_content;
     }
   }
 
@@ -137,6 +140,7 @@ export class ReplyAssembler {
         id: c.id || `call_${i}`,
         name: c.name,
         input: parseInput(c.json),
+        ...(c.extra ? { extra: c.extra } : {}),
       })),
     };
   }
