@@ -28,6 +28,8 @@ export type PluginFailure =
   | 'refused'
   | 'busy'
   | 'unpaired'
+  /** The connection may read, not write (paired before ADR 0025). */
+  | 'read-only'
   | 'error';
 
 type Outcome<T> = ({ ok: true } & T) | { ok: false; failure: PluginFailure };
@@ -73,6 +75,7 @@ async function rpc(
     const code = (body.error as { code?: unknown }).code;
     if (code === RPC.pairingRefused) return { ok: false, failure: 'refused' };
     if (code === RPC.pairingBusy) return { ok: false, failure: 'busy' };
+    if (code === RPC.forbidden) return { ok: false, failure: 'read-only' };
     return { ok: false, failure: 'error' };
   }
   if (!body || typeof body.result !== 'object' || !body.result)
@@ -88,7 +91,8 @@ export async function pairWithZotero(
   const r = await rpc(fetch, PAIR_METHOD, {
     name: 'LaTeX Emulator',
     code,
-    scopes: ['read'],
+    // The assistant writes zettels (ADR 0025); Zotero's dialog says so.
+    scopes: ['read', 'write-notes'],
   });
   if (!r.ok) return r;
   const token = r.result.token;
@@ -129,6 +133,8 @@ const FAILURES: Record<PluginFailure, string> = {
   busy: 'Zotero is already asking about another connection. Answer that first.',
   unpaired:
     'This connection was removed in Zotero. Connect again to make a new one.',
+  'read-only':
+    'Zotero lets this site read only. To let the assistant write zettels: References → Zotero plugin → Disconnect, then Connect, and allow it in Zotero.',
   error: 'Something went wrong talking to the plugin. Try again.',
 };
 
@@ -188,4 +194,27 @@ export async function searchViaPlugin(
   if (items.length && csl.every((c) => c === undefined))
     return { ok: false, message: UPDATE_PLUGIN };
   return { ok: true, hits: parseZoteroItems(csl) };
+}
+
+/** Call one of the plugin's tools (ADR 0025): its result, or why not. */
+export async function callPluginTool(
+  fetch: FetchLike,
+  token: string,
+  name: string,
+  args: Record<string, unknown>
+): Promise<{ ok: true; result: unknown } | { ok: false; message: string }> {
+  const r = await rpc(fetch, 'tools/call', {
+    name,
+    arguments: args,
+    _meta: { [TOKEN_META_KEY]: token },
+  });
+  if (!r.ok) return { ok: false, message: FAILURES[r.failure] };
+  if (r.result.isError) {
+    const content = r.result.content as { text?: unknown }[] | undefined;
+    return {
+      ok: false,
+      message: String(content?.[0]?.text ?? '') || FAILURES.error,
+    };
+  }
+  return { ok: true, result: r.result.structuredContent ?? null };
 }

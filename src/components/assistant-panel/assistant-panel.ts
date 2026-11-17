@@ -8,6 +8,7 @@ import type { AssistantState } from '../../assistant/assistant-controller.ts';
 import { PROVIDER_IDS, PROVIDERS } from '../../assistant/providers.ts';
 import type { ProviderId } from '../../assistant/providers.ts';
 import { splitFences } from '../../assistant/fences.ts';
+import { callLine, resultLine } from '../../assistant/tool-lines.ts';
 import { excerptLabel } from '../../assistant/context.ts';
 import { editorBridge, requestInsert } from '../../store/editor-bridge.ts';
 import type { EditorBridgeState } from '../../store/editor-bridge.ts';
@@ -236,12 +237,27 @@ export class AssistantPanelComponent extends BaseComponent {
           list.append(li);
         }
         li.className = `message ${m.role}`;
-        li.querySelector('.message-role')!.textContent =
-          m.role === 'user' ? 'You' : 'Assistant';
+        const role = li.querySelector<HTMLElement>('.message-role')!;
+        role.textContent =
+          m.role === 'user' ? 'You' : m.role === 'tool' ? '' : 'Assistant';
+        role.hidden = m.role === 'tool';
         const body = li.querySelector<HTMLElement>('.message-body')!;
-        if (body.dataset.text !== m.content) {
-          body.dataset.text = m.content;
-          renderBody(body, m.content, m.role);
+        // Tool calls and results (ADR 0025): one short line each.
+        const shown =
+          m.role === 'tool'
+            ? resultLine(m)
+            : m.role === 'assistant' && m.toolCalls?.length
+              ? [m.content, ...m.toolCalls.map((c) => `⚙ ${callLine(c)}`)]
+                  .filter(Boolean)
+                  .join('\n')
+              : m.content;
+        if (body.dataset.text !== shown) {
+          body.dataset.text = shown;
+          if (m.role === 'tool') {
+            body.textContent = shown;
+            li.classList.toggle('tool-error', !!m.isError);
+          } else
+            renderBody(body, shown, m.role === 'user' ? 'user' : 'assistant');
         }
       });
       for (const extra of items.slice(s.messages.length)) extra.remove();

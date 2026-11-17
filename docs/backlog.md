@@ -9,8 +9,8 @@ Update it in the same PR that starts, finishes or defers an item.
 
 - The writing assistant (ADR 0023), taken ahead of the agreed order on
   request: step 1 (the chat pane, setup and providers) is done. Now
-  ADR 0025, in three PRs: ~~comments~~ (done), tools in the chat (the
-  zettel, document and comment tools), and the reviewing agent ("Review
+  ADR 0025, in three PRs: ~~comments~~ (done), ~~tools in the chat~~
+  (done: the zettel, document and comment tools), and the reviewing agent ("Review
   as I write" on changed paragraphs, zettels into `zk/inbox`). Versions
   on disk is next otherwise.
 - **Zotero plugin with Zettelkasten tools** (ADR 0024), taken ahead of
@@ -18,8 +18,9 @@ Update it in the same PR that starts, finishes or defers an item.
   (November 2026). Phase 1 is done: the plugin (MCP on Zotero's port,
   pairing, `search_items` and `get_item`), the References section to get
   it and connect, and a CI job running it in a real Zotero 10. Phase 2's
-  zettel tools are done (plugin 0.3.0). Next: the assistant's zettel
-  suggestions from a document's citations (ADR 0023 §5), then phase 2's
+  zettel tools are done (plugin 0.3.0). The assistant can call them
+  (ADR 0025); next its zettels from a document's citations, as the
+  reviewing agent, then phase 2's
   rest: `get_annotations`, `get_fulltext`, `literature_note_create`.
   Follow-ups:
   - a scheduled CI run against Zotero's latest release, so a new Zotero

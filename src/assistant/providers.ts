@@ -74,9 +74,103 @@ export interface ProviderConfig {
   apiKey?: string;
 }
 
-export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
+/** A tool the model may call (ADR 0025), its parameters as JSON Schema. */
+export interface ToolDef {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
+export interface ToolCall {
+  id: string;
+  name: string;
+  input: Record<string, unknown>;
+}
+
+/**
+ * A conversation turn, the same for every provider. An assistant turn may
+ * call tools; each call's result is a `tool` turn. `blocks` keeps Claude's
+ * own content (thinking blocks included) to send back unchanged, as its
+ * API requires in a tool loop.
+ */
+export type ChatMessage =
+  | { role: 'user'; content: string }
+  | {
+      role: 'assistant';
+      content: string;
+      toolCalls?: ToolCall[];
+      blocks?: unknown[];
+    }
+  | {
+      role: 'tool';
+      callId: string;
+      name: string;
+      content: string;
+      isError?: boolean;
+    };
+
+/** Claude's messages: tool results go in a user turn, grouped. */
+function anthropicMessages(messages: ChatMessage[]): unknown[] {
+  const out: { role: string; content: unknown }[] = [];
+  for (const m of messages) {
+    if (m.role === 'user') out.push({ role: 'user', content: m.content });
+    else if (m.role === 'assistant') {
+      const content =
+        m.blocks ??
+        (m.toolCalls?.length
+          ? [
+              ...(m.content ? [{ type: 'text', text: m.content }] : []),
+              ...m.toolCalls.map((c) => ({
+                type: 'tool_use',
+                id: c.id,
+                name: c.name,
+                input: c.input,
+              })),
+            ]
+          : m.content);
+      if (content === '' || (Array.isArray(content) && !content.length))
+        continue;
+      out.push({ role: 'assistant', content });
+    } else {
+      const result = {
+        type: 'tool_result',
+        tool_use_id: m.callId,
+        content: m.content,
+        ...(m.isError ? { is_error: true } : {}),
+      };
+      const last = out.at(-1);
+      if (last?.role === 'user' && Array.isArray(last.content))
+        last.content.push(result);
+      else out.push({ role: 'user', content: [result] });
+    }
+  }
+  return out;
+}
+
+/** OpenAI-compatible messages: tool_calls with JSON arguments, tool turns. */
+function openaiMessages(messages: ChatMessage[]): unknown[] {
+  const out: unknown[] = [];
+  for (const m of messages) {
+    if (m.role === 'user') out.push({ role: 'user', content: m.content });
+    else if (m.role === 'assistant') {
+      if (!m.content && !m.toolCalls?.length) continue;
+      out.push({
+        role: 'assistant',
+        content: m.content,
+        ...(m.toolCalls?.length
+          ? {
+              tool_calls: m.toolCalls.map((c) => ({
+                id: c.id,
+                type: 'function',
+                function: { name: c.name, arguments: JSON.stringify(c.input) },
+              })),
+            }
+          : {}),
+      });
+    } else
+      out.push({ role: 'tool', tool_call_id: m.callId, content: m.content });
+  }
+  return out;
 }
 
 export interface HttpRequest {
@@ -124,7 +218,8 @@ function openaiHeaders(cfg: ProviderConfig): Record<string, string> {
 export function buildChatRequest(
   cfg: ProviderConfig,
   system: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  tools: ToolDef[] = []
 ): HttpRequest {
   const base = trimSlash(cfg.baseUrl);
   if (PROVIDERS[cfg.provider].api === 'anthropic') {
@@ -144,7 +239,16 @@ export function buildChatRequest(
         max_tokens: 32000,
         stream: true,
         system,
-        messages,
+        messages: anthropicMessages(messages),
+        ...(tools.length
+          ? {
+              tools: tools.map((t) => ({
+                name: t.name,
+                description: t.description,
+                input_schema: t.parameters,
+              })),
+            }
+          : {}),
         ...(fallback ? { fallbacks: 'default' } : {}),
       }),
     };
@@ -156,7 +260,22 @@ export function buildChatRequest(
     body: JSON.stringify({
       ...(cfg.model ? { model: cfg.model } : {}),
       stream: true,
-      messages: [{ role: 'system', content: system }, ...messages],
+      messages: [
+        { role: 'system', content: system },
+        ...openaiMessages(messages),
+      ],
+      ...(tools.length
+        ? {
+            tools: tools.map((t) => ({
+              type: 'function',
+              function: {
+                name: t.name,
+                description: t.description,
+                parameters: t.parameters,
+              },
+            })),
+          }
+        : {}),
       // llama.cpp reuses the cached prompt (the fixed instructions first).
       ...(cfg.provider === 'local' ? { cache_prompt: true } : {}),
     }),

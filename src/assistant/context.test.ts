@@ -34,6 +34,7 @@ describe('assistant context', () => {
       models: {},
       localBaseUrl: 'http://localhost:8080/v1',
       readDocuments: [],
+      toolsOff: [],
     });
     assert.deepEqual(
       parseAssistantSettings(
@@ -42,6 +43,7 @@ describe('assistant context', () => {
           models: { local: 'qwen', gemini: 3 },
           localBaseUrl: 'http://127.0.0.1:9000/v1',
           readDocuments: ['d1', 2],
+          toolsOff: ['local', 'nonsense'],
         })
       ),
       {
@@ -49,6 +51,7 @@ describe('assistant context', () => {
         models: { local: 'qwen' },
         localBaseUrl: 'http://127.0.0.1:9000/v1',
         readDocuments: ['d1'],
+        toolsOff: ['local'],
       }
     );
     // An unknown provider or a non-local server URL falls back.
@@ -61,6 +64,7 @@ describe('assistant context', () => {
         models: {},
         localBaseUrl: 'http://localhost:8080/v1',
         readDocuments: [],
+        toolsOff: [],
       }
     );
     assert.equal(parseAssistantSettings('nope').provider, 'anthropic');

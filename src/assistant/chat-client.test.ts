@@ -1,6 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchModels, streamChat } from './chat-client.ts';
+import { fetchModels, streamChat, streamReply } from './chat-client.ts';
 import type { HttpRequest } from './providers.ts';
 
 const req: HttpRequest = {
@@ -115,6 +115,45 @@ describe('fetchModels', () => {
     await assert.rejects(
       fetchModels('local', get, { fetch: fakeFetch(['nope'], 503) }),
       /HTTP 503/
+    );
+  });
+});
+
+describe('streamReply', () => {
+  test('streams the text, then returns the reply with its tool calls', async () => {
+    const shown: string[] = [];
+    const reply = await streamReply(
+      'local',
+      req,
+      {
+        fetch: fakeFetch([
+          'data: {"choices":[{"delta":{"content":"Look"}}]}\n\n',
+          'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"c","function":{"name":"comments_list","arguments":"{}"}}]}}]}\n\n',
+          'data: [DONE]\n\n',
+        ]),
+      },
+      (t) => shown.push(t)
+    );
+    assert.deepEqual(shown, ['Look']);
+    assert.deepEqual(reply, {
+      text: 'Look',
+      toolCalls: [{ id: 'c', name: 'comments_list', input: {} }],
+    });
+  });
+
+  test('an error event throws', async () => {
+    await assert.rejects(
+      streamReply(
+        'anthropic',
+        req,
+        {
+          fetch: fakeFetch([
+            'data: {"type":"error","error":{"message":"Overloaded"}}\n\n',
+          ]),
+        },
+        () => {}
+      ),
+      /Overloaded/
     );
   });
 });

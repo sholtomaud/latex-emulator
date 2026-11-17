@@ -6,6 +6,7 @@ import {
   zoteroPluginInfo,
   pluginStatusText,
   searchViaPlugin,
+  callPluginTool,
 } from './zotero-plugin.ts';
 import type { FetchLike } from './zotero-plugin.ts';
 
@@ -58,7 +59,12 @@ test('every request is a CORS "simple request": POST, text/plain, no other heade
     jsonrpc: '2.0',
     id: 1,
     method: 'pair/request',
-    params: { name: 'LaTeX Emulator', code: '4719', scopes: ['read'] },
+    // Read and write zettels: the assistant makes them (ADR 0025).
+    params: {
+      name: 'LaTeX Emulator',
+      code: '4719',
+      scopes: ['read', 'write-notes'],
+    },
   });
 });
 
@@ -329,4 +335,60 @@ test('search: an older plugin (no include_csl) says to update it; failures say w
     ok: false,
     message: 'Type something to search for.',
   });
+});
+
+test('callPluginTool: the tool’s result, its error text, or what to do', async () => {
+  const done = fakeFetch(() => ({
+    status: 200,
+    json: {
+      jsonrpc: '2.0',
+      id: 1,
+      result: { content: [], structuredContent: { zettel: { id: '1' } } },
+    },
+  }));
+  assert.deepStrictEqual(
+    await callPluginTool(done.fetch, 'tok', 'zettel_create', { title: 'T' }),
+    { ok: true, result: { zettel: { id: '1' } } }
+  );
+  assert.deepStrictEqual(done.seen[0].body.params, {
+    name: 'zettel_create',
+    arguments: { title: 'T' },
+    _meta: { 'latex-emulator/token': 'tok' },
+  });
+
+  const toolError = fakeFetch(() => ({
+    status: 200,
+    json: {
+      jsonrpc: '2.0',
+      id: 1,
+      result: {
+        content: [{ type: 'text', text: 'No zettel 9.' }],
+        isError: true,
+      },
+    },
+  }));
+  assert.deepStrictEqual(
+    await callPluginTool(toolError.fetch, 'tok', 'zettel_get', { id: '9' }),
+    { ok: false, message: 'No zettel 9.' }
+  );
+
+  // Paired before the assistant could write: say how to allow it.
+  const readOnly = fakeFetch(() => ({
+    status: 200,
+    json: {
+      jsonrpc: '2.0',
+      id: 1,
+      error: {
+        code: -32002,
+        message: 'This client may not use zettel_create.',
+      },
+    },
+  }));
+  const r = await callPluginTool(readOnly.fetch, 'tok', 'zettel_create', {});
+  assert.strictEqual(r.ok, false);
+  assert.match(!r.ok ? r.message : '', /read only.*Disconnect.*Connect/s);
+
+  const down = fakeFetch(() => new TypeError('Failed to fetch'));
+  const r2 = await callPluginTool(down.fetch, 'tok', 'zettel_list', {});
+  assert.match(!r2.ok ? r2.message : '', /^Zotero didn’t answer/);
 });

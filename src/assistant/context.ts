@@ -23,12 +23,24 @@ const attr = (s: string) =>
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-/** The system prompt, with the document only when it may be read. */
+/**
+ * What the model is told about its tools (ADR 0025), when it has them.
+ * Fixed text, after the fixed instructions, so prompt caches keep both.
+ */
+export const TOOL_GUIDE = `You have tools; use them rather than telling the author to do things by hand.
+
+- The document: document_read (only where the author allowed it). Comments: comments_list, comment_add (on an exact quote), comment_reply, comment_resolve (only threads you opened).
+- Zotero: search_items and get_item for references; zettel_list, zettel_search and zettel_get to see the Zettelkasten; zettel_create, zettel_update, zettel_link and zettel_tag to change it.
+- A zettel holds one claim of the author's own, not a source's: a declarative title, a short body in the author's words, linked to the sources it draws on (find them with search_items, by citation key or title). Search the Zettelkasten first so you don't repeat a zettel. New zettels are tagged zk/inbox for the author to accept.`;
+
+/** The system prompt: the tool guide if tools are on, the document if allowed. */
 export function systemPrompt(
-  document: { name: string; source: string } | null
+  document: { name: string; source: string } | null,
+  tools = false
 ): string {
-  if (!document) return SYSTEM_PROMPT;
-  return `${SYSTEM_PROMPT}
+  const head = tools ? `${SYSTEM_PROMPT}\n\n${TOOL_GUIDE}` : SYSTEM_PROMPT;
+  if (!document) return head;
+  return `${head}
 
 The author's current document:
 
@@ -45,6 +57,8 @@ export interface AssistantSettings {
   localBaseUrl: string;
   /** Documents the assistant may read (ids). */
   readDocuments: string[];
+  /** Providers whose models get no tools (a local model without them). */
+  toolsOff: ProviderId[];
 }
 
 /** The remembered `assistant-settings` preference, with safe defaults. */
@@ -73,6 +87,9 @@ export function parseAssistantSettings(text: string | null): AssistantSettings {
       url && !baseUrlProblem('local', url) ? url : PROVIDERS.local.baseUrl,
     readDocuments: Array.isArray(o.readDocuments)
       ? o.readDocuments.filter((d): d is string => typeof d === 'string')
+      : [],
+    toolsOff: Array.isArray(o.toolsOff)
+      ? PROVIDER_IDS.filter((id) => (o.toolsOff as unknown[]).includes(id))
       : [],
   };
 }

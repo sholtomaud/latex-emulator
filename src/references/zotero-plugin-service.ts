@@ -14,6 +14,7 @@ import {
   pairWithZotero,
   pairingCode,
   searchViaPlugin,
+  callPluginTool,
   zoteroPluginInfo,
 } from './zotero-plugin.ts';
 import type { ZoteroSearch } from './zotero.ts';
@@ -114,7 +115,21 @@ export const zoteroPluginActions = {
     const token = sessionToken ?? (await savedTokenSilently());
     if (!token) return null;
     return searchViaPlugin(fetch, token, query);
+  } /** One of the plugin's tools, for the assistant (ADR 0025). */,
+  async callTool(
+    name: string,
+    args: Record<string, unknown>
+  ): Promise<{ ok: true; result: unknown } | { ok: false; message: string }> {
+    const token = sessionToken ?? (await savedTokenSilently());
+    if (!token)
+      return {
+        ok: false,
+        message:
+          'Zotero isn’t connected. Ask the author to connect it: References → Zotero plugin → Connect.',
+      };
+    return callPluginTool(fetch, token, name, args);
   },
+
   async disconnect(): Promise<void> {
     await forget();
     show({ state: 'idle' });

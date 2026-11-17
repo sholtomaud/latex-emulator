@@ -139,7 +139,7 @@ test('Connect pairs with a code shown here and in Zotero; nothing is sent before
   expect(pair.params).toEqual({
     name: 'LaTeX Emulator',
     code: shown,
-    scopes: ['read'],
+    scopes: ['read', 'write-notes'],
   });
   // A CORS simple request: text/plain, and no Authorization header.
   expect(pair.headers['content-type']).toMatch(/^text\/plain/);
