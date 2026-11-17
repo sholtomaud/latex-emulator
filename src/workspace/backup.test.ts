@@ -407,3 +407,65 @@ describe('planRestore', () => {
     );
   });
 });
+
+describe('comments in backups (ADR 0025)', () => {
+  const thread = (id: string, updatedAt: number) => ({
+    id,
+    anchor: { start: 0, end: 3, quote: 'one' },
+    openedBy: 'you' as const,
+    status: 'open' as const,
+    messages: [{ author: 'you' as const, text: 'Why?', at: updatedAt }],
+    updatedAt,
+  });
+  const withComments = (): WorkspaceSnapshot => ({
+    ...snapshot(),
+    comments: [
+      { documentId: 'd1', threads: [thread('t1', 30)], updatedAt: 30 },
+      { documentId: 'gone', threads: [thread('t9', 30)], updatedAt: 30 },
+    ],
+  });
+
+  test('written into workspace.json and read back; malformed threads dropped', async () => {
+    const files = backupFiles(withComments(), CREATED);
+    const manifest = json(files);
+    assert.equal(manifest.comments[0].documentId, 'd1');
+    manifest.comments[0].threads.push({ id: 7 });
+    files[0] = {
+      path: 'workspace.json',
+      bytes: new TextEncoder().encode(JSON.stringify(manifest)),
+    };
+    const r = await readBackup(files);
+    assert.ok(r.ok);
+    assert.deepEqual(r.backup.comments![0].threads, [thread('t1', 30)]);
+  });
+
+  test('an older backup without comments still restores', async () => {
+    const r = await readBackup(backupFiles(snapshot(), CREATED));
+    assert.ok(r.ok);
+    assert.deepEqual(r.backup.comments, []);
+  });
+
+  test('restore: the newer threads of each known document win', async () => {
+    const r = await readBackup(backupFiles(withComments(), CREATED));
+    assert.ok(r.ok);
+    const base = {
+      documents: [],
+      versionIds: new Set<string>(),
+      bibFiles: [],
+      images: [],
+      blobShas: new Set<string>(),
+    };
+    const fresh = planRestore(base, r.backup);
+    // d1 is restored; "gone" is no document here or in the backup.
+    assert.deepEqual(
+      fresh.comments.map((c) => c.documentId),
+      ['d1']
+    );
+    assert.match(restoreSummary(fresh), /comments on 1 document/);
+    const newer = planRestore(
+      { ...base, comments: [{ documentId: 'd1', threads: [], updatedAt: 40 }] },
+      r.backup
+    );
+    assert.deepEqual(newer.comments, []);
+  });
+});

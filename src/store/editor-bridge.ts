@@ -13,12 +13,24 @@ export interface EditorBridgeState {
 
 export const editorBridge = new Store<EditorBridgeState>({ selection: null });
 
-/** Requests for <latex-editor>: 'insert' (CustomEvent<string>). */
+/**
+ * Requests for <latex-editor>: 'insert' (CustomEvent<string>) and 'reveal'
+ * (CustomEvent<{ start, end }>: select that range and scroll to it).
+ */
 export const editorRequests = new EventTarget();
 
 /** Insert text at the cursor, replacing the selection if there is one. */
 export function requestInsert(text: string): void {
   editorRequests.dispatchEvent(
     new CustomEvent<string>('insert', { detail: text })
+  );
+}
+
+/** Select a range of the source and scroll it into view. */
+export function requestReveal(range: { start: number; end: number }): void {
+  editorRequests.dispatchEvent(
+    new CustomEvent<{ start: number; end: number }>('reveal', {
+      detail: range,
+    })
   );
 }

@@ -11,3 +11,21 @@
   position: relative;
   overflow: hidden;
 }
+
+/* Comment threads (ADR 0025): their own colour, apart from the error,
+   warning and spelling squiggles. Monaco is in the light DOM, so these
+   reach its decorations. */
+:host .latex-comment {
+  background: rgb(245 158 11 / 0.18);
+  border-bottom: 2px solid rgb(217 119 6 / 0.8);
+}
+
+:host .latex-comment-focused {
+  background: rgb(245 158 11 / 0.35);
+}
+
+:host .latex-comment-gutter {
+  margin-left: 3px;
+  width: 3px !important;
+  background: rgb(217 119 6);
+}

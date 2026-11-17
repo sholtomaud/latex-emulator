@@ -16,6 +16,7 @@ import type { BibFileMeta } from '../../workspace/bib-library.ts';
 import '../image-panel/image-panel.ts';
 import '../storage-panel/storage-panel.ts';
 import '../assistant-setup/assistant-setup.ts';
+import '../comments-panel/comments-panel.ts';
 import '../zotero-plugin-panel/zotero-plugin-panel.ts';
 import template from './document-explorer.html?raw';
 import style from './document-explorer.css?raw';

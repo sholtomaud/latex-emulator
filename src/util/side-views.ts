@@ -9,6 +9,8 @@ export const SIDE_VIEWS = [
   'versions',
   'references',
   'storage',
+  // Comment threads on the open document (ADR 0025).
+  'comments',
   // Assistant setup: providers, keys and models (ADR 0023).
   'assistant',
 ] as const;

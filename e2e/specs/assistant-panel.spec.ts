@@ -32,7 +32,7 @@ test('the Assistant button opens and closes the panel; it is remembered', async 
   // It sits in the activity bar, but is not one of the primary side bar's views.
   await expect(
     page.getByRole('tablist', { name: 'Side bar views' }).getByRole('tab')
-  ).toHaveCount(5);
+  ).toHaveCount(6);
 
   await toggle(page).click();
   await expect(panel(page)).toBeVisible();

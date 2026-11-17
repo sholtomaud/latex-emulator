@@ -1,7 +1,12 @@
 import type { Page } from '@playwright/test';
 
 export type ViewName =
-  'Explorer' | 'Versions' | 'References' | 'Storage' | 'Assistant setup';
+  | 'Explorer'
+  | 'Versions'
+  | 'References'
+  | 'Storage'
+  | 'Comments'
+  | 'Assistant setup';
 
 /**
  * Show a view in the primary side bar (ADR 0022), opening the side bar if

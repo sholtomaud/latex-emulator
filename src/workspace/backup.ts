@@ -10,6 +10,16 @@ import { imageInfo } from '../images/header.ts';
 import type { ImageInfo } from '../images/header.ts';
 import { fileNameFor, uniqueName } from './names.ts';
 import { sha256Hex } from './versions.ts';
+import { parseThreads } from '../comments/threads.ts';
+import type { Thread } from '../comments/threads.ts';
+
+/** A document's comment threads (ADR 0025). */
+export interface CommentRecord {
+  documentId: string;
+  threads: Thread[];
+  /** The newest change to any of them. */
+  updatedAt: number;
+}
 
 /**
  * A backup of the whole workspace as one zip (ADR 0019): every document,
@@ -31,6 +41,8 @@ export interface WorkspaceSnapshot {
   bibFiles: BibFile[];
   images: ImageEntry[];
   blobs: { sha256: string; bytes: Uint8Array }[];
+  /** Absent from backups made before comments (ADR 0025). */
+  comments?: CommentRecord[];
 }
 
 export interface Backup extends Omit<WorkspaceSnapshot, 'blobs'> {
@@ -45,6 +57,7 @@ export interface CurrentWorkspace {
   bibFiles: BibFile[];
   images: ImageEntry[];
   blobShas: ReadonlySet<string>;
+  comments?: CommentRecord[];
   /**
    * Starter items nobody has edited (the sample document and references.bib
    * a fresh browser creates). They give way to the backup's copies.
@@ -63,6 +76,7 @@ export interface RestorePlan {
   bibFiles: BibFile[];
   /** With the bytes when the browser doesn't have them yet. */
   images: { entry: ImageEntry; blob?: ImageBlob }[];
+  comments: CommentRecord[];
   /** Items left alone because this browser's copy is the same or newer. */
   unchanged: number;
 }
@@ -88,6 +102,7 @@ export function backupFiles(
     bibFiles: s.bibFiles,
     images: s.images,
     blobs: s.blobs.map((b) => b.sha256),
+    comments: s.comments ?? [],
   };
   const files: ZipFile[] = [
     {
@@ -230,6 +245,15 @@ export async function readBackup(files: ZipFile[]): Promise<Result> {
       return entry;
     });
     const createdAt = num(m, 'createdAt');
+    // Comments arrived later: an older backup has none.
+    const comments: CommentRecord[] =
+      m.comments === undefined
+        ? []
+        : list(m.comments).map((c) => ({
+            documentId: str(c, 'documentId'),
+            threads: parseThreads(c.threads),
+            updatedAt: num(c, 'updatedAt'),
+          }));
 
     // A version's hash is what its preprint stamp prints: it must be right.
     for (const v of versions)
@@ -265,7 +289,15 @@ export async function readBackup(files: ZipFile[]): Promise<Result> {
     images = images.filter((i) => kept.has(i.sha256));
     return {
       ok: true,
-      backup: { createdAt, documents, versions, bibFiles, images, blobs },
+      backup: {
+        createdAt,
+        documents,
+        versions,
+        bibFiles,
+        images,
+        blobs,
+        comments,
+      },
     };
   } catch (e) {
     if (e instanceof Damaged)
@@ -347,7 +379,21 @@ export function planRestore(current: CurrentWorkspace, b: Backup): RestorePlan {
         : { entry, blob: blobs.get(entry.sha256) }
     );
   }
-  return { remove, documents, versions, bibFiles, images, unchanged };
+  const mineComments = new Map(
+    (current.comments ?? []).map((c) => [c.documentId, c])
+  );
+  const comments = (b.comments ?? []).filter(
+    (c) => known.has(c.documentId) && newer(mineComments.get(c.documentId), c)
+  );
+  return {
+    remove,
+    documents,
+    versions,
+    bibFiles,
+    images,
+    comments,
+    unchanged,
+  };
 }
 
 const count = (n: number, one: string, many = `${one}s`) =>
@@ -359,6 +405,8 @@ export function restoreSummary(plan: RestorePlan): string {
     plan.versions.length && count(plan.versions.length, 'version'),
     plan.bibFiles.length && count(plan.bibFiles.length, '.bib file'),
     plan.images.length && count(plan.images.length, 'image'),
+    plan.comments.length &&
+      `comments on ${count(plan.comments.length, 'document')}`,
   ].filter((p): p is string => Boolean(p));
   if (!parts.length)
     return `Nothing to restore: everything in the backup is already here (${count(plan.unchanged, 'item')}).`;

@@ -1,0 +1,46 @@
+<section class="comments" aria-label="Comments">
+  <h2 class="comments-title">Comments</h2>
+  <form class="comment-draft" aria-label="New comment" hidden>
+    <blockquote class="comment-quote draft-quote"></blockquote>
+    <textarea
+      class="comment-input draft-input"
+      rows="3"
+      aria-label="Comment"
+      placeholder="Comment… (Ctrl/⌘ Enter)"
+    ></textarea>
+    <div class="comment-actions">
+      <button type="button" class="comment-button draft-cancel">Cancel</button>
+      <button type="submit" class="comment-button primary">Comment</button>
+    </div>
+  </form>
+  <p class="comments-empty">
+    Select text in the editor and press Ctrl/⌘ Alt M (or right-click → Add
+    Comment) to comment on it. Comments stay in this browser and its backups,
+    never in the .tex.
+  </p>
+  <ol class="comment-threads" aria-label="Comment threads"></ol>
+  <template class="thread-template">
+    <li class="comment-thread">
+      <button type="button" class="comment-quote thread-quote"></button>
+      <ol class="comment-messages"></ol>
+      <p class="thread-lost" hidden>Its text is no longer in the document.</p>
+      <form class="thread-reply">
+        <textarea
+          class="comment-input reply-input"
+          rows="2"
+          placeholder="Reply…"
+        ></textarea>
+        <div class="comment-actions">
+          <button type="button" class="comment-button thread-resolve"></button>
+          <button type="submit" class="comment-button">Reply</button>
+        </div>
+      </form>
+    </li>
+  </template>
+  <template class="message-template">
+    <li class="comment-message">
+      <span class="message-author"></span>
+      <span class="message-text"></span>
+    </li>
+  </template>
+</section>
