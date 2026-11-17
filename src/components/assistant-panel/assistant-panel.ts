@@ -9,6 +9,9 @@ import { PROVIDER_IDS, PROVIDERS } from '../../assistant/providers.ts';
 import type { ProviderId } from '../../assistant/providers.ts';
 import { splitFences } from '../../assistant/fences.ts';
 import { callLine, resultLine } from '../../assistant/tool-lines.ts';
+import { review } from '../../assistant/review-service.ts';
+import { reviewStatus } from '../../assistant/review/review-controller.ts';
+import type { ReviewState } from '../../assistant/review/review-controller.ts';
 import { excerptLabel } from '../../assistant/context.ts';
 import { editorBridge, requestInsert } from '../../store/editor-bridge.ts';
 import type { EditorBridgeState } from '../../store/editor-bridge.ts';
@@ -57,6 +60,32 @@ export class AssistantPanelComponent extends BaseComponent {
     const attachment = $<HTMLElement>('.assistant-attachment');
     const attachmentLabel = $<HTMLElement>('.assistant-attachment-label');
     const askSelection = $<HTMLButtonElement>('.assistant-ask-selection');
+    const reviewOn = $<HTMLInputElement>('.assistant-review-on');
+    const reviewAll = $<HTMLButtonElement>('.assistant-review-all');
+    const reviewStop = $<HTMLButtonElement>('.assistant-review-stop');
+    const reviewLine = $<HTMLElement>('.assistant-review-status');
+
+    // The reviewing agent (ADR 0025 §3): it needs to read the document.
+    reviewOn.addEventListener('change', () =>
+      assistant.setReviewing(reviewOn.checked)
+    );
+    reviewAll.addEventListener('click', () => review.reviewWhole());
+    reviewStop.addEventListener('click', () => review.stop());
+    const showReview = () => {
+      const a = assistant.store.getState();
+      const r: ReviewState = review.store.getState();
+      reviewOn.checked = a.reviewing;
+      reviewOn.disabled = !a.mayRead;
+      reviewAll.disabled = !a.mayRead || r.whole;
+      const why = a.mayRead
+        ? ''
+        : 'Let the assistant read this document first.';
+      reviewOn.parentElement!.title = why;
+      reviewAll.title = why;
+      reviewStop.hidden = !r.whole && r.reviewing === null;
+      reviewLine.textContent = reviewStatus(r);
+    };
+    review.store.addEventListener('change', showReview);
 
     // Ask about the editor's selection (ADR 0023): attach it to the next
     // question, from here or with Ctrl/⌘+Shift+A in the editor.
@@ -285,6 +314,8 @@ export class AssistantPanelComponent extends BaseComponent {
       showSelection(editorBridge.getState())
     );
     render(assistant.store.getState());
+    showReview();
+    assistant.store.addEventListener('change', showReview);
     assistant.store.addEventListener('change', ((
       e: CustomEvent<AssistantState>
     ) => render(e.detail)) as EventListener);

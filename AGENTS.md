@@ -178,8 +178,9 @@ src/
 │                                 #   keys, .bib cleaning (ADR 0008), per-document
 │                                 #   .bib subsets and merging (ADR 0020)
 ├── assistant/                    # the writing assistant (ADR 0023): providers,
-│                                 #   streaming, keys, pane sizing (pure, tested),
-│                                 #   and its browser wiring
+│                                 #   streaming, keys, pane sizing, the tool loop
+│                                 #   (pure, tested), and its browser wiring;
+│                                 #   review/: the reviewing agent (ADR 0025)
 ├── comments/                     # comment threads (ADR 0025): anchors that follow
 │                                 #   edits, threads, the controller (pure, tested)
 ├── workspace/                    # documents: pure Workspace logic, names, and the
@@ -468,7 +469,10 @@ on-screen pages, implement our own lightweight paginator in
   (ADR 0023), sent only when the user sends a message, to the provider
   they chose (Anthropic, OpenRouter, Gemini or a server on localhost):
   their messages, and the document's source only for a document they
-  allowed it to read; and our Zotero plugin on `127.0.0.1:23119`, only
+  allowed it to read; the reviewing agent (ADR 0025), only for a document
+  they allowed it to read and switched on ("Review as I write") or asked
+  to review, to the same provider: one changed paragraph at a time with
+  its neighbours and comment threads; and our Zotero plugin on `127.0.0.1:23119`, only
   after the user opens its section, clicks Connect or searches Zotero
   (the References search or the opt-in typeahead, with a connection
   made), carrying the pairing request, the plugin's token and the search
@@ -766,7 +770,10 @@ chosen branch.
     backups, never in the `.tex`. ✅ Tools in the chat (ADR 0025): the
     model reads the document, comments, and searches Zotero and writes
     zettels through the plugin, with each provider's tool calling.
-    Next: the reviewing agent (ADR 0025); style rules, profiles, audits, Z3.
+    ✅ The reviewing agent (ADR 0025): "Review as I write" per document
+    and "Review whole document"; each changed paragraph reviewed once
+    (comments, replies, its own threads resolved, zettels into
+    `zk/inbox`). Next: style rules, profiles, audits, Z3.
 
 **Rule for every feature above:** the document stays standard LaTeX that
 compiles with pdflatex and the named CTAN packages. Browser conveniences

@@ -54,6 +54,19 @@
     <input type="checkbox" class="assistant-read" />
     <span>Let the assistant read this document</span>
   </label>
+  <div class="assistant-review">
+    <label class="assistant-consent">
+      <input type="checkbox" class="assistant-review-on" />
+      <span>Review as I write</span>
+    </label>
+    <button type="button" class="assistant-link assistant-review-all">
+      Review whole document
+    </button>
+    <button type="button" class="assistant-link assistant-review-stop" hidden>
+      Stop reviewing
+    </button>
+  </div>
+  <p class="assistant-review-status" role="status"></p>
   <p class="assistant-consent-note"></p>
   <div class="assistant-scroll">
     <div class="assistant-empty">

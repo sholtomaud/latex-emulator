@@ -357,3 +357,33 @@
 :host .message.tool-error {
   color: #b91c1c;
 }
+
+/* The reviewing agent (ADR 0025 §3): its switch, button and status. */
+:host .assistant-review {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  padding-right: 0.75rem;
+}
+
+:host .assistant-review .assistant-consent {
+  padding-right: 0;
+}
+
+:host .assistant-review input:disabled + span {
+  color: var(--boba-text-muted);
+}
+
+:host .assistant-review-stop[hidden],
+:host .assistant-review-status:empty {
+  display: none;
+}
+
+:host .assistant-review-status {
+  margin: 0.125rem 0 0;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  color: var(--boba-text-muted);
+  overflow-wrap: anywhere;
+}

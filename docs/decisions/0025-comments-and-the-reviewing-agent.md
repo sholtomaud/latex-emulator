@@ -1,7 +1,7 @@
 # 0025: Comments, tools in the chat, and the reviewing agent
 
 Status: accepted (November 2026). Built in three PRs: comments (built),
-tools in the chat (built), the reviewing agent.
+tools in the chat (built), the reviewing agent (built).
 
 ## Context
 
@@ -104,6 +104,33 @@ refusal turned into how to reconnect with write permission.
 - **Limits:** one paragraph in flight per provider; a paragraph that
   changes while being reviewed is cancelled and queued again; a failing
   provider pauses the reviewer and says so. Off by default, per document.
+
+As built (`src/assistant/review/`, `review-service.ts`):
+
+- **Paragraphs** are the body's blank-line separated blocks with at least
+  40 letters of prose once comments, commands and the arguments of
+  headings, labels, references and citations are removed; `lstlisting`,
+  `verbatim` and `algorithmic` are skipped whole.
+- **Keys:** a paragraph is keyed by the SHA-256 of its text alone, not its
+  neighbours or the model, as first planned: with neighbours in the key,
+  each edit sent the paragraphs on both sides again, and switching model
+  sent everything. Neighbours still go with it as context. Keys (never
+  text) live in their own IndexedDB database, `latex-emulator-reviews`,
+  pruned to the document's current paragraphs, and stay out of backups:
+  losing them only means paragraphs are reviewed again.
+- **Queue:** a pause is 3 s without an edit. One paragraph in flight, in
+  document order; typing pauses the queue. A paragraph whose text is gone
+  is cancelled. A failure pauses the reviewer with the reason in the
+  pane; "Review whole document" (which works with the switch off) resumes.
+- **The switch** needs "Let the assistant read this document" (turning
+  reading off turns reviewing off), and the chat's provider with a key
+  and tools on.
+- **The model** gets the chat's fixed instructions, the tool guide and the
+  review rules (all fixed text), then the paragraph, its neighbours and
+  its threads. `comment_add` is scoped to where the paragraph is now: a
+  quote outside it is refused, so a comment can't land elsewhere. The
+  reviewer's work shows in the comments, Zotero and the pane's status
+  line, not in the chat.
 
 ## Consequences
 
