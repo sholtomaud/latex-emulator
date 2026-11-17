@@ -133,6 +133,59 @@ describe('AssistantController', () => {
     );
   });
 
+  test('"Review as I write" is per document, and only where the assistant may read', async () => {
+    const { c, prefs } = make([]);
+    await c.openDocument('d1', 'Thesis');
+    c.setReviewing(true);
+    assert.equal(c.store.getState().reviewing, false);
+    c.allowReading(true);
+    c.setReviewing(true);
+    assert.equal(c.store.getState().reviewing, true);
+    assert.deepEqual(
+      JSON.parse(prefs.get('assistant-settings')!).reviewDocuments,
+      ['d1']
+    );
+    await c.openDocument('d2', 'Other');
+    assert.equal(c.store.getState().reviewing, false);
+    await c.openDocument('d1', 'Thesis');
+    assert.equal(c.store.getState().reviewing, true);
+    // No longer allowed to read: no longer reviewing either.
+    c.allowReading(false);
+    assert.equal(c.store.getState().reviewing, false);
+    assert.deepEqual(
+      JSON.parse(prefs.get('assistant-settings')!).reviewDocuments,
+      []
+    );
+    c.allowReading(true);
+    assert.equal(c.store.getState().reviewing, false);
+    c.setReviewing(true);
+    c.setReviewing(false);
+    assert.equal(c.store.getState().reviewing, false);
+  });
+
+  test('the reviewer says why it can’t run: reading, a key, tools', async () => {
+    const keys = new KeyStore(null);
+    const c = new AssistantController({
+      fetch: async () => new Response(''),
+      chats: new MemoryChats(),
+      keys,
+      readPref: () => null,
+      writePref: () => {},
+      tools: { definitions: () => [], run: async () => ({ content: '' }) },
+    });
+    await c.openDocument('d1', 'Thesis');
+    assert.match(c.reviewProblem()!, /Let the assistant read this document/);
+    c.allowReading(true);
+    assert.match(c.reviewProblem()!, /Claude \(Anthropic\) needs an API key/);
+    await keys.set('anthropic', 'sk-ant-x', false);
+    assert.equal(c.reviewProblem(), null);
+    c.setToolsEnabled('anthropic', false);
+    assert.match(
+      c.reviewProblem()!,
+      /reviewer needs tools: turn them on for Claude \(Anthropic\) in Assistant setup/
+    );
+  });
+
   test('each document keeps its own conversation', async () => {
     const { c } = make([['one'], ['two']]);
     localSetup(c);

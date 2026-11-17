@@ -59,7 +59,12 @@ export interface AssistantSettings {
   readDocuments: string[];
   /** Providers whose models get no tools (a local model without them). */
   toolsOff: ProviderId[];
+  /** Documents reviewed as the author writes (ADR 0025 §3), ids. */
+  reviewDocuments: string[];
 }
+
+const strings = (v: unknown) =>
+  Array.isArray(v) ? v.filter((d): d is string => typeof d === 'string') : [];
 
 /** The remembered `assistant-settings` preference, with safe defaults. */
 export function parseAssistantSettings(text: string | null): AssistantSettings {
@@ -85,9 +90,8 @@ export function parseAssistantSettings(text: string | null): AssistantSettings {
     models,
     localBaseUrl:
       url && !baseUrlProblem('local', url) ? url : PROVIDERS.local.baseUrl,
-    readDocuments: Array.isArray(o.readDocuments)
-      ? o.readDocuments.filter((d): d is string => typeof d === 'string')
-      : [],
+    readDocuments: strings(o.readDocuments),
+    reviewDocuments: strings(o.reviewDocuments),
     toolsOff: Array.isArray(o.toolsOff)
       ? PROVIDER_IDS.filter((id) => (o.toolsOff as unknown[]).includes(id))
       : [],

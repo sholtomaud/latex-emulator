@@ -8,6 +8,7 @@ import { AssistantController, MemoryChats } from './assistant-controller.ts';
 import type { ChatStore } from './assistant-controller.ts';
 import { KeyStore } from './key-store.ts';
 import { AssistantTools } from './assistant-tools.ts';
+import type { AssistantToolDeps } from './assistant-tools.ts';
 import { comments } from '../comments/comments-service.ts';
 import { zoteroPluginActions } from '../references/zotero-plugin-service.ts';
 import { documentStore } from '../store/document-store.ts';
@@ -40,7 +41,7 @@ const chats: ChatStore = (() => {
  * The model's tools (ADR 0025): the document and its comments only where
  * the author allowed reading it; Zotero through the paired plugin.
  */
-const tools = new AssistantTools({
+export const toolDeps: AssistantToolDeps = {
   document: () => {
     const s = assistant.store.getState();
     return s.mayRead
@@ -49,7 +50,8 @@ const tools = new AssistantTools({
   },
   comments,
   zotero: (name, args) => zoteroPluginActions.callTool(name, args),
-});
+};
+const tools = new AssistantTools(toolDeps);
 
 export const assistant: AssistantController = new AssistantController({
   fetch: (url, init) => fetch(url, init),

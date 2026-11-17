@@ -21,6 +21,11 @@ export interface AssistantToolDeps {
   document: () => { name: string; source: string } | null;
   comments: CommentsController;
   zotero: ZoteroCall;
+  /**
+   * For the reviewer (ADR 0025 §3): the paragraph under review, where it
+   * is now (null once it has changed). New comments must quote it.
+   */
+  scope?: () => { start: number; end: number } | null;
 }
 
 export interface ToolResult {
@@ -162,16 +167,24 @@ export class AssistantTools {
         });
       case 'comment_add': {
         const quote = str('quote');
+        const scope = this.deps.scope ? this.deps.scope() : undefined;
+        if (scope === null)
+          return fail(
+            'The paragraph has changed since the review began: no comment added.'
+          );
         const at: number[] = [];
         for (
           let i = doc.source.indexOf(quote);
           quote && i >= 0;
           i = doc.source.indexOf(quote, i + 1)
         )
-          at.push(i);
+          if (!scope || (i >= scope.start && i + quote.length <= scope.end))
+            at.push(i);
         if (!at.length)
           return fail(
-            'That quote was not found in the document: quote it exactly.'
+            scope
+              ? 'That quote is not in the paragraph you are reviewing: quote it exactly from there. No comment added.'
+              : 'That quote was not found in the document: quote it exactly.'
           );
         const which =
           typeof input.occurrence === 'number' ? input.occurrence : 0;

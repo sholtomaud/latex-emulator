@@ -8,7 +8,10 @@ import {
 
 const SRC = 'Energy is the currency. Energy flows. Emergy is memory.';
 
-async function make(mayRead = true) {
+async function make(
+  mayRead = true,
+  scope?: () => { start: number; end: number } | null
+) {
   let n = 0;
   const comments = new CommentsController({
     store: new MemoryThreads(),
@@ -20,6 +23,7 @@ async function make(mayRead = true) {
   const tools = new AssistantTools({
     document: () => (mayRead ? { name: 'Paper', source: SRC } : null),
     comments,
+    scope,
     zotero: async (name, args) => {
       zotero.push({ name, args });
       return name === 'zettel_create'
@@ -191,5 +195,30 @@ describe('the assistant’s tools (ADR 0025)', () => {
     });
     assert.equal(bad.isError, true);
     assert.match(bad.content, /not valid JSON/);
+  });
+
+  test('a reviewer’s comments stay in its paragraph: a quote elsewhere is dropped', async () => {
+    // "Energy flows." is the paragraph (offsets 24–37).
+    const { tools, comments } = await make(true, () => ({
+      start: 24,
+      end: 37,
+    }));
+    const out = await run(tools, 'comment_add', { quote: 'Energy', text: 'x' });
+    assert.equal(out.isError, undefined);
+    assert.equal(comments.store.getState().threads[0].anchor.start, 24);
+    const away = await run(tools, 'comment_add', {
+      quote: 'Emergy',
+      text: 'x',
+    });
+    assert.equal(away.isError, true);
+    assert.match(away.content, /not in the paragraph you are reviewing/);
+    assert.equal(comments.store.getState().threads.length, 1);
+  });
+
+  test('a paragraph gone while it was being reviewed takes no comments', async () => {
+    const { tools } = await make(true, () => null);
+    const out = await run(tools, 'comment_add', { quote: 'Energy', text: 'x' });
+    assert.equal(out.isError, true);
+    assert.match(out.content, /paragraph has changed/);
   });
 });
