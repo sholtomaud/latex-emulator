@@ -472,7 +472,9 @@ on-screen pages, implement our own lightweight paginator in
   after the user opens its section, clicks Connect or searches Zotero
   (the References search or the opt-in typeahead, with a connection
   made), carrying the pairing request, the plugin's token and the search
-  text (ADR 0024). Secrets (the assistant's API keys, the plugin's token)
+  text (ADR 0024), and, when the assistant's model calls a Zotero tool,
+  that call's arguments (ADR 0025; the app pairs asking for `read` and
+  `write-notes`). Secrets (the assistant's API keys, the plugin's token)
   are kept for the session; if the user ticks Remember, they go to one
   vault (`src/storage/vault.ts`): the browser's password manager where it
   has one, else encrypted on this device in their own IndexedDB database.
@@ -761,8 +763,10 @@ chosen branch.
     ask about the selected lines (Ctrl/⌘+Shift+A).
     ✅ Comments (ADR 0025): threads on a selection (Ctrl/⌘+Alt+M), their
     own underline, kept in step with edits, in the browser and its
-    backups, never in the `.tex`. Next: tools in the chat, then the
-    reviewing agent (ADR 0025); style rules, profiles, audits, Z3.
+    backups, never in the `.tex`. ✅ Tools in the chat (ADR 0025): the
+    model reads the document, comments, and searches Zotero and writes
+    zettels through the plugin, with each provider's tool calling.
+    Next: the reviewing agent (ADR 0025); style rules, profiles, audits, Z3.
 
 **Rule for every feature above:** the document stays standard LaTeX that
 compiles with pdflatex and the named CTAN packages. Browser conveniences

@@ -6,7 +6,7 @@
  * browser wiring is `assistant-service.ts`.
  */
 import { Store } from '../core/store.ts';
-import { fetchModels, streamChat } from './chat-client.ts';
+import { fetchModels, streamChat, streamReply } from './chat-client.ts';
 import {
   parseAssistantSettings,
   systemPrompt,
@@ -20,7 +20,13 @@ import {
   buildChatRequest,
   buildModelsRequest,
 } from './providers.ts';
-import type { ChatMessage, ProviderConfig, ProviderId } from './providers.ts';
+import type {
+  ChatMessage,
+  ProviderConfig,
+  ProviderId,
+  ToolCall,
+  ToolDef,
+} from './providers.ts';
 
 /** Where conversations are kept, per document. */
 export interface ChatStore {
@@ -48,6 +54,40 @@ export interface AssistantDeps {
   keys: KeyStore;
   readPref: (key: string) => string | null;
   writePref: (key: string, value: string) => void;
+  /** The tools the model may call (ADR 0025); none if left out. */
+  tools?: {
+    definitions(): ToolDef[];
+    run(call: ToolCall): Promise<{ content: string; isError?: true }>;
+  };
+}
+
+/** Rounds of tool calls in one answer, at most. */
+const MAX_ROUNDS = 10;
+
+/** Every tool call answered, as Claude's API requires of a conversation. */
+function answerOpenCalls(history: ChatMessage[], why: string): ChatMessage[] {
+  const out = [...history];
+  for (let i = out.length - 1; i >= 0; i--) {
+    const m = out[i];
+    if (m.role !== 'assistant') continue;
+    const answered = new Set(
+      out
+        .slice(i + 1)
+        .filter((x) => x.role === 'tool')
+        .map((x) => (x as { callId: string }).callId)
+    );
+    for (const call of m.toolCalls ?? [])
+      if (!answered.has(call.id))
+        out.push({
+          role: 'tool',
+          callId: call.id,
+          name: call.name,
+          content: why,
+          isError: true,
+        });
+    break;
+  }
+  return out;
 }
 
 export interface AssistantState {
@@ -68,6 +108,12 @@ export interface AssistantState {
 }
 
 const SETTINGS = 'assistant-settings';
+/** An error, with what to do when it is a known one. */
+const withHint = (error: string) =>
+  /jinja/i.test(error)
+    ? `${error} Start llama-server with --jinja and a model that calls tools, or turn tools off for it in Assistant setup.`
+    : error;
+
 const needsKey = (p: ProviderId) =>
   `${PROVIDERS[p].name} needs an API key. Add one in Assistant setup.`;
 
@@ -200,7 +246,27 @@ export class AssistantController {
     this.abort?.abort();
   }
 
-  /** Ask a question; the reply streams into the conversation. */
+  /** Tools on for this provider (ADR 0025)? On unless turned off. */
+  toolsEnabled(provider: ProviderId): boolean {
+    return (
+      !!this.deps.tools &&
+      !this.store.getState().settings.toolsOff.includes(provider)
+    );
+  }
+
+  setToolsEnabled(provider: ProviderId, on: boolean) {
+    const { settings } = this.store.getState();
+    const rest = settings.toolsOff.filter((p) => p !== provider);
+    this.saveSettings({
+      ...settings,
+      toolsOff: on ? rest : [...rest, provider],
+    });
+  }
+
+  /**
+   * Ask a question. The reply streams into the conversation; if the model
+   * calls tools, each runs, its result goes back, and the answer goes on.
+   */
   async send(text: string, source: string) {
     const question = text.trim();
     const state = this.store.getState();
@@ -214,20 +280,17 @@ export class AssistantController {
     const content = state.attachment
       ? withExcerpt(question, state.attachment)
       : question;
-    const history: ChatMessage[] = [
-      ...state.messages,
-      { role: 'user', content },
-    ];
+    const tools = this.toolsEnabled(provider) ? this.deps.tools! : null;
+    const definitions = tools?.definitions() ?? [];
     const system = systemPrompt(
-      state.mayRead ? { name: state.documentName, source } : null
+      state.mayRead ? { name: state.documentName, source } : null,
+      !!tools
     );
     const abort = new AbortController();
     this.abort = abort;
-    let reply = '';
-    const show = () =>
-      this.store.setState({
-        messages: [...history, { role: 'assistant', content: reply }],
-      });
+    let history: ChatMessage[] = [...state.messages, { role: 'user', content }];
+    const show = (extra: ChatMessage[] = []) =>
+      this.store.setState({ messages: [...history, ...extra] });
     this.store.setState({
       messages: history,
       streaming: true,
@@ -235,34 +298,96 @@ export class AssistantController {
       draft: '',
       attachment: null,
     });
+    let toolsRan = false;
+    let stopped = false;
+    let error = '';
+    // The reply arriving now, kept if it is cut off.
+    let live = '';
     try {
-      for await (const piece of streamChat(
-        provider,
-        buildChatRequest(cfg, system, history),
-        { fetch: this.deps.fetch, signal: abort.signal }
-      )) {
-        reply += piece;
+      for (let round = 0; ; round++) {
+        live = '';
+        const reply = await streamReply(
+          provider,
+          buildChatRequest(cfg, system, history, definitions),
+          { fetch: this.deps.fetch, signal: abort.signal },
+          (t) => {
+            live += t;
+            show([{ role: 'assistant', content: live }]);
+          }
+        );
+        history = [
+          ...history,
+          {
+            role: 'assistant',
+            content: reply.text,
+            ...(reply.toolCalls.length ? { toolCalls: reply.toolCalls } : {}),
+            ...(reply.blocks ? { blocks: reply.blocks } : {}),
+          },
+        ];
+        live = '';
         show();
+        if (!tools || !reply.toolCalls.length) break;
+        if (round >= MAX_ROUNDS) {
+          history = answerOpenCalls(history, 'Not run: too many rounds.');
+          history.push({
+            role: 'assistant',
+            content: `[Stopped after ${MAX_ROUNDS} rounds of tool calls.]`,
+          });
+          break;
+        }
+        for (const call of reply.toolCalls) {
+          if (abort.signal.aborted) break;
+          const result = await tools.run(call);
+          toolsRan = true;
+          history = [
+            ...history,
+            {
+              role: 'tool',
+              callId: call.id,
+              name: call.name,
+              content: result.content,
+              ...(result.isError ? { isError: true } : {}),
+            },
+          ];
+          show();
+        }
+        if (abort.signal.aborted) break;
       }
     } catch (e) {
-      if (!abort.signal.aborted) {
-        // Nothing (or only part) came back: keep the question for a retry.
-        this.store.setState({
-          messages: state.messages,
-          streaming: false,
-          error: e instanceof Error ? e.message : String(e),
-          draft: question,
-          attachment: state.attachment,
-        });
-        this.abort = null;
-        return;
-      }
+      if (!abort.signal.aborted)
+        error = e instanceof Error ? e.message : String(e);
     }
-    if (abort.signal.aborted)
-      reply = reply ? `${reply}\n\n[Stopped.]` : '[Stopped.]';
+    stopped = abort.signal.aborted;
     this.abort = null;
+    if (live) history = [...history, { role: 'assistant', content: live }];
+    if (error && !toolsRan) {
+      // Nothing was done: keep the question for a retry.
+      this.store.setState({
+        messages: state.messages,
+        streaming: false,
+        error: withHint(error),
+        draft: question,
+        attachment: state.attachment,
+      });
+      return;
+    }
+    history = answerOpenCalls(
+      history,
+      stopped ? 'Stopped before running.' : 'Not run.'
+    );
+    if (stopped) {
+      const last = history.at(-1)!;
+      if (last.role === 'assistant' && !last.toolCalls?.length)
+        history[history.length - 1] = {
+          ...last,
+          content: last.content
+            ? `${last.content}\n\n[Stopped.]`
+            : '[Stopped.]',
+        };
+      else history.push({ role: 'assistant', content: '[Stopped.]' });
+    }
     show();
-    this.store.setState({ streaming: false });
+    this.store.setState({ streaming: false, error: withHint(error) });
     if (
       this.store.getState().documentId === state.documentId &&
       state.documentId

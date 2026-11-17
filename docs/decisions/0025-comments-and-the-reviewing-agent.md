@@ -1,7 +1,7 @@
 # 0025: Comments, tools in the chat, and the reviewing agent
 
 Status: accepted (November 2026). Built in three PRs: comments (built),
-tools in the chat, the reviewing agent.
+tools in the chat (built), the reviewing agent.
 
 ## Context
 
@@ -63,6 +63,22 @@ That needs comments in the editor, which the app doesn't have.
     `write-notes`; Zotero's dialog says so.
 - A model without tool calling still chats; the pane says the tools are
   off for it.
+
+As built (`src/assistant/`): `reply.ts` assembles a streamed reply's text
+and tool calls for either API (Claude's content blocks, thinking and
+signatures included, are kept and sent back unchanged); the controller
+loops — stream, run each call, send the results — for at most 10 rounds,
+and Stop answers any call left open, so the history stays valid for the
+next request. `assistant-tools.ts` holds the tools: `document_read`
+(numbered lines), `comments_list`, `comment_add` (on an exact quote; an
+ambiguous one needs `occurrence`), `comment_reply`, `comment_resolve`
+(refused on the author's threads), and the plugin's `search_items`,
+`get_item` and `zettel_*`, their schemas taken from the plugin's own
+tool table. Without the author's permission the document and comment
+tools answer that they may not read it. Tools are on per provider
+(Assistant setup); the tool guide joins the fixed system prompt only
+when they are. A connection made with a read-only token gets Zotero's
+refusal turned into how to reconnect with write permission.
 
 ### 3. The reviewing agent
 

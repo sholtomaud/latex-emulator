@@ -90,6 +90,15 @@ export class AssistantSetupComponent extends BaseComponent {
       q<HTMLElement>('.provider-remember-text').textContent =
         `Remember ${rememberWhere(appVault.how)}`;
 
+      const toolsBox = q<HTMLInputElement>('.provider-tools');
+      toolsBox.setAttribute('aria-label', `Let ${info.name} use tools`);
+      toolsBox.title =
+        id === 'local'
+          ? 'llama.cpp needs --jinja and a model that calls tools (Qwen3, Llama 3.1+…)'
+          : 'Read the document (where allowed), work with comments, make zettels in Zotero';
+      toolsBox.addEventListener('change', () =>
+        assistant.setToolsEnabled(id, toolsBox.checked)
+      );
       use.addEventListener(
         'change',
         () => use.checked && assistant.setProvider(id)
@@ -143,6 +152,7 @@ export class AssistantSetupComponent extends BaseComponent {
           model.value = s.settings.models[id] ?? '';
         if (document.activeElement !== key) key.value = assistantKeys.get(id);
         remember.checked = assistantKeys.remembered(id);
+        toolsBox.checked = assistant.toolsEnabled(id);
       });
       host.append(row);
     }
