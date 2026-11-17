@@ -180,6 +180,8 @@ src/
 ├── assistant/                    # the writing assistant (ADR 0023): providers,
 │                                 #   streaming, keys, pane sizing (pure, tested),
 │                                 #   and its browser wiring
+├── comments/                     # comment threads (ADR 0025): anchors that follow
+│                                 #   edits, threads, the controller (pure, tested)
 ├── workspace/                    # documents: pure Workspace logic, names, and the
 │                                 #   browser wiring (autosave, import/export)
 ├── components/
@@ -191,9 +193,10 @@ src/
 │   ├── assistant-panel/          # the secondary side bar (Ctrl/⌘+Alt+B): the
 │   │                             #   assistant's chat, pinned or floating (ADR 0023)
 │   ├── assistant-setup/          # providers, keys and models (a side bar view)
+│   ├── comments-panel/           # the Comments view: threads, reply, resolve
 │   ├── document-explorer/        # the primary side bar (Ctrl/⌘+B): Explorer,
-│   │                             #   Versions, References, Storage and
-│   │                             #   Assistant setup views
+│   │                             #   Versions, References, Storage, Comments
+│   │                             #   and Assistant setup views
 │   ├── image-panel/              # the open document's images (in the explorer)
 │   ├── storage-panel/            # storage status, backup/restore (ADR 0019),
 │   │                             #   the document's folder (ADR 0015 B)
@@ -756,7 +759,10 @@ chosen branch.
     the document sent only where allowed.
     ✅ Insert a suggested block at the cursor (or over the selection) and
     ask about the selected lines (Ctrl/⌘+Shift+A).
-    Next: style rules, profiles, paragraph checks, audits, Z3.
+    ✅ Comments (ADR 0025): threads on a selection (Ctrl/⌘+Alt+M), their
+    own underline, kept in step with edits, in the browser and its
+    backups, never in the `.tex`. Next: tools in the chat, then the
+    reviewing agent (ADR 0025); style rules, profiles, audits, Z3.
 
 **Rule for every feature above:** the document stays standard LaTeX that
 compiles with pdflatex and the named CTAN packages. Browser conveniences

@@ -1,0 +1,135 @@
+/* The Comments view (ADR 0025). */
+:host {
+  display: block;
+}
+
+:host .comments {
+  padding: 0 0.75rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+:host .comments-title {
+  margin: 0.5rem 0 0.375rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--boba-text-muted);
+}
+
+:host .comments-empty {
+  margin: 0;
+  color: var(--boba-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+:host .comments-empty[hidden],
+:host .comment-draft[hidden],
+:host .thread-lost[hidden] {
+  display: none;
+}
+
+:host .comment-threads,
+:host .comment-messages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:host .comment-thread,
+:host .comment-draft {
+  margin-bottom: 0.5rem;
+  padding: 0.375rem 0.5rem 0.5rem;
+  border: 1px solid var(--boba-border);
+  border-left: 3px solid rgb(217 119 6);
+  border-radius: 0.25rem;
+}
+
+:host .comment-thread.focused {
+  background: rgb(245 158 11 / 0.08);
+}
+
+:host .comment-thread.resolved {
+  border-left-color: var(--boba-border);
+  opacity: 0.75;
+}
+
+:host .comment-quote {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-style: italic;
+  color: var(--boba-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+:host .comment-message {
+  margin: 0.25rem 0;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+:host .message-author {
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+:host .thread-lost {
+  margin: 0.25rem 0;
+  color: var(--boba-text-muted);
+  font-size: 0.75rem;
+}
+
+:host .comment-input {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.25rem;
+  resize: vertical;
+  font: inherit;
+  padding: 0.25rem 0.375rem;
+  border: 1px solid var(--boba-border);
+  border-radius: 0.25rem;
+  background: var(--boba-bg);
+  color: var(--boba-text);
+}
+
+:host .comment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+:host .comment-button {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--boba-border);
+  border-radius: 0.25rem;
+  background: var(--boba-bg);
+  color: var(--boba-text);
+  cursor: pointer;
+}
+
+:host .comment-button.primary {
+  border-color: var(--boba-accent);
+  background: var(--boba-accent);
+  color: #fff;
+}
+
+:host .comment-button:focus-visible,
+:host .comment-quote:focus-visible,
+:host .comment-input:focus-visible {
+  outline: 2px solid var(--boba-accent);
+  outline-offset: 1px;
+}

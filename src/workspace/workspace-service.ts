@@ -1,3 +1,4 @@
+import { comments, commentRecords } from '../comments/comments-service.ts';
 import { Workspace } from './workspace.ts';
 import { IndexedDbRepository } from '../storage/indexeddb-repository.ts';
 import { MemoryRepository } from '../storage/memory-repository.ts';
@@ -288,12 +289,15 @@ async function snapshot(repo: DocumentRepository): Promise<WorkspaceSnapshot> {
         bytes: new Uint8Array(await blob.blob.arrayBuffer()),
       });
   }
+  // Pending typing is saved first, so the backup has the latest anchors.
+  await comments.flush();
   return {
     documents,
     versions,
     bibFiles: await repo.listBibFiles(),
     images: entries.filter((e) => blobs.some((b) => b.sha256 === e.sha256)),
     blobs,
+    comments: await commentRecords.all(),
   };
 }
 
@@ -474,6 +478,7 @@ export const storageActions = {
           bibFiles: now.bibFiles,
           images: now.images,
           blobShas: new Set(now.blobs.map((b) => b.sha256)),
+          comments: now.comments,
           untouched: {
             documents: new Set(
               now.documents
@@ -498,7 +503,9 @@ export const storageActions = {
       for (const v of plan.versions) await repo.addVersion(v);
       for (const b of plan.bibFiles) await repo.putBibFile(b);
       for (const i of plan.images) await repo.putImage(i.entry, i.blob);
+      for (const c of plan.comments) await commentRecords.put(c);
       await reload();
+      await commentRecords.reload();
       return restoreSummary(plan);
     }),
 };

@@ -41,6 +41,7 @@ import {
 } from './latex-language.ts';
 import { fixesAt, toMarkers } from './markers.ts';
 import { createPositionMap, selectedLines } from './positions.ts';
+import { plainMarkdown } from './plain-markdown.ts';
 import { citeContextAt } from './cite-context.ts';
 import type { CitationServices } from './cite-services.ts';
 import { matchEntries } from '../references/cite-index.ts';
@@ -218,6 +219,27 @@ export interface EditorHooks {
   onSelection?: (selection: SelectedText | null) => void;
   /** "Ask the Assistant about the Selection" (Ctrl/⌘+Shift+A). */
   onAskAboutSelection?: (selection: SelectedText) => void;
+  /**
+   * The text changed: the edits in the old text's offsets, or `replaced`
+   * when it was set wholesale (another document opened).
+   */
+  onEdits?: (
+    edits: { offset: number; removed: number; inserted: number }[],
+    replaced: boolean
+  ) => void;
+  /** "Add Comment" (Ctrl/⌘+Alt+M) on the selection, in offsets. */
+  onAddComment?: (range: { start: number; end: number }) => void;
+  /** The caret moved to this offset. */
+  onCaret?: (offset: number) => void;
+}
+
+/** A comment thread to underline (ADR 0025). */
+export interface CommentMark {
+  start: number;
+  end: number;
+  /** Shown on hover, as plain text. */
+  hover: string;
+  focused: boolean;
 }
 
 export interface LatexEditor {
@@ -228,6 +250,10 @@ export interface LatexEditor {
   setReadOnly(readOnly: boolean): void;
   /** Insert at the cursor, replacing the selection; one undo step. */
   insert(text: string): void;
+  /** Underline these comment threads. */
+  setComments(marks: CommentMark[]): void;
+  /** Select a range and scroll it into view. */
+  reveal(range: { start: number; end: number }): void;
 }
 
 export function createLatexEditor(
@@ -258,7 +284,39 @@ export function createLatexEditor(
   });
   const model = editor.getModel()!;
   model.setEOL(monaco.editor.EndOfLineSequence.LF);
-  editor.onDidChangeModelContent(() => onChange(model.getValue()));
+  editor.onDidChangeModelContent((e) => {
+    hooks.onEdits?.(
+      e.changes.map((c) => ({
+        offset: c.rangeOffset,
+        removed: c.rangeLength,
+        inserted: c.text.length,
+      })),
+      e.isFlush
+    );
+    onChange(model.getValue());
+  });
+  editor.onDidChangeCursorPosition((e) =>
+    hooks.onCaret?.(model.getOffsetAt(e.position))
+  );
+  editor.addAction({
+    id: 'latex.addComment',
+    label: 'Add Comment',
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KeyM,
+    ],
+    precondition: 'editorHasSelection',
+    contextMenuGroupId: 'navigation',
+    contextMenuOrder: 1,
+    run: () => {
+      const sel = editor.getSelection();
+      if (!sel || sel.isEmpty()) return;
+      hooks.onAddComment?.({
+        start: model.getOffsetAt(sel.getStartPosition()),
+        end: model.getOffsetAt(sel.getEndPosition()),
+      });
+    },
+  });
+  const commentDecorations = editor.createDecorationsCollection();
 
   const selected = (): SelectedText | null => {
     const sel = editor.getSelection();
@@ -289,6 +347,40 @@ export function createLatexEditor(
     setValue: (v) => model.setValue(v),
     focus: () => editor.focus(),
     setReadOnly: (readOnly) => editor.updateOptions({ readOnly }),
+    setComments(marks) {
+      const range = (start: number, end: number) => {
+        const a = model.getPositionAt(start);
+        const b = model.getPositionAt(end);
+        return new monaco.Range(a.lineNumber, a.column, b.lineNumber, b.column);
+      };
+      commentDecorations.set(
+        marks.map((m) => ({
+          range: range(m.start, m.end),
+          options: {
+            inlineClassName: m.focused
+              ? 'latex-comment latex-comment-focused'
+              : 'latex-comment',
+            linesDecorationsClassName: 'latex-comment-gutter',
+            hoverMessage: { value: plainMarkdown(m.hover) },
+            stickiness:
+              monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+          },
+        }))
+      );
+    },
+    reveal({ start, end }) {
+      const a = model.getPositionAt(start);
+      const b = model.getPositionAt(end);
+      const r = new monaco.Range(
+        a.lineNumber,
+        a.column,
+        b.lineNumber,
+        b.column
+      );
+      editor.setSelection(r);
+      editor.revealRangeInCenterIfOutsideViewport(r);
+      editor.focus();
+    },
     insert(text) {
       if (editor.getOption(monaco.editor.EditorOption.readOnly)) return;
       const range = editor.getSelection() ?? model.getFullModelRange();

@@ -8,6 +8,8 @@ import type { LatexEditor } from '../../language/monaco.ts';
 import { citationServices } from '../../workspace/workspace-service.ts';
 import { editorBridge, editorRequests } from '../../store/editor-bridge.ts';
 import { askAboutSelection } from '../../assistant/assistant-service.ts';
+import { comments } from '../../comments/comments-service.ts';
+import type { CommentsState } from '../../comments/comments-controller.ts';
 import template from './latex-editor.html?raw';
 import style from './latex-editor.css?raw';
 
@@ -40,8 +42,53 @@ export class LatexEditorComponent extends BaseComponent {
       {
         onSelection: (selection) => editorBridge.setState({ selection }),
         onAskAboutSelection: askAboutSelection,
+        // Comments follow every edit (ADR 0025).
+        onEdits: (edits, replaced) => {
+          const source = this.editor?.getValue() ?? '';
+          if (replaced) comments.sourceReplaced(source);
+          else comments.applyEdits(edits, source);
+        },
+        onAddComment: (range) => {
+          comments.startComment(range);
+          uiStore.setState({ explorerOpen: true, sideView: 'comments' });
+        },
+        onCaret: (offset) => {
+          const at = comments.store
+            .getState()
+            .threads.find(
+              (t) =>
+                t.status === 'open' &&
+                t.anchor.start <= offset &&
+                offset <= t.anchor.end &&
+                !comments.isLost(t)
+            );
+          if (at && at.id !== comments.store.getState().focus)
+            comments.focus(at.id);
+        },
       }
     );
+    const showComments = ({ threads, focus }: CommentsState) =>
+      this.editor?.setComments(
+        threads
+          .filter((t) => t.status === 'open' && !comments.isLost(t))
+          .map((t) => ({
+            start: t.anchor.start,
+            end: t.anchor.end,
+            focused: t.id === focus,
+            hover: t.messages
+              .map(
+                (m) => `${m.author === 'you' ? 'You' : 'Assistant'}: ${m.text}`
+              )
+              .join('\n'),
+          }))
+      );
+    showComments(comments.store.getState());
+    comments.store.addEventListener('change', ((
+      e: CustomEvent<CommentsState>
+    ) => showComments(e.detail)) as EventListener);
+    editorRequests.addEventListener('reveal', ((
+      e: CustomEvent<{ start: number; end: number }>
+    ) => this.editor?.reveal(e.detail)) as EventListener);
     // The assistant's Insert (ADR 0023); refused while the tab is read-only.
     editorRequests.addEventListener('insert', ((e: CustomEvent<string>) => {
       if (!uiStore.getState().readOnly) this.editor?.insert(e.detail);

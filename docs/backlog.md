@@ -8,8 +8,11 @@ Update it in the same PR that starts, finishes or defers an item.
 ## In progress
 
 - The writing assistant (ADR 0023), taken ahead of the agreed order on
-  request: step 1 (the chat pane, setup and providers) is done; profiles
-  and the checks are next for it. Versions on disk is next otherwise.
+  request: step 1 (the chat pane, setup and providers) is done. Now
+  ADR 0025, in three PRs: ~~comments~~ (done), tools in the chat (the
+  zettel, document and comment tools), and the reviewing agent ("Review
+  as I write" on changed paragraphs, zettels into `zk/inbox`). Versions
+  on disk is next otherwise.
 - **Zotero plugin with Zettelkasten tools** (ADR 0024), taken ahead of
   versions on disk and local style rules at the maintainer's request
   (November 2026). Phase 1 is done: the plugin (MCP on Zotero's port,
